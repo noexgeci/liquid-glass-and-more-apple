@@ -31,6 +31,9 @@ page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
 await page.goto(url);
 await page.waitForTimeout(500);
 
+// Waits for a condition instead of sleeping a fixed time (robust on slow CI).
+const until = (fn, arg) => page.waitForFunction(fn, arg, { timeout: 3000 }).then(() => true, () => false);
+
 let failed = 0;
 const check = (name, ok, extra = '') => {
   console.log(`${ok ? '✓' : '✗'} ${name}${extra ? ' — ' + extra : ''}`);
@@ -90,39 +93,32 @@ check('tab bar selects', await page.locator('.lg-tab').nth(2).evaluate((el) => e
 
 // Menu
 await page.click('#open-menu');
-await page.waitForTimeout(300);
-check('menu opens', await page.locator('#menu').evaluate((el) => !el.hidden && el.classList.contains('is-open')));
+check('menu opens', await until(() => { const el = document.getElementById('menu'); return !el.hidden && el.classList.contains('is-open'); }));
 await page.locator('#menu .lg-menu-item').nth(1).click();
-await page.waitForTimeout(300);
-check('menu selects and closes', (await page.evaluate(() => window.__menu)) === 'share' && (await page.locator('#menu').evaluate((el) => el.hidden)));
+check('menu selects and closes', await until(() => window.__menu === 'share' && document.getElementById('menu').hidden));
 
 // Context menu
 await page.click('#ctx', { button: 'right' });
-await page.waitForTimeout(300);
-check('context menu opens', await page.locator('#menu').evaluate((el) => el.classList.contains('is-open')));
+check('context menu opens', await until(() => document.getElementById('menu').classList.contains('is-open')));
 await page.keyboard.press('Escape');
-await page.waitForTimeout(300);
+await until(() => document.getElementById('menu').hidden);
 
 // Sheet
 await page.click('#open-sheet');
-await page.waitForTimeout(600);
-check('sheet opens', await page.locator('#sheet').evaluate((el) => el.classList.contains('is-open') && el.getBoundingClientRect().height > 100));
+check('sheet opens', await until(() => { const el = document.getElementById('sheet'); return el.classList.contains('is-open') && el.getBoundingClientRect().height > 100; }));
+await page.waitForTimeout(500);
 await page.locator('#sheet [data-lg-dismiss]').click();
-await page.waitForTimeout(600);
-check('sheet closes', await page.locator('#sheet').evaluate((el) => el.hidden));
+check('sheet closes', await until(() => document.getElementById('sheet').hidden));
 
 // Alert
 await page.click('#open-alert');
-await page.waitForTimeout(400);
-check('alert shows', (await page.locator('.lg-alert.is-open').count()) === 1);
+check('alert shows', await until(() => document.querySelectorAll('.lg-alert.is-open').length === 1));
 await page.keyboard.press('Escape');
-await page.waitForTimeout(400);
-check('alert resolves with cancel on Escape', (await page.evaluate(() => window.__alert)) === 'Cancel');
+check('alert resolves with cancel on Escape', await until(() => window.__alert === 'Cancel'));
 
 // Toast
 await page.click('#open-toast');
-await page.waitForTimeout(400);
-check('toast shows', (await page.locator('.lg-toast.is-open').count()) === 1);
+check('toast shows', await until(() => document.querySelectorAll('.lg-toast.is-open').length === 1));
 
 // Page control
 await page.locator('.lg-page-control button').nth(3).click();
@@ -133,8 +129,7 @@ await page.click('#toggle');
 check('toggle button flips aria-pressed', (await page.getAttribute('#toggle', 'aria-pressed')) === 'true');
 await page.mouse.move(0, 0);
 await page.hover('#toggle');
-await page.waitForTimeout(900);
-check('tooltip appears on hover', await page.evaluate(() => { const t = document.querySelector('.lg-tooltip'); return !!t && t.classList.contains('is-open') && t.textContent === 'Tooltip text'; }));
+check('tooltip appears on hover', await until(() => { const t = document.querySelector('.lg-tooltip'); return !!t && t.classList.contains('is-open') && t.textContent === 'Tooltip text'; }));
 await page.mouse.move(0, 0);
 await page.click('#disc summary');
 check('disclosure opens', await page.evaluate(() => document.getElementById('disc').open));
