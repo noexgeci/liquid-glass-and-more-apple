@@ -223,6 +223,22 @@ export const Button = forwardRef(function Button(
   );
 });
 
+/** Button that toggles (aria-pressed); shows the HIG tinted highlight while on. */
+export const ToggleButton = forwardRef(function ToggleButton({ pressed, defaultPressed = false, onPressedChange, onClick, ...rest }, ref) {
+  const [on, setOn] = useControllable(pressed, defaultPressed, onPressedChange);
+  return (
+    <Button
+      ref={ref}
+      aria-pressed={on}
+      onClick={(e) => {
+        if (onClick) onClick(e);
+        if (!e.defaultPrevented) setOn(!on);
+      }}
+      {...rest}
+    />
+  );
+});
+
 export const ButtonGroup = forwardRef(function ButtonGroup({ className, children, height, style, ...rest }, ref) {
   const local = useMergedRef(ref);
   useLiquidGlass(local);
@@ -412,7 +428,39 @@ export const Checkbox = forwardRef(function Checkbox({ className, ...rest }, ref
   return <input ref={ref} type="checkbox" className={cx('lg-checkbox', className)} {...rest} />;
 });
 
+/** Native <select> with Apple pop-up button styling. */
+export const Select = forwardRef(function Select({ plain, className, children, ...rest }, ref) {
+  return (
+    <select ref={ref} className={cx('lg-select', plain && 'lg-select--plain', className)} {...rest}>
+      {children}
+    </select>
+  );
+});
+
+/** Expandable section (<details>) with the iOS disclosure chevron. */
+export function Disclosure({ title, open, defaultOpen, onOpenChange, className, children, ...rest }) {
+  const controlled = open !== undefined;
+  return (
+    <details
+      className={cx('lg-disclosure', className)}
+      open={controlled ? open : defaultOpen}
+      onToggle={(e) => onOpenChange && onOpenChange(e.currentTarget.open)}
+      {...rest}
+    >
+      <summary>{title}</summary>
+      <div className="lg-disclosure-content">{children}</div>
+    </details>
+  );
+}
+
+/** Content-layer card (standard material look, not Liquid Glass). */
+export function Card({ as: Tag = 'div', className, ...rest }) {
+  return <Tag className={cx('lg-card', className)} {...rest} />;
+}
+
 /* ==========================================================================
+   Navigation
+   ========================================================================== *//* ==========================================================================
    Navigation
    ========================================================================== */
 

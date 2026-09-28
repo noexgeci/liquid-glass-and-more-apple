@@ -128,6 +128,17 @@ check('toast shows', (await page.locator('.lg-toast.is-open').count()) === 1);
 await page.locator('.lg-page-control button').nth(3).click();
 check('page control selects', (await page.locator('.lg-page-control').getAttribute('data-index')) === '3');
 
+// Toggle button + tooltip + disclosure
+await page.click('#toggle');
+check('toggle button flips aria-pressed', (await page.getAttribute('#toggle', 'aria-pressed')) === 'true');
+await page.mouse.move(0, 0);
+await page.hover('#toggle');
+await page.waitForTimeout(900);
+check('tooltip appears on hover', await page.evaluate(() => { const t = document.querySelector('.lg-tooltip'); return !!t && t.classList.contains('is-open') && t.textContent === 'Tooltip text'; }));
+await page.mouse.move(0, 0);
+await page.click('#disc summary');
+check('disclosure opens', await page.evaluate(() => document.getElementById('disc').open));
+
 // Destroy/enhance round trip
 const leaked = await page.evaluate(() => {
   const el = document.querySelector('.lg-segmented');

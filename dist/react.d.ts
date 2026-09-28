@@ -83,6 +83,25 @@ export interface ButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonE
 }
 export declare const Button: React.ForwardRefExoticComponent<ButtonProps & React.RefAttributes<HTMLElement>>;
 
+export interface ToggleButtonProps extends ButtonProps {
+  pressed?: boolean;
+  defaultPressed?: boolean;
+  onPressedChange?: (pressed: boolean) => void;
+}
+export declare const ToggleButton: React.ForwardRefExoticComponent<ToggleButtonProps & React.RefAttributes<HTMLElement>>;
+
+export declare const Select: React.ForwardRefExoticComponent<
+  React.SelectHTMLAttributes<HTMLSelectElement> & { plain?: boolean } & React.RefAttributes<HTMLSelectElement>
+>;
+export interface DisclosureProps extends Omit<React.DetailsHTMLAttributes<HTMLDetailsElement>, 'title'> {
+  title: React.ReactNode;
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+export declare function Disclosure(props: DisclosureProps): React.ReactElement;
+export declare function Card(props: React.HTMLAttributes<HTMLElement> & { as?: React.ElementType }): React.ReactElement;
+
 export declare const ButtonGroup: React.ForwardRefExoticComponent<DivProps & { height?: number } & React.RefAttributes<HTMLDivElement>>;
 
 type InputBase = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'defaultValue' | 'size' | 'type' | 'checked' | 'defaultChecked'>;
