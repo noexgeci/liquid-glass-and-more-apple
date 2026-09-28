@@ -1279,15 +1279,35 @@ textarea.lg-textfield { height: auto; min-height: 88px; padding: 11px 14px; resi
 }
 .lg-globalnav-brand {
   display: flex;
+  flex: none;
   align-items: center;
   gap: 8px;
   margin-right: auto;
+  white-space: nowrap;
   font: var(--lg-weight-semibold) 17px/1 var(--lg-font);
   letter-spacing: -0.43px;
   color: var(--lg-label);
   text-decoration: none;
 }
-.lg-globalnav-links { display: flex; align-items: center; gap: 2px; }
+.lg-globalnav-links {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.lg-globalnav-links::-webkit-scrollbar { display: none; }
+.lg-globalnav-bar > .lg-button { flex: none; }
+@media (max-width: 640px) {
+  .lg-globalnav { padding-inline: 8px; }
+  .lg-globalnav-bar { padding-left: 14px; gap: 6px; }
+  .lg-globalnav-links {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 14px, #000 calc(100% - 14px), transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 14px, #000 calc(100% - 14px), transparent);
+  }
+}
 .lg-globalnav-links a {
   display: flex;
   align-items: center;
@@ -1298,6 +1318,7 @@ textarea.lg-textfield { height: auto; min-height: 88px; padding: 11px 14px; resi
   letter-spacing: -0.12px;
   color: var(--lg-label);
   text-decoration: none;
+  white-space: nowrap;
   opacity: 0.8;
   transition: opacity 150ms ease, background-color 150ms ease;
 }

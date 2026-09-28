@@ -14,7 +14,7 @@
   .lg-globalnav { position: fixed; left: 0; right: 0; }
   body { margin: 0; overflow-x: hidden; }
   .wrap { width: min(1080px, 100% - 32px); margin-inline: auto; }
-  section.block { padding-block: 72px 24px; content-visibility: auto; contain-intrinsic-size: auto 900px; }
+  section.block { padding-block: 72px 56px; content-visibility: auto; contain-intrinsic-size: auto 900px; }
   .eyebrow { font: var(--lg-weight-semibold) 13px/18px var(--lg-font); letter-spacing: 0.4px; text-transform: uppercase; color: var(--lg-accent); margin: 0 0 8px; }
   .h2 { margin: 0 0 10px; font: var(--lg-weight-bold) clamp(32px, 5vw, 48px)/1.08 var(--lg-font-display); letter-spacing: -0.02em; text-wrap: balance; }
   .lede { margin: 0 0 28px; max-width: 62ch; font: 400 19px/1.45 var(--lg-font); letter-spacing: -0.2px; color: var(--lg-label-secondary); text-wrap: pretty; }
@@ -223,7 +223,7 @@
     <div class="stage-type" aria-hidden="true">Glass</div>
     <div class="grid-3">
       <div class="mat lg-glass"><h3>Regular</h3><p>Homályosít és kiegyenlíti a fényerőt. A legtöbb vezérlő, sáv és dialógus ezt használja.</p></div>
-      <div class="mat lg-glass lg-glass--clear"><h3>Clear</h3><p>Szinte teljesen átlátszó. Fotók és videók fölé, ahol a tartalom a lényeg.</p></div>
+      <div class="mat lg-glass lg-glass--clear lg-glass--dimmed"><h3>Clear</h3><p>Szinte teljesen átlátszó, fotók és videók fölé. Világos tartalom fölött 35%-os sötétítéssel, ahogy a HIG előírja.</p></div>
       <div class="mat lg-glass lg-glass--prominent" style="--lg-tint: var(--lg-indigo)"><h3>Tinted</h3><p>Színezett üveg a fő műveletekhez, mint a Kész gomb.</p></div>
     </div>
     <div class="row" style="margin-top: 20px">
@@ -321,7 +321,7 @@
 </section>
 
 <!-- ================= Devices ================= -->
-<section class="block wrap" id="eszkozok" style="contain-intrinsic-size: auto 1700px">
+<section class="block wrap" id="eszkozok" style="contain-intrinsic-size: auto 1700px; padding-bottom: 110px">
   <p class="eyebrow">iPhone és Mac</p>
   <h2 class="h2">Navigáció, ami a tartalom fölött lebeg.</h2>
   <p class="lede">Görgesd a telefonokat: a navigációs sáv nagy címe beúszik, a tab bar összecsukódik, a tartalom átlátszik alattuk. Húzd végig az ujjad a tab baron, és egy lencse követi.</p>
