@@ -544,6 +544,8 @@
 }
 
 [data-lg-icon] { display: contents; }
+/* SF Symbols "backward"/"forward" glyphs follow the reading direction */
+svg[data-lg-directional]:dir(rtl) { transform: scaleX(-1); }
 
 .lg-button svg,
 .lg-button img { width: 1.15em; height: 1.15em; flex: none; }
@@ -719,7 +721,7 @@
   border-radius: var(--lg-radius-full);
   background-color: rgb(255 255 255);
   pointer-events: none;
-  transform: translateX(var(--_x)) scale(var(--_sx, 1), var(--_sy, 1));
+  transform: translateX(calc(var(--_x) * var(--_dir, 1))) scale(var(--_sx, 1), var(--_sy, 1));
   transition:
     transform var(--lg-dur-bouncy) var(--lg-ease-bouncy),
     background-color 200ms ease;
@@ -740,7 +742,7 @@
 .lg-switch:has(input:checked) .lg-switch-thumb { --_x: calc(var(--_w) - var(--_tw) - var(--_pad) * 2); }
 .lg-switch.is-pressed .lg-switch-thumb,
 .lg-switch:active .lg-switch-thumb {
-  transform: translateX(var(--_x)) scale(var(--_sx, 1.42), var(--_sy, 1.5));
+  transform: translateX(calc(var(--_x) * var(--_dir, 1))) scale(var(--_sx, 1.42), var(--_sy, 1.5));
   background-color: rgb(255 255 255 / 0.12);
   -webkit-backdrop-filter: blur(0.5px) saturate(1.6) brightness(1.08);
   backdrop-filter: blur(0.5px) saturate(1.6) brightness(1.08);
@@ -752,6 +754,9 @@
 .lg-switch:has(input:focus-visible) { outline: 3px solid var(--lg-focus-ring); outline-offset: 2px; }
 .lg-switch:has(input:disabled) { opacity: 0.5; cursor: default; }
 .lg-switch--small { --_w: 51px; --_h: 24px; --_tw: 30px; --_th: 20px; }
+/* Right-to-left: "on" is on the left, as in iOS (the core mirrors drags too) */
+.lg-switch:dir(rtl) { --_dir: -1; }
+.lg-switch:dir(rtl) .lg-switch-thumb { left: auto; right: var(--_pad); }
 
 /* --- Slider (6 pt track, 38×24 capsule thumb, glass lens while dragging) --- */
 .lg-slider {
@@ -854,6 +859,10 @@
 .lg-slider.is-active .lg-slider-thumb.lg-refractive { backdrop-filter: var(--lg-refract); }
 .lg-slider:has(input:focus-visible) .lg-slider-thumb { outline: 3px solid var(--lg-focus-ring); outline-offset: 2px; }
 .lg-slider:has(input:disabled) { opacity: 0.5; }
+
+/* Right-to-left: minimum on the right, like the native range */
+.lg-slider:dir(rtl) .lg-slider-fill { inset: 0 0 0 auto; }
+.lg-slider:dir(rtl) .lg-slider-thumb { left: calc((100% - var(--_tw)) * (1 - var(--_ratio, 0.5))); }
 
 /* No-JS fallback: style the native range directly */
 .lg-slider:not(.is-ready) input[type="range"] { opacity: 1; accent-color: var(--_fill); }
@@ -2297,4 +2306,112 @@ dialog.lg-sheet::backdrop { background: transparent; }
     --lg-dur-smooth: 180ms;
   }
   .lg-spinner { animation-duration: 1.6s; }
+}
+
+/*
+ * Windows High Contrast / forced colors: the system replaces backgrounds and
+ * drops shadows, so glass rims and state fills would vanish. Surfaces get an
+ * opaque Canvas with a CanvasText outline; state-carrying parts keep their
+ * geometry and use Highlight for "on".
+ */
+@media (forced-colors: active) {
+  .lg-glass,
+  .lg-glass-surface,
+  .lg-alert,
+  .lg-action-sheet,
+  .lg-sheet,
+  .lg-menu,
+  .lg-popover,
+  .lg-toast,
+  .lg-tooltip,
+  .lg-card,
+  .lg-segmented,
+  .lg-stepper,
+  .lg-picker {
+    background-color: Canvas;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    outline: 1px solid CanvasText;
+    outline-offset: -1px;
+  }
+  .lg-glass::after,
+  .lg-glass-surface::after,
+  .lg-glass-rim::after { display: none; }
+  .lg-button { outline: 1px solid ButtonText; outline-offset: -1px; }
+  .lg-button:focus-visible,
+  .lg-alert-button:focus-visible { outline: 3px solid Highlight; outline-offset: 2px; }
+  .lg-alert-button { border: 1px solid ButtonText; }
+
+  .lg-switch,
+  .lg-slider-track,
+  .lg-segmented-indicator,
+  .lg-tabbar-lens,
+  .lg-checkbox,
+  .lg-progress,
+  .lg-ring,
+  .lg-page-control > button::before,
+  .lg-picker::before { forced-color-adjust: none; }
+
+  .lg-switch { background-color: Canvas; outline: 1px solid ButtonText; }
+  .lg-switch:has(input:checked) { background-color: Highlight; outline-color: Highlight; }
+  .lg-switch-thumb { background-color: ButtonText !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+  .lg-switch:has(input:checked) .lg-switch-thumb { background-color: HighlightText !important; }
+  .lg-switch:has(input:focus-visible) { outline: 3px solid CanvasText; }
+
+  .lg-slider-track { background: Canvas; outline: 1px solid CanvasText; }
+  .lg-slider-fill { background: Highlight; }
+  .lg-slider-thumb { forced-color-adjust: none; background: ButtonText !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+  .lg-slider-ticks > i { background: CanvasText; }
+
+  .lg-segmented-indicator,
+  .lg-tabbar-lens { background: transparent !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; outline: 2px solid Highlight; outline-offset: -2px; }
+  .lg-segmented > label:has(input:checked),
+  .lg-tab.is-selected { color: Highlight; }
+
+  .lg-checkbox { background: Canvas; outline: 1px solid CanvasText; }
+  .lg-checkbox:checked { background-color: Highlight; outline-color: Highlight; }
+
+  .lg-progress { background: Canvas; color: Highlight; outline: 1px solid CanvasText; }
+  .lg-progress::-webkit-progress-bar { background: Canvas; }
+  .lg-ring { background: conic-gradient(Highlight calc(var(--lg-value, 0) * 360deg), GrayText 0); }
+  .lg-page-control > button::before { background: CanvasText; }
+  .lg-page-control > button[aria-current="true"]::before,
+  .lg-page-control > button.is-selected::before { background: Highlight; }
+  .lg-picker::before { background: transparent; outline: 1px solid Highlight; }
+
+  .lg-textfield,
+  .lg-search { outline: 1px solid CanvasText; outline-offset: -1px; }
+  .lg-textfield:focus-visible,
+  .lg-search:focus-within,
+  .lg-picker-column:focus-visible { outline: 3px solid Highlight; outline-offset: 0; }
+  .lg-textfield[aria-invalid="true"],
+  .lg-textfield:user-invalid { outline: 2px dashed CanvasText; }
+
+  .lg-overlay { background: rgb(0 0 0 / 0.4); forced-color-adjust: none; }
+}
+
+/* Print: flat, ink-friendly surfaces; transient layers are not printed. */
+@media print {
+  .lg-glass,
+  .lg-glass-surface,
+  .lg-button,
+  .lg-card {
+    background: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+    border: 0.5pt solid #999;
+  }
+  .lg-glass::after,
+  .lg-glass-surface::after,
+  .lg-glass-rim::after { display: none; }
+  .lg-overlay,
+  .lg-toasts,
+  .lg-tooltip,
+  .lg-menu,
+  .lg-popover,
+  .lg-tabbar,
+  .lg-globalnav { display: none !important; }
+  .lg-navbar,
+  .lg-toolbar { position: static !important; }
 }

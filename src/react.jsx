@@ -34,6 +34,7 @@ import {
   registerIcons,
   hasIcon,
   isRegisteredIcon,
+  isDirectional,
   sfAliases,
 } from './core.js';
 
@@ -152,6 +153,7 @@ export function Icon({ name, size = 24, strokeWidth = 1.9, label, className, sty
       role={label ? 'img' : undefined}
       aria-label={label}
       aria-hidden={label ? undefined : true}
+      data-lg-directional={isDirectional(name) ? '' : undefined}
       dangerouslySetInnerHTML={{ __html: body.replace(/ data-fill=""/g, ' fill="currentColor" stroke="none"') }}
       {...rest}
     />

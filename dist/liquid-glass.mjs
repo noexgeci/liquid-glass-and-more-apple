@@ -97,6 +97,10 @@ var icons = {
 var sfAliases = {
   "chevron.left": "chevron-left",
   "chevron.right": "chevron-right",
+  "chevron.backward": "chevron-left",
+  "chevron.forward": "chevron-right",
+  "arrow.backward": "arrow-left",
+  "arrow.forward": "arrow-right",
   "chevron.up": "chevron-up",
   "chevron.down": "chevron-down",
   "arrow.left": "arrow-left",
@@ -218,10 +222,12 @@ function sizeSvg(svg, size, className, a11y) {
     return `<svg${cleaned} width="${size}" height="${size}"${fill}${className ? ` class="${className}"` : ""} ${a11y}>`;
   });
 }
+var isDirectional = (name) => /\.(backward|forward)(\.|$)/.test(String(name));
 function icon(name, options = {}) {
   const size = options.size || 24;
   const label = options.label;
-  const a11y = label ? `role="img" aria-label="${String(label).replace(/"/g, "&quot;")}"` : 'aria-hidden="true"';
+  let a11y = label ? `role="img" aria-label="${String(label).replace(/"/g, "&quot;")}"` : 'aria-hidden="true"';
+  if (isDirectional(name)) a11y += ' data-lg-directional=""';
   const own = findRegistered(name);
   if (own) {
     if (/^<svg/i.test(own)) return sizeSvg(own, size, options.className, a11y);
@@ -255,6 +261,13 @@ function configure(options) {
 var isBrowser = () => typeof window !== "undefined" && typeof document !== "undefined";
 function clamp(v, min, max) {
   return v < min ? min : v > max ? max : v;
+}
+function isRtl(el) {
+  try {
+    return el.matches(":dir(rtl)");
+  } catch (_) {
+    return false;
+  }
 }
 function $(sel, root) {
   if (!sel || !isBrowser()) return null;
@@ -831,6 +844,7 @@ function initSwitch(el) {
   let moved = false;
   let x = 0;
   let travel = 0;
+  let dir = 1;
   let pressedAt = 0;
   let suppressClick = false;
   const stretch = makeStretch(thumb, 1.42, 1.5);
@@ -841,7 +855,8 @@ function initSwitch(el) {
     startOn = input.checked;
     moved = false;
     pressedAt = performance.now();
-    const pad = thumb.offsetLeft;
+    dir = isRtl(el) ? -1 : 1;
+    const pad = dir === 1 ? thumb.offsetLeft : el.clientWidth - thumb.offsetLeft - thumb.offsetWidth;
     travel = el.clientWidth - thumb.offsetWidth - pad * 2;
     x = startOn ? travel : 0;
     el.classList.add("is-pressed");
@@ -859,7 +874,7 @@ function initSwitch(el) {
       el.classList.add("is-dragging");
     }
     if (moved) {
-      x = clamp((startOn ? travel : 0) + dx, 0, travel);
+      x = clamp((startOn ? travel : 0) + dx * dir, 0, travel);
       thumb.style.setProperty("--_x", x + "px");
       stretch.move(e.clientX);
     }
@@ -1588,7 +1603,7 @@ function placePanel(panel, anchor, placement, point) {
   const g = anchor ? gap : 2;
   const below = placement !== "top" && (ar.bottom + g + ph <= vh - margin || ar.top - g - ph < margin);
   const top = clamp(below ? ar.bottom + g : ar.top - g - ph, margin, Math.max(margin, vh - ph - margin));
-  const alignEnd = ar.left + pw > vw - margin && ar.right - pw >= margin;
+  const alignEnd = isRtl(anchor || panel) ? !(ar.right - pw < margin && ar.left + pw <= vw - margin) : ar.left + pw > vw - margin && ar.right - pw >= margin;
   const left = clamp(alignEnd ? ar.right - pw : ar.left, margin, Math.max(margin, vw - pw - margin));
   panel.style.left = Math.round(left) + "px";
   panel.style.top = Math.round(top) + "px";
@@ -2460,6 +2475,7 @@ export {
   iconNames,
   icons,
   init,
+  isDirectional,
   isRegisteredIcon,
   isStarted,
   menu,

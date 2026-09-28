@@ -383,7 +383,11 @@ A felugró elemek (alert, action sheet, sheet, menü, popover, értesítés, sú
 
 - Natív `input` elemek maradnak alatta (billentyűzet, képernyőolvasó, űrlapok működnek).
 - `prefers-reduced-transparency` → átlátszatlan üveg, `prefers-reduced-motion` → rugók helyett rövid átmenet, `prefers-contrast: more` → HIG nagy kontrasztú színek.
-- Fókuszgyűrű mindenhol, fókuszcsapda a dialógusokban, Escape bezár, nyilakkal navigálható menü.
+- Fókuszgyűrű mindenhol, fókuszcsapda a dialógusokban, Escape mindig a legfelső réteget zárja, nyilakkal navigálható menü.
+- Windows nagy kontrasztú mód (`forced-colors`): átlátszatlan felületek rendszerszínű kerettel, a kapcsolók, csúszkák, szegmensek és jelzők állapota `Highlight` színnel látszik.
+- Jobbról balra írás (`dir="rtl"`, arab, héber): a kapcsoló, a csúszka és a menük tükröződnek, ahogy iOS-en; az SF Symbols `…backward` / `…forward` ikonjai (`chevron.backward`) megfordulnak, a `chevron.left` nem.
+- A súgócímke billentyűzetfókuszra is megjelenik, és a saját `aria-describedby` értékedhez adódik hozzá.
+- Nyomtatáskor lapos, tintatakarékos felületek; menük, értesítések és lebegő sávok nem kerülnek papírra.
 
 ## Fejlesztés
 
