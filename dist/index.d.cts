@@ -253,7 +253,7 @@ export declare function sheet(target: Element | string): SheetController | null;
 declare global {
   interface Window {
     /** Present when the script-tag build (`dist/liquid-glass.js`) is loaded. */
-    LiquidGlass?: typeof import('./index.js');
+    LiquidGlass?: typeof import('./index.cjs');
     /** Read by the script-tag build before it starts. */
     LiquidGlassConfig?: LiquidGlassConfig;
   }

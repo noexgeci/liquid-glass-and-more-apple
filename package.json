@@ -28,24 +28,49 @@
   "main": "./dist/liquid-glass.cjs",
   "module": "./dist/liquid-glass.mjs",
   "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "react": [
+        "./dist/react.d.ts"
+      ],
+      "auto": [
+        "./dist/auto.d.ts"
+      ]
+    }
+  },
   "style": "./dist/liquid-glass.css",
   "unpkg": "./dist/liquid-glass.min.js",
   "jsdelivr": "./dist/liquid-glass.min.js",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/liquid-glass.mjs",
-      "require": "./dist/liquid-glass.cjs"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/liquid-glass.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/liquid-glass.cjs"
+      }
     },
     "./auto": {
-      "types": "./dist/auto.d.ts",
-      "import": "./dist/auto.mjs",
-      "require": "./dist/auto.cjs"
+      "import": {
+        "types": "./dist/auto.d.ts",
+        "default": "./dist/auto.mjs"
+      },
+      "require": {
+        "types": "./dist/auto.d.cts",
+        "default": "./dist/auto.cjs"
+      }
     },
     "./react": {
-      "types": "./dist/react.d.ts",
-      "import": "./dist/react.mjs",
-      "require": "./dist/react.cjs"
+      "import": {
+        "types": "./dist/react.d.ts",
+        "default": "./dist/react.mjs"
+      },
+      "require": {
+        "types": "./dist/react.d.cts",
+        "default": "./dist/react.cjs"
+      }
     },
     "./css": "./dist/liquid-glass.css",
     "./min.css": "./dist/liquid-glass.min.css",
@@ -71,8 +96,8 @@
     "build": "node scripts/build.mjs",
     "dev": "node scripts/build.mjs --watch",
     "serve": "npx --yes serve -l 3000 .",
-    "test": "node scripts/build.mjs && tsc -p tests/types && node tests/smoke.mjs && node tests/react-smoke.mjs",
-    "typecheck": "tsc -p tests/types"
+    "test": "node scripts/build.mjs && tsc -p tests/types && tsc -p tests/types-node && node tests/smoke.mjs && node tests/react-smoke.mjs",
+    "typecheck": "tsc -p tests/types && tsc -p tests/types-node"
   },
   "peerDependencies": {
     "react": ">=17",

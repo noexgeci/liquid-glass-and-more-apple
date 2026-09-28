@@ -2,7 +2,7 @@
 //   node scripts/build.mjs          one-off build
 //   node scripts/build.mjs --watch  rebuild on change
 import { build, context } from 'esbuild';
-import { readFile, writeFile, mkdir, copyFile, rm } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, rm } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
@@ -87,8 +87,16 @@ async function extras() {
     r('dist/auto.cjs'),
     `${banner}\n'use strict';\nconst lg = require('./liquid-glass.cjs');\nif (typeof window !== 'undefined') lg.start();\nmodule.exports = lg;\n`
   );
-  for (const f of ['index.d.ts', 'react.d.ts']) await copyFile(r('types', f), r('dist', f));
-  await copyFile(r('types/index.d.ts'), r('dist/auto.d.ts'));
+  // Types: ESM (.d.ts) and CommonJS (.d.cts) flavors, so `import` and
+  // `require` consumers under node16/nodenext each get matching declarations.
+  const cts = (t) => t.replace(/'\.\/index\.js'/g, "'./index.cjs'");
+  for (const name of ['index', 'react']) {
+    const t = await readFile(r('types', name + '.d.ts'), 'utf8');
+    await writeFile(r('dist', name + '.d.ts'), t);
+    await writeFile(r('dist', name + '.d.cts'), cts(t));
+  }
+  await writeFile(r('dist/auto.d.ts'), "export * from './index.js';\n");
+  await writeFile(r('dist/auto.d.cts'), "export * from './index.cjs';\n");
 }
 
 if (watch) {

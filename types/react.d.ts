@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { LiquidGlassConfig, Theme } from './index';
+import type { LiquidGlassConfig, Theme } from './index.js';
 
 export {
   alert,
@@ -21,9 +21,9 @@ export {
   hasIcon,
   isRegisteredIcon,
   sfAliases,
-} from './index';
-export type { IconName } from './index';
-export type { AlertOptions, AlertAction, ToastOptions, MenuItemSpec, SheetController, RefractionOptions, Theme } from './index';
+} from './index.js';
+export type { IconName } from './index.js';
+export type { AlertOptions, AlertAction, ToastOptions, MenuItemSpec, SheetController, RefractionOptions, Theme } from './index.js';
 
 type SystemColor = 'red' | 'orange' | 'yellow' | 'green' | 'mint' | 'teal' | 'cyan' | 'blue' | 'indigo' | 'purple' | 'pink' | 'brown' | 'gray';
 /** A system color name or any CSS color. */
@@ -33,7 +33,7 @@ type DivProps = React.HTMLAttributes<HTMLDivElement>;
 
 export interface IconProps extends Omit<React.SVGProps<SVGSVGElement>, 'name'> {
   /** Built-in name or SF Symbols name ("magnifyingglass", "chevron.left"). */
-  name: import('./index').IconName | (string & {});
+  name: import('./index.js').IconName | (string & {});
   size?: number;
   strokeWidth?: number;
   /** Accessible label; without it the icon is decorative (aria-hidden). */
