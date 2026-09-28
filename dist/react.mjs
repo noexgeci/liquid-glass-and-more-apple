@@ -428,6 +428,53 @@ function PickerColumn({ items, value, defaultValue, onValueChange, label, grow, 
     }
   );
 }
+function isoDay(v) {
+  if (v == null || v === "") return void 0;
+  if (v instanceof Date) {
+    if (isNaN(v)) return void 0;
+    const p = (n) => (n < 10 ? "0" : "") + n;
+    return v.getFullYear() + "-" + p(v.getMonth() + 1) + "-" + p(v.getDate());
+  }
+  return String(v).slice(0, 10);
+}
+function useDateField(kind, props, ref) {
+  const { value, defaultValue, onValueChange, min, max, locale, firstDayOfWeek, name, className, ...rest } = props;
+  const [local, setRef] = useMergedRef(ref);
+  const [v, setV] = useControllable(value === null ? "" : isoDay(value), isoDay(defaultValue), onValueChange);
+  useLiquidGlass(local);
+  const setRefV = useRef(setV);
+  setRefV.current = setV;
+  useEffect(() => {
+    const el = local.current;
+    if (!el) return void 0;
+    const on = (e) => {
+      if (e.target === el) setRefV.current(e.detail.value);
+    };
+    el.addEventListener("lg-change", on);
+    return () => el.removeEventListener("lg-change", on);
+  }, []);
+  useEffect(() => {
+    const el = local.current;
+    if (el && value !== void 0 && (el.getAttribute("data-value") || "") !== (v || "")) coreSelect(el, v || "");
+  });
+  return {
+    ref: setRef,
+    className: cx(kind, className),
+    "data-value": v || void 0,
+    "data-min": isoDay(min),
+    "data-max": isoDay(max),
+    "data-locale": locale,
+    "data-first-day": firstDayOfWeek,
+    "data-name": name,
+    ...rest
+  };
+}
+var Calendar = forwardRef(function Calendar2(props, ref) {
+  return /* @__PURE__ */ jsx("div", { ...useDateField("lg-calendar", props, ref) });
+});
+var DatePicker = forwardRef(function DatePicker2({ placeholder, ...props }, ref) {
+  return /* @__PURE__ */ jsx("div", { ...useDateField("lg-date-picker", props, ref), "data-placeholder": placeholder });
+});
 var NavigationBar = forwardRef(function NavigationBar2({ title, large, leading, trailing, scrollTarget, threshold, edge, adaptive, className, children, ...rest }, ref) {
   const [local, setRef] = useMergedRef(ref);
   useLiquidGlass(local);
@@ -781,8 +828,10 @@ export {
   Badge,
   Button,
   ButtonGroup,
+  Calendar,
   Card,
   Checkbox,
+  DatePicker,
   Disclosure,
   Glass,
   GlobalNav,

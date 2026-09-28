@@ -72,6 +72,8 @@ import {
   Icon,
   Picker,
   PickerColumn,
+  Calendar,
+  DatePicker,
 } from 'liquid-glass-kit/react';
 
 async function vanilla() {
@@ -84,6 +86,7 @@ async function vanilla() {
   destroy(document.body);
   refresh('.lg-segmented');
   select('.lg-tabbar', 1);
+  select('#cal', '2026-10-01');
   const choice = await alert({ title: 'T', actions: [{ label: 'OK', prominent: true }, { label: 'Cancel', role: 'cancel' }] });
   const picked = await actionSheet({ actions: [{ label: 'Delete', role: 'destructive' }] });
   const t = toast({ title: 'Hi', icon: icon('magnifyingglass'), duration: 0 });
@@ -202,3 +205,15 @@ function App() {
 }
 
 export { vanilla, App };
+
+// Date pickers
+export function Dates() {
+  const [d, setD] = useState<string>('2026-09-28');
+  return (
+    <>
+      <Calendar value={d} onValueChange={setD} min="2026-01-01" max={new Date(2027, 0, 1)} locale="hu-HU" firstDayOfWeek={1} name="date" aria-label="Date" />
+      <DatePicker defaultValue={new Date()} placeholder="Pick a day" onValueChange={(v: string) => v.length} />
+      <Calendar value={null} />
+    </>
+  );
+}

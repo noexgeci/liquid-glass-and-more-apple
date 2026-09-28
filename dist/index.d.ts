@@ -145,8 +145,11 @@ export declare function init<T extends Element | Document>(root?: T | string): T
 export declare function enhance(el: Element | string): () => void;
 /** Undoes `init`/`enhance` for an element and its descendants. */
 export declare function destroy(root: Element | string): void;
-/** Programmatically selects an item of a segmented control, tab bar or page control. */
-export declare function select(el: Element | string, index: number): void;
+/**
+ * Selects an item of a segmented control, tab bar, page control or wheel
+ * column by index, or a day of a calendar / date picker by `YYYY-MM-DD`.
+ */
+export declare function select(el: Element | string, index: number | string): void;
 /** Re-measures an enhanced component after external layout changes. */
 export declare function refresh(el: Element | string): void;
 

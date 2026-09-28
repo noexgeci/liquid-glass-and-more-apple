@@ -1383,6 +1383,481 @@ function initPickerColumn(col) {
     onCleanup(col, () => ro.disconnect());
   }
 }
+var pad2 = (n) => (n < 10 ? "0" : "") + n;
+var isoOf = (p) => p.y + "-" + pad2(p.m + 1) + "-" + pad2(p.d);
+var dayKey = (p) => p.y * 1e4 + p.m * 100 + p.d;
+var monthKey = (p) => p.y * 12 + p.m;
+var daysIn = (y, m) => new Date(y, m + 1, 0).getDate();
+var fromDate = (dt) => ({ y: dt.getFullYear(), m: dt.getMonth(), d: dt.getDate() });
+function parseDay(v) {
+  if (v instanceof Date) return isNaN(v) ? null : fromDate(v);
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(v == null ? "" : v));
+  if (!m) return null;
+  const y = +m[1];
+  const mo = clamp(+m[2] - 1, 0, 11);
+  return { y, m: mo, d: clamp(+m[3], 1, daysIn(y, mo)) };
+}
+function localeOf(el) {
+  const own = el.closest("[data-locale]");
+  let loc = own && own.getAttribute("data-locale");
+  if (!loc) {
+    const l = el.closest("[lang]");
+    loc = l && l.getAttribute("lang") || typeof navigator !== "undefined" && navigator.language || "en-US";
+  }
+  try {
+    new Intl.DateTimeFormat(loc);
+    return loc;
+  } catch (_) {
+    return "en-US";
+  }
+}
+function firstDayOf(loc, el) {
+  const own = el.getAttribute("data-first-day");
+  if (own != null && own !== "" && !isNaN(own)) return (parseInt(own, 10) % 7 + 7) % 7;
+  try {
+    const L = new Intl.Locale(loc);
+    const info = typeof L.getWeekInfo === "function" && L.getWeekInfo() || L.weekInfo;
+    if (info && info.firstDay) return info.firstDay % 7;
+    const region = L.maximize().region;
+    if (/^(US|CA|MX|BR|JP|KR|TW|HK|MO|IL|PH|IN|ZA|SA|TH|ID|PK|PE|CO|VE)$/.test(region)) return 0;
+  } catch (_) {
+  }
+  return 1;
+}
+function calendarText(loc) {
+  const out = { prev: "Previous month", next: "Next month" };
+  try {
+    const rel = new Intl.RelativeTimeFormat(loc, { numeric: "auto" });
+    out.prev = rel.format(-1, "month");
+    out.next = rel.format(1, "month");
+    out.prev = out.prev.charAt(0).toLocaleUpperCase(loc) + out.prev.slice(1);
+    out.next = out.next.charAt(0).toLocaleUpperCase(loc) + out.next.slice(1);
+  } catch (_) {
+  }
+  return out;
+}
+function initCalendar(el) {
+  if (!claim(el, "calendar")) return;
+  const loc = localeOf(el);
+  const first = firstDayOf(loc, el);
+  const fmtTitle = new Intl.DateTimeFormat(loc, { month: "long", year: "numeric" });
+  const fmtFull = new Intl.DateTimeFormat(loc, { dateStyle: "full" });
+  const fmtNum = new Intl.NumberFormat(loc, { useGrouping: false });
+  const fmtWeekShort = new Intl.DateTimeFormat(loc, { weekday: "short" });
+  const fmtWeekLong = new Intl.DateTimeFormat(loc, { weekday: "long" });
+  const fmtMonth = new Intl.DateTimeFormat(loc, { month: "long" });
+  const text = calendarText(loc);
+  const today = () => fromDate(/* @__PURE__ */ new Date());
+  const lo = () => parseDay(el.getAttribute("data-min"));
+  const hi = () => parseDay(el.getAttribute("data-max"));
+  const inRange = (p) => {
+    const a = lo();
+    const b = hi();
+    return !(a && dayKey(p) < dayKey(a) || b && dayKey(p) > dayKey(b));
+  };
+  const clampDay = (p) => {
+    const a = lo();
+    const b = hi();
+    if (a && dayKey(p) < dayKey(a)) return a;
+    if (b && dayKey(p) > dayKey(b)) return b;
+    return p;
+  };
+  let value = parseDay(el.getAttribute("data-value"));
+  let focus = clampDay(value || today());
+  let view = { y: focus.y, m: focus.m };
+  if (!el.hasAttribute("role")) el.setAttribute("role", "group");
+  const id = el.id || "lg-cal-" + ++uid;
+  const header = inject(el, create("div", "lg-calendar-header"));
+  const title = create("button", "lg-calendar-title", { type: "button", id: id + "-title", "aria-expanded": "false" });
+  const titleText = create("span", "lg-calendar-title-text", { "aria-live": "polite" });
+  title.appendChild(titleText);
+  title.insertAdjacentHTML("beforeend", icon("chevron.forward", { size: 14, strokeWidth: 2.8 }));
+  const nav = create("div", "lg-calendar-nav");
+  const prev = create("button", "lg-calendar-prev", { type: "button", "aria-label": el.getAttribute("data-prev-label") || text.prev });
+  const next = create("button", "lg-calendar-next", { type: "button", "aria-label": el.getAttribute("data-next-label") || text.next });
+  prev.innerHTML = icon("chevron.backward", { size: 22, strokeWidth: 2.4 });
+  next.innerHTML = icon("chevron.forward", { size: 22, strokeWidth: 2.4 });
+  nav.appendChild(prev);
+  nav.appendChild(next);
+  header.appendChild(title);
+  header.appendChild(nav);
+  const body = inject(el, create("div", "lg-calendar-body"));
+  const grid = create("div", "lg-calendar-grid", { role: "grid", "aria-labelledby": id + "-title" });
+  const week = create("div", "lg-calendar-weekdays", { role: "row" });
+  for (let i = 0; i < 7; i++) {
+    const dt = new Date(2023, 0, 1 + (first + i) % 7);
+    const h = create("span", null, { role: "columnheader", "aria-label": fmtWeekLong.format(dt) });
+    h.textContent = fmtWeekShort.format(dt).replace(/\.$/, "");
+    week.appendChild(h);
+  }
+  const days = create("div", "lg-calendar-days", { role: "rowgroup" });
+  grid.appendChild(week);
+  grid.appendChild(days);
+  body.appendChild(grid);
+  let hidden = null;
+  if (el.hasAttribute("data-name")) {
+    hidden = inject(el, create("input", null, { type: "hidden", name: el.getAttribute("data-name") }));
+    hidden.value = value ? isoOf(value) : "";
+  }
+  const cellFor = (p) => days.querySelector('[data-date="' + isoOf(p) + '"]');
+  const setRoving = (p) => {
+    for (const c2 of days.querySelectorAll('[tabindex="0"]')) c2.tabIndex = -1;
+    const c = cellFor(p);
+    if (c) c.tabIndex = 0;
+    return c;
+  };
+  const render = (dir) => {
+    const hadFocus = days.contains(document.activeElement);
+    titleText.textContent = fmtTitle.format(new Date(view.y, view.m, 1));
+    const offset = (new Date(view.y, view.m, 1).getDay() - first + 7) % 7;
+    const n = daysIn(view.y, view.m);
+    const t = today();
+    const frag = document.createDocumentFragment();
+    let d = 1 - offset;
+    for (let r = 0; r < 6; r++) {
+      const row = create("div", "lg-calendar-row", { role: "row" });
+      for (let c = 0; c < 7; c++, d++) {
+        if (d < 1 || d > n) {
+          row.appendChild(create("span", "lg-calendar-day is-empty", { role: "gridcell" }));
+          continue;
+        }
+        const p = { y: view.y, m: view.m, d };
+        const b2 = create("button", "lg-calendar-day", {
+          type: "button",
+          role: "gridcell",
+          tabindex: "-1",
+          "data-date": isoOf(p),
+          "aria-label": fmtFull.format(new Date(p.y, p.m, p.d))
+        });
+        b2.textContent = fmtNum.format(d);
+        b2.setAttribute("aria-selected", value && dayKey(value) === dayKey(p) ? "true" : "false");
+        if (dayKey(t) === dayKey(p)) b2.setAttribute("aria-current", "date");
+        if (!inRange(p)) b2.setAttribute("aria-disabled", "true");
+        row.appendChild(b2);
+      }
+      frag.appendChild(row);
+    }
+    days.replaceChildren(frag);
+    if (focus.y !== view.y || focus.m !== view.m) focus = clampDay({ y: view.y, m: view.m, d: Math.min(focus.d, n) });
+    const cell = setRoving(focus);
+    if (hadFocus && cell) cell.focus({ preventScroll: true });
+    const a = lo();
+    const b = hi();
+    prev.disabled = !!(a && monthKey(view) <= monthKey(a));
+    next.disabled = !!(b && monthKey(view) >= monthKey(b));
+    if (dir && days.animate && !prefersReducedMotion()) {
+      const x = dir * (isRtl(el) ? -1 : 1) * 28;
+      days.animate([{ transform: "translateX(" + x + "px)", opacity: 0 }, { transform: "none", opacity: 1 }], {
+        duration: 340,
+        easing: "cubic-bezier(0.2, 0.9, 0.25, 1)"
+      });
+    }
+  };
+  const showMonth = (y, m, dir) => {
+    const target = { y: y + Math.floor(m / 12), m: (m % 12 + 12) % 12 };
+    const a = lo();
+    const b = hi();
+    if (a && monthKey(target) < monthKey(a)) return false;
+    if (b && monthKey(target) > monthKey(b)) return false;
+    if (monthKey(target) === monthKey(view)) return false;
+    if (dir === void 0) dir = Math.sign(monthKey(target) - monthKey(view));
+    view = target;
+    render(dir);
+    emit(el, "lg-month", { year: view.y, month: view.m + 1 });
+    return true;
+  };
+  const setValue = (p, fromUser) => {
+    value = p;
+    const iso = p ? isoOf(p) : "";
+    if (p) el.setAttribute("data-value", iso);
+    else el.removeAttribute("data-value");
+    if (hidden) hidden.value = iso;
+    for (const c2 of days.querySelectorAll('.lg-calendar-day[aria-selected="true"]')) c2.setAttribute("aria-selected", "false");
+    const c = p && cellFor(p);
+    if (c) {
+      c.setAttribute("aria-selected", "true");
+      if (fromUser) {
+        c.classList.remove("is-picked");
+        void c.offsetWidth;
+        c.classList.add("is-picked");
+      }
+    }
+    if (fromUser) emit(el, "lg-change", { value: iso, date: p ? new Date(p.y, p.m, p.d) : null });
+  };
+  const moveFocus = (p) => {
+    p = clampDay(p);
+    focus = p;
+    const dir = Math.sign(monthKey(p) - monthKey(view));
+    if (dir) {
+      view = { y: p.y, m: p.m };
+      render(dir);
+      emit(el, "lg-month", { year: view.y, month: view.m + 1 });
+    }
+    const c = setRoving(p);
+    if (c) c.focus({ preventScroll: true });
+  };
+  listen(el, prev, "click", () => showMonth(view.y, view.m - 1, -1));
+  listen(el, next, "click", () => showMonth(view.y, view.m + 1, 1));
+  let dragMoved = false;
+  listen(el, days, "click", (e) => {
+    const c = e.target.closest(".lg-calendar-day[data-date]");
+    if (!c || dragMoved || c.getAttribute("aria-disabled") === "true") return;
+    const p = parseDay(c.getAttribute("data-date"));
+    focus = p;
+    setRoving(p);
+    setValue(p, true);
+  });
+  listen(el, days, "keydown", (e) => {
+    const c = e.target.closest(".lg-calendar-day[data-date]");
+    if (!c) return;
+    const p = parseDay(c.getAttribute("data-date"));
+    const rtl = isRtl(el);
+    const col = (new Date(p.y, p.m, p.d).getDay() - first + 7) % 7;
+    let delta = 0;
+    let months = 0;
+    switch (e.key) {
+      case "ArrowLeft":
+        delta = rtl ? 1 : -1;
+        break;
+      case "ArrowRight":
+        delta = rtl ? -1 : 1;
+        break;
+      case "ArrowUp":
+        delta = -7;
+        break;
+      case "ArrowDown":
+        delta = 7;
+        break;
+      case "Home":
+        delta = -col;
+        break;
+      case "End":
+        delta = 6 - col;
+        break;
+      case "PageUp":
+        months = e.shiftKey ? -12 : -1;
+        break;
+      case "PageDown":
+        months = e.shiftKey ? 12 : 1;
+        break;
+      default:
+        return;
+    }
+    e.preventDefault();
+    if (months) {
+      const mm = p.m + months;
+      const y = p.y + Math.floor(mm / 12);
+      const m = (mm % 12 + 12) % 12;
+      moveFocus({ y, m, d: Math.min(p.d, daysIn(y, m)) });
+    } else {
+      moveFocus(fromDate(new Date(p.y, p.m, p.d + delta)));
+    }
+  });
+  let drag = null;
+  listen(el, days, "pointerdown", (e) => {
+    if (e.button > 0 || el.classList.contains("is-choosing")) return;
+    drag = { id: e.pointerId, x: e.clientX, y: e.clientY, dx: 0, on: false };
+    dragMoved = false;
+  });
+  listen(el, days, "pointermove", (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    drag.dx = e.clientX - drag.x;
+    if (!drag.on) {
+      if (Math.abs(drag.dx) < 10 || Math.abs(drag.dx) < Math.abs(e.clientY - drag.y)) return;
+      drag.on = true;
+      dragMoved = true;
+      try {
+        days.setPointerCapture(e.pointerId);
+      } catch (_) {
+      }
+    }
+    days.style.transform = "translateX(" + drag.dx * 0.6 + "px)";
+    days.style.opacity = String(1 - Math.min(Math.abs(drag.dx) / 400, 0.4));
+  });
+  const endDrag = (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const d = drag;
+    drag = null;
+    days.style.transform = "";
+    days.style.opacity = "";
+    if (!d.on) return;
+    setTimeout(() => dragMoved = false, 0);
+    const dir = (d.dx < 0 ? 1 : -1) * (isRtl(el) ? -1 : 1);
+    if (Math.abs(d.dx) > 40 && showMonth(view.y, view.m + dir, dir)) return;
+    if (days.animate && !prefersReducedMotion()) {
+      days.animate([{ transform: "translateX(" + d.dx * 0.6 + "px)" }, { transform: "none" }], { duration: 300, easing: "cubic-bezier(0.2, 0.9, 0.25, 1)" });
+    }
+  };
+  listen(el, days, "pointerup", endDrag);
+  listen(el, days, "pointercancel", endDrag);
+  let chooser = null;
+  const closeChooser = () => {
+    if (!chooser) return;
+    destroy(chooser);
+    chooser.remove();
+    chooser = null;
+  };
+  const toggleChooser = (open) => {
+    open = open === void 0 ? !el.classList.contains("is-choosing") : open;
+    ownClass(el, "is-choosing", open);
+    title.setAttribute("aria-expanded", String(open));
+    if (!open) {
+      closeChooser();
+      render(0);
+      return;
+    }
+    closeChooser();
+    const a = lo();
+    const b = hi();
+    const y0 = a ? a.y : view.y - 100;
+    const y1 = b ? b.y : view.y + 100;
+    chooser = create("div", "lg-picker lg-calendar-chooser");
+    const months = create("div", "lg-picker-column lg-picker-column--grow", { "aria-label": el.getAttribute("data-month-label") || "Month", "data-value": String(view.m) });
+    for (let i = 0; i < 12; i++) {
+      const it = create("div", "lg-picker-item", { "data-value": String(i) });
+      it.textContent = fmtMonth.format(new Date(2023, i, 1));
+      months.appendChild(it);
+    }
+    const years = create("div", "lg-picker-column", { "aria-label": el.getAttribute("data-year-label") || "Year", "data-value": String(view.y) });
+    for (let y = y0; y <= y1; y++) {
+      const it = create("div", "lg-picker-item", { "data-value": String(y) });
+      it.textContent = fmtNum.format(y);
+      years.appendChild(it);
+    }
+    chooser.appendChild(months);
+    chooser.appendChild(years);
+    body.appendChild(chooser);
+    chooser.addEventListener("lg-change", (e) => {
+      e.stopPropagation();
+      let t = { y: +years.getAttribute("data-value"), m: +months.getAttribute("data-value") };
+      if (a && monthKey(t) < monthKey(a)) t = { y: a.y, m: a.m };
+      if (b && monthKey(t) > monthKey(b)) t = { y: b.y, m: b.m };
+      view = t;
+      titleText.textContent = fmtTitle.format(new Date(view.y, view.m, 1));
+    });
+    init(chooser);
+    months.focus({ preventScroll: true });
+  };
+  listen(el, title, "click", () => toggleChooser());
+  listen(el, el, "keydown", (e) => {
+    if (e.key === "Escape" && el.classList.contains("is-choosing")) {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleChooser(false);
+      title.focus();
+    }
+  });
+  onCleanup(el, () => {
+    closeChooser();
+    ownClass(el, "is-choosing", false);
+  });
+  if (typeof MutationObserver !== "undefined") {
+    let range = el.getAttribute("data-min") + "|" + el.getAttribute("data-max");
+    const mo = new MutationObserver(() => {
+      const v = parseDay(el.getAttribute("data-value"));
+      const nextRange = el.getAttribute("data-min") + "|" + el.getAttribute("data-max");
+      const changed = (v ? isoOf(v) : "") !== (value ? isoOf(value) : "");
+      if (!changed && nextRange === range) return;
+      range = nextRange;
+      if (changed) {
+        value = v;
+        if (hidden) hidden.value = v ? isoOf(v) : "";
+        if (v) {
+          focus = v;
+          view = { y: v.y, m: v.m };
+        }
+      }
+      render(0);
+    });
+    mo.observe(el, { attributes: true, attributeFilter: ["data-value", "data-min", "data-max"] });
+    onCleanup(el, () => mo.disconnect());
+  }
+  state(el).select = (v) => {
+    const p = parseDay(v);
+    setValue(p, false);
+    if (p) {
+      focus = p;
+      if (monthKey(p) !== monthKey(view)) {
+        view = { y: p.y, m: p.m };
+        render(0);
+      } else setRoving(p);
+    }
+  };
+  state(el).refresh = () => render(0);
+  state(el).focusDay = () => {
+    const c = days.querySelector('[tabindex="0"]');
+    if (c) c.focus({ preventScroll: true });
+  };
+  render(0);
+}
+function initDatePicker(el) {
+  if (!claim(el, "datepicker")) return;
+  const loc = localeOf(el);
+  const fmt = new Intl.DateTimeFormat(loc, { dateStyle: "medium" });
+  const btn = inject(el, create("button", "lg-date-picker-button", { type: "button", "aria-haspopup": "dialog", "aria-expanded": "false" }));
+  const label = el.getAttribute("aria-label");
+  if (label) btn.setAttribute("aria-label", label);
+  const pop = inject(el, create("div", "lg-popover lg-date-popover", { role: "dialog", "aria-label": label || "" }));
+  pop.hidden = true;
+  const cal = create("div", "lg-calendar");
+  for (const a of ["data-value", "data-min", "data-max", "data-locale", "data-first-day", "data-prev-label", "data-next-label", "data-month-label", "data-year-label"]) {
+    if (el.hasAttribute(a)) cal.setAttribute(a, el.getAttribute(a));
+  }
+  pop.appendChild(cal);
+  let hidden = null;
+  if (el.hasAttribute("data-name")) {
+    hidden = inject(el, create("input", null, { type: "hidden", name: el.getAttribute("data-name") }));
+  }
+  const sync = () => {
+    const p = parseDay(el.getAttribute("data-value"));
+    const t = p ? fmt.format(new Date(p.y, p.m, p.d)) : el.getAttribute("data-placeholder") || "\u2014";
+    btn.textContent = t;
+    if (label) btn.setAttribute("aria-label", label + ", " + t);
+    if (hidden) hidden.value = p ? isoOf(p) : "";
+  };
+  sync();
+  initCalendar(cal);
+  listen(el, btn, "click", () => {
+    if (btn.disabled) return;
+    const wasOpen = !pop.hidden && pop.classList.contains("is-open");
+    openPopover(pop, btn);
+    if (!wasOpen && btn.matches(":focus-visible")) requestAnimationFrame(() => state(cal).focusDay());
+  });
+  listen(el, pop, "lg-open", () => ownClass(el, "is-open", true));
+  listen(el, pop, "lg-close", () => ownClass(el, "is-open", false));
+  listen(el, cal, "lg-change", (e) => {
+    e.stopPropagation();
+    el.setAttribute("data-value", e.detail.value);
+    sync();
+    emit(el, "lg-change", e.detail);
+    setTimeout(() => {
+      closePopover(false, pop);
+      btn.focus({ preventScroll: true });
+    }, 180);
+  });
+  listen(el, cal, "lg-month", (e) => e.stopPropagation());
+  if (typeof MutationObserver !== "undefined") {
+    const mo = new MutationObserver(() => {
+      for (const a of ["data-value", "data-min", "data-max"]) {
+        const v = el.getAttribute(a);
+        if (v == null) cal.removeAttribute(a);
+        else if (cal.getAttribute(a) !== v) cal.setAttribute(a, v);
+      }
+      sync();
+    });
+    mo.observe(el, { attributes: true, attributeFilter: ["data-value", "data-min", "data-max", "data-placeholder"] });
+    onCleanup(el, () => mo.disconnect());
+  }
+  onCleanup(el, () => {
+    closePopover(true, pop);
+    destroy(cal);
+  });
+  state(el).select = (v) => {
+    const p = parseDay(v);
+    if (p) el.setAttribute("data-value", isoOf(p));
+    else el.removeAttribute("data-value");
+  };
+}
 var adaptive = /* @__PURE__ */ new Set();
 var adaptFrame = 0;
 function parseColors(str) {
@@ -2334,7 +2809,9 @@ var COMPONENTS = [
   [".lg-spinner", initSpinner],
   ["[data-lg-icon]", initIcon],
   ["[data-lg-adaptive]", initAdaptive],
-  [".lg-picker-column", initPickerColumn]
+  [".lg-picker-column", initPickerColumn],
+  [".lg-calendar", initCalendar],
+  [".lg-date-picker", initDatePicker]
 ];
 function initGlass(el) {
   if (el.classList.contains("lg-button")) {

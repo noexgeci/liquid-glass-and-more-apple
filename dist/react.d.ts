@@ -118,6 +118,30 @@ export interface PickerColumnProps<V = string | number> extends Omit<DivProps, '
 }
 export declare function PickerColumn<V = string | number>(props: PickerColumnProps<V>): React.ReactElement;
 
+/** A calendar day as `YYYY-MM-DD`; Date objects are accepted and read as local days. */
+export type DateValue = string | Date;
+export interface CalendarProps extends Omit<DivProps, 'defaultValue' | 'onChange'> {
+  /** Selected day (`YYYY-MM-DD`); `null` or `''` for none. */
+  value?: DateValue | null;
+  defaultValue?: DateValue;
+  /** Called with the picked day as `YYYY-MM-DD`. */
+  onValueChange?: (value: string) => void;
+  min?: DateValue;
+  max?: DateValue;
+  /** BCP 47 locale for month and weekday names; defaults to the nearest `lang`. */
+  locale?: string;
+  /** 0 = Sunday … 6 = Saturday; defaults to the locale's first day of the week. */
+  firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  /** Adds a hidden input with this name for form submission. */
+  name?: string;
+}
+export declare const Calendar: React.ForwardRefExoticComponent<CalendarProps & React.RefAttributes<HTMLDivElement>>;
+export interface DatePickerProps extends CalendarProps {
+  /** Text on the capsule while no day is picked. */
+  placeholder?: string;
+}
+export declare const DatePicker: React.ForwardRefExoticComponent<DatePickerProps & React.RefAttributes<HTMLDivElement>>;
+
 export declare const ButtonGroup: React.ForwardRefExoticComponent<DivProps & { height?: number } & React.RefAttributes<HTMLDivElement>>;
 
 type InputBase = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'defaultValue' | 'size' | 'type' | 'checked' | 'defaultChecked'>;
