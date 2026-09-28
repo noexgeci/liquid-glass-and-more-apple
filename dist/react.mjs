@@ -116,7 +116,7 @@ function LiquidGlassProvider({ children, theme, refraction, dynamicLight }) {
   return children === void 0 ? null : children;
 }
 var GLASS_VARIANTS = { regular: "", clear: "lg-glass--clear", tinted: "lg-glass--tinted", prominent: "lg-glass--prominent", thick: "lg-glass--thick", opaque: "lg-glass--opaque", dimmed: "lg-glass--dimmed" };
-var Glass = forwardRef(function Glass2({ as: Tag = "div", variant = "regular", shape, tint, interactive, flat, bezel, depth, magnify, className, style, children, ...rest }, ref) {
+var Glass = forwardRef(function Glass2({ as: Tag = "div", variant = "regular", shape, tint, interactive, flat, adaptive, bezel, depth, magnify, className, style, children, ...rest }, ref) {
   const local = useMergedRef(ref);
   useLiquidGlass(local);
   return /* @__PURE__ */ jsx(
@@ -136,6 +136,7 @@ var Glass = forwardRef(function Glass2({ as: Tag = "div", variant = "regular", s
       "data-lg-bezel": bezel,
       "data-lg-depth": depth,
       "data-lg-magnify": magnify,
+      "data-lg-adaptive": adaptive ? "" : void 0,
       ...rest,
       children
     }
@@ -358,7 +359,7 @@ function Disclosure({ title, open, defaultOpen, onOpenChange, className, childre
 function Card({ as: Tag = "div", className, ...rest }) {
   return /* @__PURE__ */ jsx(Tag, { className: cx("lg-card", className), ...rest });
 }
-var NavigationBar = forwardRef(function NavigationBar2({ title, large, leading, trailing, scrollTarget, threshold, edge, className, children, ...rest }, ref) {
+var NavigationBar = forwardRef(function NavigationBar2({ title, large, leading, trailing, scrollTarget, threshold, edge, adaptive, className, children, ...rest }, ref) {
   const local = useMergedRef(ref);
   useLiquidGlass(local);
   return /* @__PURE__ */ jsxs(
@@ -368,6 +369,7 @@ var NavigationBar = forwardRef(function NavigationBar2({ title, large, leading, 
       className: cx("lg-navbar", large && "lg-navbar--large", edge && "lg-navbar--edge", className),
       "data-lg-scroll": scrollTarget,
       "data-lg-threshold": threshold,
+      "data-lg-adaptive": adaptive ? "" : void 0,
       ...rest,
       children: [
         /* @__PURE__ */ jsx("div", { className: "lg-navbar-leading", children: leading }),
@@ -387,7 +389,7 @@ function Toolbar({ position = "bottom", className, ...rest }) {
 function Spacer() {
   return /* @__PURE__ */ jsx("span", { className: "lg-spacer" });
 }
-var TabBar = forwardRef(function TabBar2({ items, value, defaultValue, onValueChange, search, onSearch, searchLabel = "Search", action, minimizeOnScroll, position = "fixed", tint, className, style, "aria-label": ariaLabel = "Tabs", ...rest }, ref) {
+var TabBar = forwardRef(function TabBar2({ items, value, defaultValue, onValueChange, search, onSearch, searchLabel = "Search", action, minimizeOnScroll, adaptive, position = "fixed", tint, className, style, "aria-label": ariaLabel = "Tabs", ...rest }, ref) {
   const local = useMergedRef(ref);
   const list = items || [];
   const [v, setV] = useControllable(value, defaultValue !== void 0 ? defaultValue : list[0] && list[0].value, onValueChange);
@@ -415,6 +417,7 @@ var TabBar = forwardRef(function TabBar2({ items, value, defaultValue, onValueCh
       className: cx("lg-tabbar", position === "absolute" && "lg-tabbar--absolute", position === "static" && "lg-tabbar--static", className),
       style: tintStyle(tint, style, "--lg-tabbar-tint"),
       "data-lg-minimize-on-scroll": minimizeAttr,
+      "data-lg-adaptive": adaptive ? "" : void 0,
       ...rest,
       children: [
         /* @__PURE__ */ jsxs("div", { className: "lg-tabbar-tabs lg-glass", children: [

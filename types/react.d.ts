@@ -58,6 +58,8 @@ export interface GlassProps extends DivProps {
   tint?: Tint;
   interactive?: boolean;
   flat?: boolean;
+  /** Switch light/dark appearance with the content underneath (like iOS bars). */
+  adaptive?: boolean;
   bezel?: number;
   depth?: number;
   magnify?: number;
@@ -189,6 +191,8 @@ export interface NavigationBarProps extends Omit<React.HTMLAttributes<HTMLElemen
   threshold?: number;
   /** Always show the scroll edge effect. */
   edge?: boolean;
+  /** Switch light/dark appearance with the content underneath. */
+  adaptive?: boolean;
 }
 export declare const NavigationBar: React.ForwardRefExoticComponent<NavigationBarProps & React.RefAttributes<HTMLElement>>;
 export declare function LargeTitle(props: React.HTMLAttributes<HTMLHeadingElement> & { as?: React.ElementType }): React.ReactElement;
@@ -217,6 +221,8 @@ export interface TabBarProps<V = string> extends Omit<React.HTMLAttributes<HTMLE
   minimizeOnScroll?: boolean | string;
   position?: 'fixed' | 'absolute' | 'static';
   tint?: Tint;
+  /** Switch light/dark appearance with the content underneath. */
+  adaptive?: boolean;
 }
 export declare const TabBar: <V = string>(props: TabBarProps<V> & React.RefAttributes<HTMLElement>) => React.ReactElement;
 

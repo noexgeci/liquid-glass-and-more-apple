@@ -154,7 +154,7 @@ export function LiquidGlassProvider({ children, theme, refraction, dynamicLight 
 const GLASS_VARIANTS = { regular: '', clear: 'lg-glass--clear', tinted: 'lg-glass--tinted', prominent: 'lg-glass--prominent', thick: 'lg-glass--thick', opaque: 'lg-glass--opaque', dimmed: 'lg-glass--dimmed' };
 
 export const Glass = forwardRef(function Glass(
-  { as: Tag = 'div', variant = 'regular', shape, tint, interactive, flat, bezel, depth, magnify, className, style, children, ...rest },
+  { as: Tag = 'div', variant = 'regular', shape, tint, interactive, flat, adaptive, bezel, depth, magnify, className, style, children, ...rest },
   ref
 ) {
   const local = useMergedRef(ref);
@@ -175,6 +175,7 @@ export const Glass = forwardRef(function Glass(
       data-lg-bezel={bezel}
       data-lg-depth={depth}
       data-lg-magnify={magnify}
+      data-lg-adaptive={adaptive ? '' : undefined}
       {...rest}
     >
       {children}
@@ -465,7 +466,7 @@ export function Card({ as: Tag = 'div', className, ...rest }) {
    ========================================================================== */
 
 export const NavigationBar = forwardRef(function NavigationBar(
-  { title, large, leading, trailing, scrollTarget, threshold, edge, className, children, ...rest },
+  { title, large, leading, trailing, scrollTarget, threshold, edge, adaptive, className, children, ...rest },
   ref
 ) {
   const local = useMergedRef(ref);
@@ -476,6 +477,7 @@ export const NavigationBar = forwardRef(function NavigationBar(
       className={cx('lg-navbar', large && 'lg-navbar--large', edge && 'lg-navbar--edge', className)}
       data-lg-scroll={scrollTarget}
       data-lg-threshold={threshold}
+      data-lg-adaptive={adaptive ? '' : undefined}
       {...rest}
     >
       <div className="lg-navbar-leading">{leading}</div>
@@ -499,7 +501,7 @@ export function Spacer() {
 }
 
 export const TabBar = forwardRef(function TabBar(
-  { items, value, defaultValue, onValueChange, search, onSearch, searchLabel = 'Search', action, minimizeOnScroll, position = 'fixed', tint, className, style, 'aria-label': ariaLabel = 'Tabs', ...rest },
+  { items, value, defaultValue, onValueChange, search, onSearch, searchLabel = 'Search', action, minimizeOnScroll, adaptive, position = 'fixed', tint, className, style, 'aria-label': ariaLabel = 'Tabs', ...rest },
   ref
 ) {
   const local = useMergedRef(ref);
@@ -528,6 +530,7 @@ export const TabBar = forwardRef(function TabBar(
       className={cx('lg-tabbar', position === 'absolute' && 'lg-tabbar--absolute', position === 'static' && 'lg-tabbar--static', className)}
       style={tintStyle(tint, style, '--lg-tabbar-tint')}
       data-lg-minimize-on-scroll={minimizeAttr}
+      data-lg-adaptive={adaptive ? '' : undefined}
       {...rest}
     >
       <div className="lg-tabbar-tabs lg-glass">
