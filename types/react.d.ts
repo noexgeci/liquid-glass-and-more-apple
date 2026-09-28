@@ -14,7 +14,11 @@ export {
   version,
   start,
   stop,
+  icon,
+  icons,
+  iconNames,
 } from './index';
+export type { IconName } from './index';
 export type { AlertOptions, AlertAction, ToastOptions, MenuItemSpec, SheetController, RefractionOptions, Theme } from './index';
 
 type SystemColor = 'red' | 'orange' | 'yellow' | 'green' | 'mint' | 'teal' | 'cyan' | 'blue' | 'indigo' | 'purple' | 'pink' | 'brown' | 'gray';
@@ -22,6 +26,15 @@ type SystemColor = 'red' | 'orange' | 'yellow' | 'green' | 'mint' | 'teal' | 'cy
 export type Tint = SystemColor | (string & {});
 
 type DivProps = React.HTMLAttributes<HTMLDivElement>;
+
+export interface IconProps extends Omit<React.SVGProps<SVGSVGElement>, 'name'> {
+  name: import('./index').IconName;
+  size?: number;
+  strokeWidth?: number;
+  /** Accessible label; without it the icon is decorative (aria-hidden). */
+  label?: string;
+}
+export declare function Icon(props: IconProps): React.ReactElement | null;
 
 export interface LiquidGlassProviderProps {
   children?: React.ReactNode;

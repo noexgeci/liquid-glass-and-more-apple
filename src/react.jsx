@@ -28,9 +28,12 @@ import {
   supportsRefraction,
   configure,
   version,
+  icons,
+  icon,
+  iconNames,
 } from './core.js';
 
-export { alert, actionSheet, toast, menu, refract, unrefract, supportsRefraction, configure, setTheme, version, start, stop };
+export { alert, actionSheet, toast, menu, refract, unrefract, supportsRefraction, configure, setTheme, version, start, stop, icon, icons, iconNames };
 
 const { forwardRef, useEffect, useLayoutEffect, useRef, useState, useCallback, useImperativeHandle } = React;
 const useIsoLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
@@ -84,6 +87,35 @@ function tintStyle(tint, style, prop = '--lg-tint') {
   if (!tint) return style;
   const color = /^(red|orange|yellow|green|mint|teal|cyan|blue|indigo|purple|pink|brown|gray)$/.test(tint) ? `var(--lg-${tint})` : tint;
   return { ...style, [prop]: color };
+}
+
+/* ==========================================================================
+   Icons
+   ========================================================================== */
+
+/** SF-inspired line icon from the kit's set: <Icon name="house" /> */
+export function Icon({ name, size = 24, strokeWidth = 1.9, label, className, style, ...rest }) {
+  const body = icons[name];
+  if (!body) return null;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      style={style}
+      role={label ? 'img' : undefined}
+      aria-label={label}
+      aria-hidden={label ? undefined : true}
+      dangerouslySetInnerHTML={{ __html: body.replace(/ data-fill=""/g, ' fill="currentColor" stroke="none"') }}
+      {...rest}
+    />
+  );
 }
 
 /* ==========================================================================

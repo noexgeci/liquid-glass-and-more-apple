@@ -8,6 +8,9 @@
  * components, Remix loaders, Astro frontmatter, etc.
  */
 
+import { icon, icons, iconNames } from './icons.js';
+
+export { icon, icons, iconNames };
 export const version = '__VERSION__';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -1017,6 +1020,18 @@ function initPageControl(el) {
   });
 }
 
+/* <span data-lg-icon="house"></span> → inline SVG from the kit's icon set */
+function initIcon(el) {
+  const name = el.getAttribute('data-lg-icon');
+  if (el.__lgIcon === name) return;
+  el.__lgIcon = name;
+  el.innerHTML = icon(name, {
+    size: numAttr(el, 'data-size', 24),
+    strokeWidth: numAttr(el, 'data-stroke', 1.9),
+    label: el.getAttribute('data-label') || undefined,
+  });
+}
+
 function initSpinner(el) {
   if (!claim(el, 'spinner') || el.children.length) return;
   for (let i = 0; i < 8; i++) inject(el, document.createElement('i'));
@@ -1758,6 +1773,7 @@ const COMPONENTS = [
   ['.lg-stepper', initStepper],
   ['.lg-page-control', initPageControl],
   ['.lg-spinner', initSpinner],
+  ['[data-lg-icon]', initIcon],
 ];
 
 function initGlass(el) {

@@ -23,7 +23,10 @@ import {
   menu,
   supportsRefraction,
   configure,
-  version as version2
+  version as version2,
+  icons,
+  icon,
+  iconNames
 } from "./liquid-glass.mjs";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 var { forwardRef, useEffect, useLayoutEffect, useRef, useState, useCallback, useImperativeHandle } = React;
@@ -69,6 +72,30 @@ function tintStyle(tint, style, prop = "--lg-tint") {
   const color = /^(red|orange|yellow|green|mint|teal|cyan|blue|indigo|purple|pink|brown|gray)$/.test(tint) ? `var(--lg-${tint})` : tint;
   return { ...style, [prop]: color };
 }
+function Icon({ name, size = 24, strokeWidth = 1.9, label, className, style, ...rest }) {
+  const body = icons[name];
+  if (!body) return null;
+  return /* @__PURE__ */ jsx(
+    "svg",
+    {
+      viewBox: "0 0 24 24",
+      width: size,
+      height: size,
+      fill: "none",
+      stroke: "currentColor",
+      strokeWidth,
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+      className,
+      style,
+      role: label ? "img" : void 0,
+      "aria-label": label,
+      "aria-hidden": label ? void 0 : true,
+      dangerouslySetInnerHTML: { __html: body.replace(/ data-fill=""/g, ' fill="currentColor" stroke="none"') },
+      ...rest
+    }
+  );
+}
 function LiquidGlassProvider({ children, theme, refraction, dynamicLight }) {
   useEffect(() => {
     const opts = {};
@@ -111,11 +138,11 @@ function ScrollEdge({ position = "top", className, ...rest }) {
   return /* @__PURE__ */ jsx("div", { "aria-hidden": "true", className: cx("lg-scroll-edge", position === "bottom" && "lg-scroll-edge--bottom", className), ...rest });
 }
 var BUTTON_SIZES = { mini: "lg-button--mini", small: "lg-button--small", regular: "", large: "lg-button--large", xl: "lg-button--xl" };
-var Button = forwardRef(function Button2({ as, variant = "glass", size = "regular", shape = "capsule", icon, destructive, tint, block, className, style, children, type, ...rest }, ref) {
+var Button = forwardRef(function Button2({ as, variant = "glass", size = "regular", shape = "capsule", icon: icon2, destructive, tint, block, className, style, children, type, ...rest }, ref) {
   const local = useMergedRef(ref);
   useLiquidGlass(local);
   const Tag = as || (rest.href ? "a" : "button");
-  const iconOnly = shape === "circle" || icon && !children;
+  const iconOnly = shape === "circle" || icon2 && !children;
   return /* @__PURE__ */ jsxs(
     Tag,
     {
@@ -134,7 +161,7 @@ var Button = forwardRef(function Button2({ as, variant = "glass", size = "regula
       style: tintStyle(tint, style),
       ...rest,
       children: [
-        icon,
+        icon2,
         children
       ]
     }
@@ -386,7 +413,7 @@ function Sidebar({ variant = "mac", className, children, ...rest }) {
 function SidebarSection({ className, ...rest }) {
   return /* @__PURE__ */ jsx("div", { className: cx("lg-sidebar-section", className), ...rest });
 }
-function SidebarItem({ as, icon, selected, count, className, children, ...rest }) {
+function SidebarItem({ as, icon: icon2, selected, count, className, children, ...rest }) {
   const Tag = as || (rest.href ? "a" : "button");
   return /* @__PURE__ */ jsxs(
     Tag,
@@ -396,7 +423,7 @@ function SidebarItem({ as, icon, selected, count, className, children, ...rest }
       "aria-current": selected ? "page" : void 0,
       ...rest,
       children: [
-        icon,
+        icon2,
         /* @__PURE__ */ jsx("span", { children }),
         count != null && /* @__PURE__ */ jsx("span", { className: "lg-sidebar-count", children: count })
       ]
@@ -422,11 +449,11 @@ function ListSection({ header, footer, prominentHeader, className, children, ...
     footer != null && /* @__PURE__ */ jsx("div", { className: "lg-list-footer", children: footer })
   ] });
 }
-function ListRow({ as, icon, iconColor, title, subtitle, detail, chevron, checked, accessory, destructive, className, children, ...rest }) {
+function ListRow({ as, icon: icon2, iconColor, title, subtitle, detail, chevron, checked, accessory, destructive, className, children, ...rest }) {
   const interactive = rest.onClick || rest.href;
   const Tag = as || (rest.href ? "a" : rest.onClick ? "button" : "li");
   const row = /* @__PURE__ */ jsxs(Tag, { type: Tag === "button" ? "button" : void 0, className: cx("lg-row", destructive && "lg-row--destructive", className), ...rest, children: [
-    icon && /* @__PURE__ */ jsx("span", { className: "lg-row-icon", style: iconColor ? { "--lg-row-icon-bg": /^(red|orange|yellow|green|mint|teal|cyan|blue|indigo|purple|pink|brown|gray)$/.test(iconColor) ? `var(--lg-${iconColor})` : iconColor } : void 0, children: icon }),
+    icon2 && /* @__PURE__ */ jsx("span", { className: "lg-row-icon", style: iconColor ? { "--lg-row-icon-bg": /^(red|orange|yellow|green|mint|teal|cyan|blue|indigo|purple|pink|brown|gray)$/.test(iconColor) ? `var(--lg-${iconColor})` : iconColor } : void 0, children: icon2 }),
     subtitle ? /* @__PURE__ */ jsxs("span", { className: "lg-row-content", children: [
       /* @__PURE__ */ jsx("span", { className: "lg-row-title", children: title }),
       /* @__PURE__ */ jsx("span", { className: "lg-row-subtitle", children: subtitle })
@@ -529,7 +556,7 @@ function Menu({ trigger, children, placement, className, onOpenChange, popover, 
 function Popover(props) {
   return /* @__PURE__ */ jsx(Menu, { ...props, popover: true });
 }
-function MenuItem({ icon, onSelect, onClick, destructive, disabled, shortcut, detail, checked, keepOpen, className, children, ...rest }) {
+function MenuItem({ icon: icon2, onSelect, onClick, destructive, disabled, shortcut, detail, checked, keepOpen, className, children, ...rest }) {
   return /* @__PURE__ */ jsxs(
     "button",
     {
@@ -545,7 +572,7 @@ function MenuItem({ icon, onSelect, onClick, destructive, disabled, shortcut, de
       },
       ...rest,
       children: [
-        icon,
+        icon2,
         /* @__PURE__ */ jsx("span", { children }),
         shortcut && /* @__PURE__ */ jsx("span", { className: "lg-menu-shortcut", children: shortcut }),
         detail && /* @__PURE__ */ jsx("span", { className: "lg-menu-detail", children: detail })
@@ -640,6 +667,7 @@ export {
   Checkbox,
   Glass,
   GlobalNav,
+  Icon,
   LargeTitle,
   LiquidGlassProvider,
   List,
@@ -675,6 +703,9 @@ export {
   alert,
   closePopover as closeMenu,
   configure,
+  icon,
+  iconNames,
+  icons,
   menu,
   refract,
   setTheme,
