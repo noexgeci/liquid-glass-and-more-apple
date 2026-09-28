@@ -36,6 +36,8 @@ Egy sima `<link>` és `<script>`, vagy `npm install`, és kész.
 - **Folyékony interakciók:** a kapcsoló gombja lenyomva üveglencsévé válik és felnagyítja a sávot; a csúszka, a szegmensvezérlő és a tab bar kijelölése húzható lencse; rugós (spring) animációk mindenhol.
 - **Apple HIG pontos értékek:** iOS 26 rendszerszínek (világos, sötét, **nagy kontraszt**), Dynamic Type skála, SF Pro betűköz-táblázat, SF Pro változó súlyok (510, 590), HIG vezérlőméretek (28 / 32 / 44 / 52 / 64 pt).
 - **35+ komponens:** gombok, kapcsoló gombok, gombcsoportok, pop-up gomb, kinyitható szakasz, kártya, súgócímke, kapcsoló, csúszka, szegmensvezérlő, léptető, szöveg- és keresőmező, navigációs sáv nagy címmel, eszköztár, lebegő tab bar (görgetéskor összecsukódik), oldalsáv, apple.com-stílusú globális navigáció, listák, alert, action sheet, sheet detentekkel, menü, popover, jobb klikkes menü, értesítés (toast), progress, spinner, gyűrű, lapozó pöttyök, badge, macOS ablak közlekedési lámpákkal.
+- **Adaptív üveg:** a tab bar, eszköztár vagy bármely üvegfelület (`data-lg-adaptive`) a mögötte lévő tartalom fényessége szerint vált világos és sötét megjelenés között, ahogy az iOS-ben.
+- **Folyékony húzás:** a húzott lencsék a sebességgel megnyúlnak, elengedéskor rugósan visszaállnak.
 - **Sötét mód** automatikusan (`light-dark()`), vagy bármely részfára kényszerítve.
 - **SSR-biztos** mag (Next.js szerverkomponensek importálhatják), **`'use client'`** React build, **TypeScript** típusok.
 - **SF Symbols nevek** az ikonokhoz, és egy hívással bekötheted az eredeti Apple SF Symbols SVG-ket.
@@ -238,7 +240,8 @@ Példa: [`examples/vue`](examples/vue) (`v-model` a kapcsolón, csúszkán és s
 
 | Komponens | HTML | React |
 | --- | --- | --- |
-| Üvegfelület | `<div class="lg-glass">` (+ `--clear`, `--tinted`, `--prominent`, `--thick`) | `<Glass variant="clear">` |
+| Üvegfelület | `<div class="lg-glass">` (+ `--clear`, `--tinted`, `--prominent`, `--thick`, `--dimmed`) | `<Glass variant="clear">` |
+| Adaptív üveg | `data-lg-adaptive` bármely üveg elemen vagy tab baron | `<Glass adaptive>`, `<TabBar adaptive>` |
 | Gomb | `<button class="lg-button">` (+ `--prominent`, `--clear`, `--bordered`, `--filled`, `--plain`, `--small`, `--large`, `--icon`) | `<Button variant="prominent" size="large">` |
 | Kapcsoló gomb | `<button class="lg-button" data-lg-toggle aria-pressed="false">` | `<ToggleButton pressed onPressedChange>` |
 | Gombcsoport | `<div class="lg-group lg-glass">` | `<ButtonGroup>` |
@@ -423,6 +426,7 @@ Or with plain tags:
 
 - Per-element SVG displacement maps model a convex glass rim, so content bends at the edges like iOS 26 (Chromium engines and Electron; Safari and Firefox get a blurred-glass fallback).
 - Specular rim that follows the pointer, touch-point illumination, spring animations.
+- Adaptive glass (`data-lg-adaptive`) flips light/dark with the content underneath, like iOS bars; dragged lenses stretch with speed.
 - Switch, slider, segmented control and tab bar selections turn into draggable glass lenses.
 - iOS 26 system colors (light, dark, increased contrast), Dynamic Type scale, SF tracking table, HIG control sizes.
 - 30+ components, dark mode via `light-dark()`, SSR-safe core, `'use client'` React build, TypeScript types, zero dependencies.
