@@ -15,18 +15,18 @@
   body { margin: 0; overflow-x: hidden; }
   .wrap { width: min(1080px, 100% - 32px); margin-inline: auto; }
   section.block { padding-block: 72px 56px; content-visibility: auto; contain-intrinsic-size: auto 900px; }
-  .eyebrow { font: var(--lg-weight-semibold) 13px/18px var(--lg-font); letter-spacing: 0.4px; text-transform: uppercase; color: var(--lg-accent); margin: 0 0 8px; }
+  .eyebrow { font: var(--lg-weight-semibold) 13px/18px var(--lg-font); letter-spacing: 0.4px; text-transform: uppercase; color: var(--lg-web-link); margin: 0 0 8px; }
   .h2 { margin: 0 0 10px; font: var(--lg-weight-bold) clamp(32px, 5vw, 48px)/1.08 var(--lg-font-display); letter-spacing: -0.02em; text-wrap: balance; }
-  .lede { margin: 0 0 28px; max-width: 62ch; font: 400 19px/1.45 var(--lg-font); letter-spacing: -0.2px; color: var(--lg-label-secondary); text-wrap: pretty; }
+  .lede { margin: 0 0 28px; max-width: 62ch; font: 400 19px/1.45 var(--lg-font); letter-spacing: -0.2px; color: var(--lg-web-text-secondary); text-wrap: pretty; }
   .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
   .stack { display: grid; gap: 16px; }
-  .muted { color: var(--lg-label-secondary); }
+  .muted { color: var(--lg-web-text-secondary); }
   .card { padding: 22px; border-radius: 30px; background: var(--lg-bg-grouped-secondary); box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 30px -12px rgb(0 0 0 / 0.12); }
   .card h3 { margin: 0 0 4px; font: var(--lg-weight-semibold) 17px/22px var(--lg-font); letter-spacing: -0.43px; }
-  .card p { margin: 0 0 16px; font: 400 15px/20px var(--lg-font); letter-spacing: -0.23px; color: var(--lg-label-secondary); }
+  .card p { margin: 0 0 16px; font: 400 15px/20px var(--lg-font); letter-spacing: -0.23px; color: var(--lg-web-text-secondary); }
   .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
   .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
-  .label { font: var(--lg-weight-medium) 13px/18px var(--lg-font); color: var(--lg-label-secondary); letter-spacing: -0.08px; }
+  .label { font: var(--lg-weight-medium) 13px/18px var(--lg-font); color: var(--lg-web-text-secondary); letter-spacing: -0.08px; }
   code, pre { font-family: var(--lg-font-mono); }
   :not(pre) > code { padding: 1px 6px; border-radius: 6px; background: var(--lg-fill-tertiary); font-size: 0.9em; }
 
@@ -143,11 +143,11 @@
   .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
   .sw { border-radius: 20px; overflow: hidden; background: var(--lg-bg-grouped-secondary); box-shadow: 0 1px 2px rgb(0 0 0 / 0.05); }
   .sw i { display: block; height: 72px; background: var(--c); }
-  .sw div { padding: 10px 12px 12px; font: 400 12px/16px var(--lg-font); color: var(--lg-label-secondary); }
+  .sw div { padding: 10px 12px 12px; font: 400 12px/16px var(--lg-font); color: var(--lg-web-text-secondary); }
   .sw b { display: block; font: var(--lg-weight-semibold) 14px/18px var(--lg-font); color: var(--lg-label); }
   .type-row { display: grid; grid-template-columns: 150px 1fr auto; align-items: baseline; gap: 16px; padding: 12px 0; border-bottom: 0.5px solid var(--lg-separator); }
   .type-row:last-child { border-bottom: 0; }
-  .type-row .meta { font: 400 12px/16px var(--lg-font-mono); color: var(--lg-label-secondary); white-space: nowrap; }
+  .type-row .meta { font: 400 12px/16px var(--lg-font-mono); color: var(--lg-web-text-secondary); white-space: nowrap; }
   @media (max-width: 640px) { .type-row { grid-template-columns: 1fr; gap: 2px; } }
 
   /* ---------- code ---------- */
@@ -156,7 +156,7 @@
   .copy { position: absolute; top: 10px; right: 10px; }
   .tabs-panel[hidden] { display: none; }
 
-  footer.site { padding: 48px 0 140px; text-align: center; font: 400 13px/18px var(--lg-font); color: var(--lg-label-secondary); }
+  footer.site { padding: 48px 0 140px; text-align: center; font: 400 13px/18px var(--lg-font); color: var(--lg-web-text-secondary); }
 
   @media (max-width: 860px) {
     .phone { transform: scale(0.82); margin-bottom: -150px; }
@@ -338,7 +338,7 @@
             <div class="lg-navbar-title">Beállítások</div>
             <div class="lg-navbar-trailing"><button class="lg-button lg-button--icon" aria-label="Fiók"><span data-lg-icon="person.crop.circle"></span></button></div>
           </header>
-          <h1 class="lg-large-title-header">Beállítások</h1>
+          <h3 class="lg-large-title-header">Beállítások</h3>
           <div class="lg-search lg-glass"><span data-lg-icon="magnifyingglass" data-size="18"></span><input type="search" placeholder="Keresés" aria-label="Beállítások keresése"><span data-lg-icon="mic" data-size="18"></span></div>
 
           <section class="lg-list-section">
@@ -629,7 +629,7 @@ createRoot(root).render(
 
 <footer class="site wrap">
   Liquid Glass Kit · MIT licenc · Független projekt, nem áll kapcsolatban az Apple Inc.-kel.<br>
-  Az értékek forrása: <a href="https://developer.apple.com/design/" style="color: var(--lg-link)">Apple Human Interface Guidelines</a>.
+  Az értékek forrása: <a href="https://developer.apple.com/design/" style="color: var(--lg-web-link)">Apple Human Interface Guidelines</a>.
 </footer>
 
 <script src="dist/liquid-glass.js"></script>

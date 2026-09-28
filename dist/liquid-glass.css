@@ -88,6 +88,13 @@
   --lg-bg-grouped-tertiary: light-dark(rgb(242 242 247), rgb(44 44 46));
   --lg-bg-elevated: light-dark(rgb(255 255 255), rgb(28 28 30));
 
+  /* apple.com web palette (marketing pages, long-form text) */
+  --lg-web-text: light-dark(rgb(29 29 31), rgb(245 245 247));
+  --lg-web-text-secondary: light-dark(rgb(110 110 115), rgb(134 134 139));
+  --lg-web-link: light-dark(rgb(0 102 204), rgb(41 151 255));
+  --lg-web-bg: light-dark(rgb(255 255 255), rgb(0 0 0));
+  --lg-web-bg-alt: light-dark(rgb(245 245 247), rgb(22 22 23));
+
   --lg-accent: var(--lg-blue);
   --lg-on-accent: rgb(255 255 255);
   --lg-link: var(--lg-accent);
@@ -154,7 +161,9 @@
   --lg-dim-clear: rgb(0 0 0 / 0.35); /* HIG: 35% dimming layer under clear glass on bright content */
 }
 
-/* Increased contrast (HIG "Increased contrast" column) */
+/* Increased contrast (HIG "Increased contrast" column). Follows the OS
+   setting, or opt in with data-lg-contrast="more" / .lg-contrast-more —
+   e.g. for WCAG AA text contrast on websites. */
 @media (prefers-contrast: more) {
   :root {
     --lg-red: light-dark(rgb(233 21 45), rgb(255 97 101));
@@ -177,7 +186,38 @@
     --lg-gray-6: light-dark(rgb(235 235 240), rgb(36 36 38));
     --lg-glass-fill: light-dark(rgb(255 255 255 / 0.8), rgb(28 28 30 / 0.85));
     --lg-glass-edge: light-dark(rgb(0 0 0 / 0.35), rgb(255 255 255 / 0.35));
+    --lg-label-secondary: light-dark(rgb(60 60 67 / 0.78), rgb(235 235 245 / 0.72));
+    --lg-label-tertiary: light-dark(rgb(60 60 67 / 0.62), rgb(235 235 245 / 0.55));
+    --lg-placeholder: var(--lg-label-tertiary);
+    --lg-separator: light-dark(rgb(60 60 67 / 0.5), rgb(84 84 88 / 0.9));
   }
+}
+[data-lg-contrast="more"],
+.lg-contrast-more {
+  --lg-red: light-dark(rgb(233 21 45), rgb(255 97 101));
+  --lg-orange: light-dark(rgb(197 83 0), rgb(255 160 86));
+  --lg-yellow: light-dark(rgb(161 106 0), rgb(254 223 67));
+  --lg-green: light-dark(rgb(0 137 50), rgb(74 217 104));
+  --lg-mint: light-dark(rgb(0 133 117), rgb(84 223 203));
+  --lg-teal: light-dark(rgb(0 129 152), rgb(59 221 236));
+  --lg-cyan: light-dark(rgb(0 126 174), rgb(109 217 255));
+  --lg-blue: light-dark(rgb(30 110 244), rgb(92 184 255));
+  --lg-indigo: light-dark(rgb(86 74 222), rgb(167 170 255));
+  --lg-purple: light-dark(rgb(176 47 194), rgb(234 141 255));
+  --lg-pink: light-dark(rgb(231 18 77), rgb(255 138 196));
+  --lg-brown: light-dark(rgb(149 109 81), rgb(219 166 121));
+  --lg-gray: light-dark(rgb(108 108 112), rgb(174 174 178));
+  --lg-gray-2: light-dark(rgb(142 142 147), rgb(124 124 128));
+  --lg-gray-3: light-dark(rgb(174 174 178), rgb(84 84 86));
+  --lg-gray-4: light-dark(rgb(188 188 192), rgb(68 68 70));
+  --lg-gray-5: light-dark(rgb(216 216 220), rgb(54 54 56));
+  --lg-gray-6: light-dark(rgb(235 235 240), rgb(36 36 38));
+  --lg-glass-fill: light-dark(rgb(255 255 255 / 0.8), rgb(28 28 30 / 0.85));
+  --lg-glass-edge: light-dark(rgb(0 0 0 / 0.35), rgb(255 255 255 / 0.35));
+  --lg-label-secondary: light-dark(rgb(60 60 67 / 0.78), rgb(235 235 245 / 0.72));
+  --lg-label-tertiary: light-dark(rgb(60 60 67 / 0.62), rgb(235 235 245 / 0.55));
+  --lg-placeholder: var(--lg-label-tertiary);
+  --lg-separator: light-dark(rgb(60 60 67 / 0.5), rgb(84 84 88 / 0.9));
 }
 
 /* Theme scoping: works on :root or on any subtree */
