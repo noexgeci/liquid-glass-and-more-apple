@@ -548,6 +548,24 @@
 .lg-button svg,
 .lg-button img { width: 1.15em; height: 1.15em; flex: none; }
 
+/* Busy: the label fades and an activity indicator spins in its place */
+.lg-button[aria-busy="true"] { color: transparent; pointer-events: none; }
+.lg-button[aria-busy="true"] > * { visibility: hidden; }
+.lg-button[aria-busy="true"]::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0 12%, var(--_fg) 12% 100%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2px));
+  animation: lg-spin 0.9s linear infinite;
+}
+
 /* Sizes (HIG: mini 28 · small 32 · regular 44 · large 52 · extra large 64) */
 .lg-button--mini   { --_h: 28px; --_px: 11px; --_fs: 13px; --_ls: -0.08px; }
 .lg-button--small  { --_h: 32px; --_px: 13px; --_fs: 15px; --_ls: -0.23px; }
@@ -987,6 +1005,12 @@
 textarea.lg-textfield { height: auto; min-height: 88px; padding: 11px 14px; resize: vertical; }
 .lg-textfield::placeholder { color: var(--lg-placeholder); }
 .lg-textfield:focus-visible { box-shadow: 0 0 0 3px var(--lg-focus-ring); }
+.lg-textfield[aria-invalid="true"],
+.lg-textfield:user-invalid { box-shadow: 0 0 0 2px var(--lg-red); }
+.lg-textfield[aria-invalid="true"]:focus-visible,
+.lg-textfield:user-invalid:focus-visible { box-shadow: 0 0 0 3px color-mix(in srgb, var(--lg-red) 55%, transparent); }
+.lg-field-message { margin: 6px 14px 0; font: var(--lg-weight-regular) 13px/18px var(--lg-font); letter-spacing: -0.08px; color: var(--lg-label-secondary); }
+.lg-field-message--error { color: var(--lg-red); }
 
 .lg-search {
   --_h: 44px;

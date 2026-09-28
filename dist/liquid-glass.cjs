@@ -1134,6 +1134,22 @@ function initTabbar(bar) {
     onCleanup(bar, () => ro.disconnect());
   }
   listen(bar, tabsEl, "dragstart", (e) => e.preventDefault());
+  if (tabs().some((t) => t.tagName === "BUTTON")) {
+    tabsEl.setAttribute("role", "tablist");
+    tabs().forEach((t) => t.tagName === "BUTTON" && t.setAttribute("role", "tab"));
+  }
+  listen(bar, tabsEl, "keydown", (e) => {
+    const keys = { ArrowRight: 1, ArrowLeft: -1, Home: -Infinity, End: Infinity };
+    if (!(e.key in keys)) return;
+    const list = tabs();
+    const i = list.indexOf(document.activeElement);
+    if (i < 0) return;
+    e.preventDefault();
+    const step = keys[e.key];
+    const next = step === -Infinity ? 0 : step === Infinity ? list.length - 1 : (i + step + list.length) % list.length;
+    list[next].focus();
+    if (list[next].tagName === "BUTTON") select2(next, true);
+  });
   listen(bar, tabsEl, "click", (e) => {
     const t = e.target.closest(".lg-tab");
     if (!t) return;
