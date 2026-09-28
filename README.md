@@ -5,6 +5,8 @@ Egy sima `<link>` és `<script>`, vagy `npm install`, és kész.
 
 > Mivel még nincs olyan UI, amit bárki letölthet és egyből használhat weboldalhoz vagy webfejlesztéshez, mi készítjük el az 1:1 Liquid Glasst az apple.com-os stílusban. Minden érték (színek, betűméretek, betűközök, vezérlőméretek) az Apple [Human Interface Guidelines](https://developer.apple.com/design/) oldaláról származik.
 
+**Élő demó:** [noexgeci.github.io/liquid-glass-and-more-apple](https://noexgeci.github.io/liquid-glass-and-more-apple/) (a GitHub Pages egyszeri bekapcsolása után: Settings → Pages → Source: *GitHub Actions*). Helyben: `npm run serve`, majd [localhost:3000](http://localhost:3000).
+
 [English below ↓](#english)
 
 ---
