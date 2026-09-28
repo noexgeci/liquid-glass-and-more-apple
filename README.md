@@ -338,6 +338,13 @@ Sötét mód: automatikus. Kényszerítés: `data-lg-theme="dark"` vagy `class="
 
 Rendszerszínek: `--lg-red`, `--lg-orange`, `--lg-yellow`, `--lg-green`, `--lg-mint`, `--lg-teal`, `--lg-cyan`, `--lg-blue`, `--lg-indigo`, `--lg-purple`, `--lg-pink`, `--lg-brown`, `--lg-gray` … `--lg-gray-6`. Szemantikus: `--lg-label(-secondary/-tertiary/-quaternary)`, `--lg-fill(-secondary/…)`, `--lg-bg(-secondary/-tertiary)`, `--lg-bg-grouped(…)`, `--lg-separator`.
 
+### Kontraszt és apple.com színek
+
+Az iOS színek 1:1 az Apple értékei, ezért néhány (például a másodlagos szürke szöveg vagy a kék fehér alapon) nem éri el a WCAG AA 4,5:1 arányt, ahogy az iOS-ben sem. Két Apple-hiteles megoldás:
+
+- `data-lg-contrast="more"` (vagy `.lg-contrast-more`) bármely elemen: az Apple hivatalos „Kontraszt növelése” színeire vált, erősebb címkékkel. A rendszerbeállítást (`prefers-contrast: more`) automatikusan is követi. Ezzel a demó oldal automatikus akadálymentességi auditja (axe-core) hibamentes.
+- Weboldal-szövegekhez az apple.com saját palettája: `--lg-web-text` (#1d1d1f), `--lg-web-text-secondary` (#6e6e73), `--lg-web-link` (#0066cc), `--lg-web-bg`, `--lg-web-bg-alt`.
+
 ## Böngészőtámogatás
 
 | Böngésző | Eredmény |
@@ -444,6 +451,10 @@ The component table, API reference and theming guide above apply as-is; class na
 ### Icons and Apple SF Symbols
 
 Icons use **SF Symbols names** (`magnifyingglass`, `chevron.left`, `square.and.arrow.up`, …). Apple's SF Symbols themselves are not bundled: their license limits them to apps for Apple platforms and forbids redistribution. Where your use is covered, export the SVGs from Apple's [SF Symbols](https://developer.apple.com/sf-symbols/) app and call `registerIcons({ magnifyingglass: svg, … })`; every icon on the page switches to the original. Until then the kit's own SF-style fallback glyphs render.
+
+### Contrast
+
+System colors match Apple 1:1, so a few (secondary gray text, blue on white) fall below WCAG AA just as on iOS. Add `data-lg-contrast="more"` to switch to Apple's official Increased Contrast colors (the OS setting applies them automatically), and use the apple.com web palette (`--lg-web-text`, `--lg-web-text-secondary`, `--lg-web-link`) for long-form text.
 
 ### License
 
