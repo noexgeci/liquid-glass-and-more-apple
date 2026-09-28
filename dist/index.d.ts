@@ -114,7 +114,12 @@ export declare function isDirectional(name: string): boolean;
 export declare function icon(name: IconName | (string & {}), options?: { size?: number; strokeWidth?: number; label?: string; className?: string }): string;
 
 export interface LiquidGlassConfig {
-  /** `'auto'` enables SVG refraction on Chromium engines (Chrome, Edge, Opera, Electron). Default `'auto'`. */
+  /**
+   * `'auto'` enables SVG refraction on Chromium engines (Chrome, Edge, Opera,
+   * Electron), except on low-end touch devices (≤ 4 GB memory or ≤ 4 cores)
+   * and with Save-Data, which get the blurred glass. `true` forces it on
+   * wherever the engine supports it. Default `'auto'`.
+   */
   refraction?: boolean | 'auto';
   /** Specular rim follows the pointer. Default `true`. */
   dynamicLight?: boolean;

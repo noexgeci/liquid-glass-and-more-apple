@@ -367,7 +367,7 @@ Az iOS színek 1:1 az Apple értékei, ezért néhány (például a másodlagos 
 | Safari 16.4+ (macOS, iOS) | Üveg blurral, peremmel, minden interakció (SVG fénytörés nélkül, ezt a WebKit nem támogatja backdrop-filterben) |
 | Firefox 121+ | Mint a Safari |
 
-A fénytöréshez a Chromium GPU-raszterizálása kell (asztali Chrome-ban és Electronban alapértelmezett). Kikapcsolás: `start({ refraction: false })`.
+A fénytöréshez a Chromium GPU-raszterizálása kell (asztali Chrome-ban és Electronban alapértelmezett). Kikapcsolás: `start({ refraction: false })`. Az alapértelmezett `'auto'` mód gyenge érintőképernyős eszközökön (legfeljebb 4 GB memória vagy 4 mag) és Adatforgalom-csökkentés mellett a könnyebb, blurral dolgozó üveget használja, hogy a görgetés ott is sima maradjon; `refraction: true` ezt felülírja.
 
 A felugró elemek (alert, action sheet, sheet, menü, popover, értesítés, súgócímke) a böngésző **top layerében** jelennek meg a Popover API-val (Chrome/Edge 114+, Safari 17+, Firefox 125+): a helyükön maradnak a DOM-ban (űrlap, téma és React fa sértetlen), mégsem vághatja le vagy takarhatja ki őket semmilyen `transform`, `overflow` vagy `z-index`. Régebbi böngészőben nyitás idejére a `<body>`-ba kerülnek, zárás után vissza.
 

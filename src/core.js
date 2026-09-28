@@ -182,8 +182,20 @@ export function supportsRefraction() {
   const css = !!(window.CSS && CSS.supports && CSS.supports('backdrop-filter', 'url(#lg)'));
   if (config.refraction === false || mq('(prefers-reduced-transparency: reduce)')) refractionSupport = false;
   else if (config.refraction === true) refractionSupport = css;
-  else refractionSupport = css && isChromium();
+  else refractionSupport = css && isChromium() && !isLowEndDevice();
   return refractionSupport;
+}
+
+/*
+ * 'auto' keeps phones smooth: touch-first devices with little memory or few
+ * cores, and users asking to save data, get the blurred glass without the
+ * per-element refraction filters. `refraction: true` forces it back on.
+ */
+function isLowEndDevice() {
+  const nav = navigator;
+  if (nav.connection && nav.connection.saveData) return true;
+  if (!mq('(pointer: coarse)') || mq('(any-pointer: fine)')) return false;
+  return (nav.deviceMemory && nav.deviceMemory <= 4) || (nav.hardwareConcurrency && nav.hardwareConcurrency <= 4) || false;
 }
 
 /* ==========================================================================
