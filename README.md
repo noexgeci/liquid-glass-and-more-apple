@@ -277,7 +277,7 @@ Példa: [`examples/vue`](examples/vue) (`v-model` a kapcsolón, csúszkán és s
 | macOS ablak | `<div class="lg-window">` + `.lg-traffic-lights` | `<Window title sidebar toolbar>` |
 | Tipográfia | `.lg-large-title`, `.lg-title-1…3`, `.lg-headline`, `.lg-body`, `.lg-callout`, `.lg-subheadline`, `.lg-footnote`, `.lg-caption-1/2` | ugyanezek az osztályok |
 
-Az összes komponens élőben: nyisd meg az [`index.html`](index.html) demót.
+Az összes komponens élőben: nyisd meg az [`index.html`](index.html) demót. Részletes referencia minden komponenshez (HTML és React kóddal, attribútumokkal, eseményekkel): [`docs/COMPONENTS.md`](docs/COMPONENTS.md).
 
 ## JavaScript API
 
@@ -457,7 +457,7 @@ Electron runs Chromium, so full refraction always works. For a native feel on ma
 
 Vue, Svelte, Astro, Angular, Solid: import the CSS, call `start()` once on the client (or `import 'liquid-glass-kit/auto'`). Components added later are enhanced automatically.
 
-The component table, API reference and theming guide above apply as-is; class names and function names are in English.
+The component table, API reference and theming guide above apply as-is; class names and function names are in English. Full reference with HTML and React snippets for every component: [`docs/COMPONENTS.md`](docs/COMPONENTS.md).
 
 ### Icons and Apple SF Symbols
 
