@@ -35,7 +35,7 @@ Egy sima `<link>` és `<script>`, vagy `npm install`, és kész.
 - **Tükröződő perem (specular rim),** ami követi az egeret, és **fény a lenyomás helyén,** ahogy az Apple üveg gombjai „felragyognak”.
 - **Folyékony interakciók:** a kapcsoló gombja lenyomva üveglencsévé válik és felnagyítja a sávot; a csúszka, a szegmensvezérlő és a tab bar kijelölése húzható lencse; rugós (spring) animációk mindenhol.
 - **Apple HIG pontos értékek:** iOS 26 rendszerszínek (világos, sötét, **nagy kontraszt**), Dynamic Type skála, SF Pro betűköz-táblázat, SF Pro változó súlyok (510, 590), HIG vezérlőméretek (28 / 32 / 44 / 52 / 64 pt).
-- **35+ komponens:** iOS görgős választó (wheel picker), gombok, kapcsoló gombok, gombcsoportok, pop-up gomb, kinyitható szakasz, kártya, súgócímke, kapcsoló, csúszka, szegmensvezérlő, léptető, szöveg- és keresőmező, navigációs sáv nagy címmel, eszköztár, lebegő tab bar (görgetéskor összecsukódik), oldalsáv, apple.com-stílusú globális navigáció, listák, alert, action sheet, sheet detentekkel, menü, popover, jobb klikkes menü, értesítés (toast), progress, spinner, gyűrű, lapozó pöttyök, badge, macOS ablak közlekedési lámpákkal.
+- **45 komponens:** iOS naptár (dátumválasztó) és időválasztó, görgős választó (wheel picker), gombok, kapcsoló gombok, gombcsoportok, pop-up gomb, kinyitható szakasz, kártya, súgócímke, kapcsoló, csúszka, szegmensvezérlő, léptető, szöveg- és keresőmező, navigációs sáv nagy címmel, eszköztár, lebegő tab bar (görgetéskor összecsukódik), oldalsáv, apple.com-stílusú globális navigáció, listák, alert, action sheet, sheet detentekkel, menü, popover, jobb klikkes menü, értesítés (toast), progress, spinner, gyűrű, lapozó pöttyök, badge, macOS ablak közlekedési lámpákkal.
 - **Adaptív üveg:** a tab bar, eszköztár vagy bármely üvegfelület (`data-lg-adaptive`) a mögötte lévő tartalom fényessége szerint vált világos és sötét megjelenés között, ahogy az iOS-ben.
 - **Folyékony húzás:** a húzott lencsék a sebességgel megnyúlnak, elengedéskor rugósan visszaállnak.
 - **Sötét mód** automatikusan (`light-dark()`), vagy bármely részfára kényszerítve.
@@ -234,7 +234,17 @@ import { start } from 'liquid-glass-kit';
 start(); // vagy: import 'liquid-glass-kit/auto';
 ```
 
-Példa: [`examples/vue`](examples/vue) (`v-model` a kapcsolón, csúszkán és szegmensen, húzással is). Nuxt: tedd egy `plugins/liquid-glass.client.ts` fájlba. SvelteKit: `onMount` a gyökér layoutban. Astro: `<script>` a layoutban.
+Példa: [`examples/vue`](examples/vue) (`v-model` a kapcsolón, csúszkán és szegmensen, húzással is). SvelteKit: `onMount` a gyökér layoutban. Astro: `<script>` a layoutban. Nuxt: a hidratálás után indítsd, különben a mag a Vue előtt nyúlna a szerveren renderelt HTML-hez:
+
+```ts
+// plugins/liquid-glass.client.ts
+import { start } from 'liquid-glass-kit';
+export default defineNuxtPlugin((nuxtApp) => {
+  nuxtApp.hook('app:mounted', () => start());
+});
+```
+
+Szerveroldali renderelésnél (Next.js, Remix, Nuxt, SvelteKit) a mag mindig a hidratálás után induljon: Reactben a `LiquidGlassProvider` ezt magától így csinálja; az `import 'liquid-glass-kit/auto'` sima HTML-oldalakra és kliensoldali appokra való.
 
 ## Komponensek
 
@@ -440,7 +450,7 @@ Or with plain tags:
 - Adaptive glass (`data-lg-adaptive`) flips light/dark with the content underneath, like iOS bars; dragged lenses stretch with speed.
 - Switch, slider, segmented control and tab bar selections turn into draggable glass lenses.
 - iOS 26 system colors (light, dark, increased contrast), Dynamic Type scale, SF tracking table, HIG control sizes.
-- 30+ components, dark mode via `light-dark()`, SSR-safe core, `'use client'` React build, TypeScript types, zero dependencies.
+- 45 components, including the iOS calendar and time picker, dark mode via `light-dark()`, SSR-safe core, `'use client'` React build, TypeScript types, zero dependencies.
 - Alerts, sheets, menus, popovers, toasts and tooltips open in the browser's top layer (Popover API), so they are never clipped or covered, yet stay in place in the DOM: forms, inherited themes and React trees are untouched.
 
 ### Next.js
@@ -467,7 +477,7 @@ Electron runs Chromium, so full refraction always works. For a native feel on ma
 
 ### Other frameworks
 
-Vue, Svelte, Astro, Angular, Solid: import the CSS, call `start()` once on the client (or `import 'liquid-glass-kit/auto'`). Components added later are enhanced automatically.
+Vue, Svelte, Astro, Angular, Solid: import the CSS, call `start()` once on the client (or `import 'liquid-glass-kit/auto'`). Components added later are enhanced automatically. With server rendering (Next.js, Remix, Nuxt, SvelteKit) start the kit after hydration — `LiquidGlassProvider` does that in React; in Nuxt use `nuxtApp.hook('app:mounted', () => start())` in a client plugin — so it never touches server-rendered markup before the framework hydrates it.
 
 The component table, API reference and theming guide above apply as-is; class names and function names are in English. Full reference with HTML and React snippets for every component: [`docs/COMPONENTS.md`](docs/COMPONENTS.md).
 
