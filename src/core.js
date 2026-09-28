@@ -1920,6 +1920,9 @@ class Sheet {
       return this;
     }
     this.prevFocus = document.activeElement;
+    // A viewport sheet must not live under an ancestor that traps fixed
+    // positioning (transform, filter, contain, content-visibility…).
+    if (!this.contained && el.parentNode !== document.body) document.body.appendChild(el);
     this.overlay = makeOverlay(el.parentNode, 'lg-overlay--sheet');
     if (this.contained) {
       this.overlay.style.position = 'absolute';

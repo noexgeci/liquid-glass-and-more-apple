@@ -1875,6 +1875,7 @@ var Sheet = class {
       return this;
     }
     this.prevFocus = document.activeElement;
+    if (!this.contained && el.parentNode !== document.body) document.body.appendChild(el);
     this.overlay = makeOverlay(el.parentNode, "lg-overlay--sheet");
     if (this.contained) {
       this.overlay.style.position = "absolute";
