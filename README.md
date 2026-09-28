@@ -1,1 +1,415 @@
+# Liquid Glass Kit
 
+**Apple Liquid Glass UI a webre: valódi fénytöréssel, iOS 26 / macOS 26 komponensekkel, React és Next.js támogatással.**
+Egy sima `<link>` és `<script>`, vagy `npm install`, és kész.
+
+> Mivel még nincs olyan UI, amit bárki letölthet és egyből használhat weboldalhoz vagy webfejlesztéshez, mi készítjük el az 1:1 Liquid Glasst az apple.com-os stílusban. Minden érték (színek, betűméretek, betűközök, vezérlőméretek) az Apple [Human Interface Guidelines](https://developer.apple.com/design/) oldaláról származik.
+
+[English below ↓](#english)
+
+---
+
+## Tartalom
+
+- [Mit tud?](#mit-tud)
+- [Telepítés](#telepítés)
+- [Gyors kezdés (HTML)](#gyors-kezdés-html)
+- [Next.js](#nextjs-app-router)
+- [React + Vite](#react--vite)
+- [Electron](#electron)
+- [Vue, Svelte, Astro, Angular](#vue-svelte-astro-angular)
+- [Komponensek](#komponensek)
+- [JavaScript API](#javascript-api)
+- [Témák és testreszabás](#témák-és-testreszabás)
+- [Böngészőtámogatás](#böngészőtámogatás)
+- [Teljesítmény](#teljesítmény)
+- [Akadálymentesség](#akadálymentesség)
+- [Fejlesztés](#fejlesztés)
+
+## Mit tud?
+
+- **Valódi fénytörés (lensing).** Minden üvegfelület saját, méretre generált SVG displacement mapot kap: a konvex üvegperem úgy hajlítja meg a mögötte lévő tartalmat, mint az iOS 26-ban. Chromium-alapú böngészőkben (Chrome, Edge, Opera, Brave, Arc) és **Electronban** teljes pompájában működik, Safariban és Firefoxban szép blur-os üvegre vált vissza.
+- **Tükröződő perem (specular rim),** ami követi az egeret, és **fény a lenyomás helyén,** ahogy az Apple üveg gombjai „felragyognak”.
+- **Folyékony interakciók:** a kapcsoló gombja lenyomva üveglencsévé válik és felnagyítja a sávot; a csúszka, a szegmensvezérlő és a tab bar kijelölése húzható lencse; rugós (spring) animációk mindenhol.
+- **Apple HIG pontos értékek:** iOS 26 rendszerszínek (világos, sötét, **nagy kontraszt**), Dynamic Type skála, SF Pro betűköz-táblázat, SF Pro változó súlyok (510, 590), HIG vezérlőméretek (28 / 32 / 44 / 52 / 64 pt).
+- **30+ komponens:** gombok, gombcsoportok, kapcsoló, csúszka, szegmensvezérlő, léptető, szöveg- és keresőmező, navigációs sáv nagy címmel, eszköztár, lebegő tab bar (görgetéskor összecsukódik), oldalsáv, apple.com-stílusú globális navigáció, listák, alert, action sheet, sheet detentekkel, menü, popover, jobb klikkes menü, értesítés (toast), progress, spinner, gyűrű, lapozó pöttyök, badge, macOS ablak közlekedési lámpákkal.
+- **Sötét mód** automatikusan (`light-dark()`), vagy bármely részfára kényszerítve.
+- **SSR-biztos** mag (Next.js szerverkomponensek importálhatják), **`'use client'`** React build, **TypeScript** típusok.
+- **Nulla függőség.** A mag ~36 KB minifikálva, a CSS ~55 KB.
+
+## Telepítés
+
+### npm (GitHubról)
+
+```bash
+npm install github:noexgeci/liquid-glass-and-more-apple
+```
+
+A csomag neve `liquid-glass-kit`, így importálod:
+
+```js
+import 'liquid-glass-kit/css';          // stílusok
+import { start } from 'liquid-glass-kit'; // vanilla JS mag
+import { Button } from 'liquid-glass-kit/react'; // React komponensek
+```
+
+### CDN (letöltés nélkül)
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/noexgeci/liquid-glass-and-more-apple@main/dist/liquid-glass.min.css">
+<script src="https://cdn.jsdelivr.net/gh/noexgeci/liquid-glass-and-more-apple@main/dist/liquid-glass.min.js" defer></script>
+```
+
+### Letöltés
+
+Másold be a projektedbe a `dist/liquid-glass.css` és `dist/liquid-glass.js` fájlt. Ennyi.
+
+## Gyors kezdés (HTML)
+
+```html
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="dist/liquid-glass.css">
+</head>
+<body class="lg">
+  <button class="lg-button">Üveg gomb</button>
+  <button class="lg-button lg-button--prominent">Kész</button>
+
+  <label class="lg-switch"><input type="checkbox" checked></label>
+
+  <div class="lg-slider"><input type="range" min="0" max="100" value="40"></div>
+
+  <div class="lg-segmented">
+    <label><input type="radio" name="nezet" checked>Nap</label>
+    <label><input type="radio" name="nezet">Hét</label>
+    <label><input type="radio" name="nezet">Hónap</label>
+  </div>
+
+  <script src="dist/liquid-glass.js"></script>
+</body>
+</html>
+```
+
+A `liquid-glass.js` magától elindul: megkeresi a komponenseket, fénytörést ad az üvegfelületeknek, és figyeli a később hozzáadott elemeket is. A `.lg` osztály a `<body>`-n beállítja az SF Pro betűtípust, a méretet és a színeket (nem kötelező).
+
+> **Tipp:** az üveg akkor mutat igazán, ha van mögötte valami: kép, színátmenet, görgő tartalom.
+
+## Next.js (App Router)
+
+```bash
+npm install github:noexgeci/liquid-glass-and-more-apple
+```
+
+`app/layout.tsx`:
+
+```tsx
+import 'liquid-glass-kit/css';
+import { LiquidGlassProvider } from 'liquid-glass-kit/react';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="hu">
+      <body className="lg">
+        <LiquidGlassProvider>{children}</LiquidGlassProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+`app/page.tsx` (szerverkomponens is lehet, a komponensek maguk `'use client'`-ek):
+
+```tsx
+import { Button, Switch, TabBar, Glass } from 'liquid-glass-kit/react';
+
+export default function Page() {
+  return (
+    <main>
+      <Glass style={{ padding: 24 }}>
+        <Button variant="prominent">Vásárlás</Button>
+        <Switch defaultChecked label="Wi-Fi" />
+      </Glass>
+      <TabBar
+        items={[
+          { value: 'home', label: 'Főoldal', icon: <HomeIcon /> },
+          { value: 'search', label: 'Keresés', icon: <SearchIcon /> },
+        ]}
+        minimizeOnScroll
+      />
+    </main>
+  );
+}
+```
+
+Vezérelt állapot, ahogy Reactban megszokott:
+
+```tsx
+'use client';
+import { useState } from 'react';
+import { Sheet, Button, SegmentedControl, alert } from 'liquid-glass-kit/react';
+
+export function Beallitasok() {
+  const [open, setOpen] = useState(false);
+  const [nezet, setNezet] = useState('nap');
+  return (
+    <>
+      <SegmentedControl options={[{ value: 'nap', label: 'Nap' }, { value: 'het', label: 'Hét' }]} value={nezet} onValueChange={setNezet} />
+      <Button onClick={() => setOpen(true)}>Megnyitás</Button>
+      <Sheet open={open} onOpenChange={setOpen} title="Beállítások" detents={['medium', 'large']}>
+        Tartalom
+      </Sheet>
+      <Button
+        destructive
+        onClick={async () => {
+          const valasz = await alert({
+            title: 'Törlöd a fotót?',
+            message: 'Ez nem vonható vissza.',
+            actions: [{ label: 'Mégse', role: 'cancel' }, { label: 'Törlés', role: 'destructive', prominent: true }],
+          });
+        }}
+      >
+        Törlés
+      </Button>
+    </>
+  );
+}
+```
+
+Teljes példa: [`examples/nextjs`](examples/nextjs).
+
+## React + Vite
+
+```tsx
+// main.tsx
+import 'liquid-glass-kit/css';
+import { LiquidGlassProvider } from 'liquid-glass-kit/react';
+
+createRoot(document.getElementById('root')!).render(
+  <LiquidGlassProvider theme="auto">
+    <App />
+  </LiquidGlassProvider>
+);
+```
+
+Példa: [`examples/vite-react`](examples/vite-react).
+
+## Electron
+
+Az Electron Chromiumot használ, így **a teljes fénytörés mindig működik.** macOS-en a natív vibrancyval együtt a legszebb:
+
+```js
+// main.js
+const win = new BrowserWindow({
+  width: 1100,
+  height: 720,
+  titleBarStyle: 'hiddenInset',  // közlekedési lámpák a tartalomban
+  vibrancy: 'under-window',      // macOS: natív üveg az ablak mögött
+  visualEffectState: 'active',
+  backgroundMaterial: 'acrylic', // Windows 11
+  backgroundColor: '#00000000',
+});
+```
+
+A rendererben ugyanúgy használod, mint bármely weboldalon (`<link>` + `<script>`, vagy bundlerrel importálva). Az ablak húzható részeihez: `class="lg-drag"`, a benne lévő gombok automatikusan kattinthatók maradnak (`lg-no-drag`).
+
+Példa: [`examples/electron`](examples/electron).
+
+## Vue, Svelte, Astro, Angular
+
+A CSS osztályok keretrendszer-függetlenek. A kliens oldalon egyszer indítsd el a magot, és az új elemeket magától felismeri:
+
+```js
+import 'liquid-glass-kit/css';
+import { start } from 'liquid-glass-kit';
+
+start(); // vagy: import 'liquid-glass-kit/auto';
+```
+
+Nuxt: tedd egy `plugins/liquid-glass.client.ts` fájlba. SvelteKit: `onMount` a gyökér layoutban. Astro: `<script>` a layoutban.
+
+## Komponensek
+
+| Komponens | HTML | React |
+| --- | --- | --- |
+| Üvegfelület | `<div class="lg-glass">` (+ `--clear`, `--tinted`, `--prominent`, `--thick`) | `<Glass variant="clear">` |
+| Gomb | `<button class="lg-button">` (+ `--prominent`, `--clear`, `--bordered`, `--filled`, `--plain`, `--small`, `--large`, `--icon`) | `<Button variant="prominent" size="large">` |
+| Gombcsoport | `<div class="lg-group lg-glass">` | `<ButtonGroup>` |
+| Kapcsoló | `<label class="lg-switch"><input type="checkbox"></label>` | `<Switch checked onCheckedChange>` |
+| Csúszka | `<div class="lg-slider" data-lg-ticks="5"><input type="range"></div>` | `<Slider value onValueChange ticks={5}>` |
+| Szegmensvezérlő | `<div class="lg-segmented">` + rádiók | `<SegmentedControl options value onValueChange>` |
+| Léptető | `<div class="lg-stepper" data-min="0" data-max="10">` | `<Stepper min max value onValueChange>` |
+| Szövegmező | `<input class="lg-textfield">` | `<TextField>` |
+| Kereső | `<div class="lg-search lg-glass"><svg/><input></div>` | `<SearchField>` |
+| Navigációs sáv | `<header class="lg-navbar lg-navbar--large">` | `<NavigationBar large title leading trailing>` |
+| Eszköztár | `<div class="lg-toolbar">` | `<Toolbar>` |
+| Tab bar | `<nav class="lg-tabbar" data-lg-minimize-on-scroll>` | `<TabBar items value onValueChange search minimizeOnScroll>` |
+| Oldalsáv | `<nav class="lg-sidebar lg-glass">` | `<Sidebar>`, `<SidebarItem>` |
+| Globális nav | `<div class="lg-globalnav">` | `<GlobalNav brand links>` |
+| Lista | `<section class="lg-list-section"><ul class="lg-list">` | `<ListSection header footer>`, `<ListRow>` |
+| Alert | `LiquidGlass.alert({...})` | `alert({...})` |
+| Action sheet | `LiquidGlass.actionSheet({...})` | `actionSheet({...})` |
+| Sheet | `<div class="lg-sheet" hidden>` + `data-lg-sheet="#id"` | `<Sheet open onOpenChange detents>` |
+| Menü | `<div class="lg-menu" hidden>` + `data-lg-menu="#id"` | `<Menu trigger={...}><MenuItem/></Menu>` |
+| Jobb klikkes menü | `data-lg-context-menu="#id"` | `data-lg-context-menu` |
+| Popover | `<div class="lg-popover" hidden>` + `data-lg-popover="#id"` | `<Popover trigger>` |
+| Értesítés | `LiquidGlass.toast({...})` | `toast({...})` |
+| Progress | `<progress class="lg-progress">` | `<ProgressBar>` |
+| Gyűrű | `<span class="lg-ring" style="--lg-value:.6">` | `<ProgressRing value={0.6}>` |
+| Spinner | `<span class="lg-spinner"></span>` | `<Spinner>` |
+| Lapozó | `<div class="lg-page-control" data-count="5">` | `<PageControl count={5}>` |
+| Badge | `<span class="lg-badge">3</span>` | `<Badge>3</Badge>` |
+| macOS ablak | `<div class="lg-window">` + `.lg-traffic-lights` | `<Window title sidebar toolbar>` |
+| Tipográfia | `.lg-large-title`, `.lg-title-1…3`, `.lg-headline`, `.lg-body`, `.lg-callout`, `.lg-subheadline`, `.lg-footnote`, `.lg-caption-1/2` | ugyanezek az osztályok |
+
+Az összes komponens élőben: nyisd meg az [`index.html`](index.html) demót.
+
+## JavaScript API
+
+```js
+import {
+  start, stop, init, enhance, destroy, refresh, select,
+  alert, actionSheet, toast, menu, sheet, openPopover, closePopover,
+  refract, unrefract, supportsRefraction, setTheme, configure,
+} from 'liquid-glass-kit';
+```
+
+A script tag build ugyanezt adja a `window.LiquidGlass` objektumon.
+
+| Függvény | Leírás |
+| --- | --- |
+| `start(options?)` | Globális viselkedések + a dokumentum feldolgozása. Idempotens. `options`: `{ refraction: 'auto' \| true \| false, dynamicLight: true, observe: true }` |
+| `init(root?)` / `enhance(el)` / `destroy(el)` | Kézi feldolgozás és takarítás (SPA-khoz). |
+| `alert({ title, message, actions, input })` | Promise, a választott gomb `value`-jával vagy címkéjével. `input`-tal `{ action, value }`. |
+| `actionSheet({ title, message, actions })` | Alsó megerősítő panel. |
+| `toast({ title, message, icon, time, duration })` | Értesítés felül, felfelé húzva eltűnik. |
+| `menu(anchor, items)` | Menü menet közben, Promise a választással. |
+| `sheet(el).open('medium' \| 'large')` | Sheet vezérlő: `open`, `close`, `toggle`, `setDetent`. |
+| `refract(el, { bezel, depth, magnify })` | Fénytörés bármely elemre. |
+| `select(el, index)` | Szegmens, tab bar vagy lapozó programból. |
+| `setTheme('light' \| 'dark' \| 'auto')` | Téma váltás. |
+
+Események: `lg-change` (szegmens gombokkal, tab bar, léptető, lapozó), `lg-select` (menü), `lg-open` / `lg-close` (menü, sheet), `lg-detent` (sheet).
+
+## Témák és testreszabás
+
+Minden szín és méret CSS változó. Például kiemelőszín:
+
+```css
+:root { --lg-accent: var(--lg-purple); }
+```
+
+Egy elem színezése: `style="--lg-tint: var(--lg-orange)"` (gombok, üveg), `--lg-switch-tint`, `--lg-slider-tint`, `--lg-tabbar-tint`.
+
+Sötét mód: automatikus. Kényszerítés: `data-lg-theme="dark"` vagy `class="lg-dark"` bármely elemen (részfára is). Üveg paraméterek: `--lg-glass-blur`, `--lg-glass-fill`, `--lg-glass-saturate`, `--lg-light-angle`. Elemenként: `data-lg-bezel`, `data-lg-depth`, `data-lg-magnify`, vagy `data-lg-refraction="off"`.
+
+Rendszerszínek: `--lg-red`, `--lg-orange`, `--lg-yellow`, `--lg-green`, `--lg-mint`, `--lg-teal`, `--lg-cyan`, `--lg-blue`, `--lg-indigo`, `--lg-purple`, `--lg-pink`, `--lg-brown`, `--lg-gray` … `--lg-gray-6`. Szemantikus: `--lg-label(-secondary/-tertiary/-quaternary)`, `--lg-fill(-secondary/…)`, `--lg-bg(-secondary/-tertiary)`, `--lg-bg-grouped(…)`, `--lg-separator`.
+
+## Böngészőtámogatás
+
+| Böngésző | Eredmény |
+| --- | --- |
+| Chrome, Edge, Opera, Brave, Arc 111+ · Electron 24+ | Teljes Liquid Glass: fénytörés, lencsék, perem, blur |
+| Safari 16.4+ (macOS, iOS) | Üveg blurral, peremmel, minden interakció (SVG fénytörés nélkül, ezt a WebKit nem támogatja backdrop-filterben) |
+| Firefox 121+ | Mint a Safari |
+
+A fénytöréshez a Chromium GPU-raszterizálása kell (asztali Chrome-ban és Electronban alapértelmezett). Kikapcsolás: `start({ refraction: false })`.
+
+## Teljesítmény
+
+- A displacement mapokat méret szerint cache-eli és újrahasznosítja; azonos méretű gombok egyetlen SVG szűrőn osztoznak.
+- Animáció közben (átméretezés) a meglévő map nyúlik, és csak a mozgás végén generál újat.
+- A nagy felületek mapja legfeljebb 320 px oldalú, a böngésző skálázza fel.
+- Az interakciók csak `transform`, `opacity` és CSS változók animálásával dolgoznak: kompozitorban futnak, 60/120 fps.
+- A dinamikus fény egy `requestAnimationFrame`-mel fojtott CSS változó.
+- Használd mértékkel: az Apple is azt javasolja, hogy a Liquid Glass a vezérlőréteg legyen, ne a tartalomé.
+
+## Akadálymentesség
+
+- Natív `input` elemek maradnak alatta (billentyűzet, képernyőolvasó, űrlapok működnek).
+- `prefers-reduced-transparency` → átlátszatlan üveg, `prefers-reduced-motion` → rugók helyett rövid átmenet, `prefers-contrast: more` → HIG nagy kontrasztú színek.
+- Fókuszgyűrű mindenhol, fókuszcsapda a dialógusokban, Escape bezár, nyilakkal navigálható menü.
+
+## Fejlesztés
+
+```bash
+npm install
+npm run build   # dist/ újragenerálása
+npm run dev     # figyelő mód
+npm test        # build + böngészős interakciós teszt (Playwright szükséges)
+```
+
+A forrás a `src/` mappában van: `liquid-glass.css`, `core.js` (mag), `react.jsx`, a típusok a `types/` mappában.
+
+## Licenc
+
+MIT. Az Apple, iOS, macOS, SF Pro és Liquid Glass az Apple Inc. védjegyei. Ez a projekt független, az Apple nem támogatja és nem áll kapcsolatban vele. Nem tartalmaz Apple betűtípust, ikont vagy képet: a rendszer SF Pro betűjét használja ott, ahol elérhető (Apple eszközökön), máshol a rendszer alapértelmezett betűjét.
+
+---
+
+<a id="english"></a>
+
+## English
+
+**Liquid Glass Kit** brings Apple's Liquid Glass to the web: real refraction, iOS 26 / macOS 26 components, React bindings, and values taken from Apple's Human Interface Guidelines.
+
+### Install
+
+```bash
+npm install github:noexgeci/liquid-glass-and-more-apple
+```
+
+```js
+import 'liquid-glass-kit/css';
+import { start } from 'liquid-glass-kit';        // vanilla
+import { Button, Switch } from 'liquid-glass-kit/react'; // React / Next.js
+```
+
+Or with plain tags:
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/noexgeci/liquid-glass-and-more-apple@main/dist/liquid-glass.min.css">
+<script src="https://cdn.jsdelivr.net/gh/noexgeci/liquid-glass-and-more-apple@main/dist/liquid-glass.min.js" defer></script>
+```
+
+### Highlights
+
+- Per-element SVG displacement maps model a convex glass rim, so content bends at the edges like iOS 26 (Chromium engines and Electron; Safari and Firefox get a blurred-glass fallback).
+- Specular rim that follows the pointer, touch-point illumination, spring animations.
+- Switch, slider, segmented control and tab bar selections turn into draggable glass lenses.
+- iOS 26 system colors (light, dark, increased contrast), Dynamic Type scale, SF tracking table, HIG control sizes.
+- 30+ components, dark mode via `light-dark()`, SSR-safe core, `'use client'` React build, TypeScript types, zero dependencies.
+
+### Next.js
+
+```tsx
+// app/layout.tsx
+import 'liquid-glass-kit/css';
+import { LiquidGlassProvider } from 'liquid-glass-kit/react';
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body className="lg">
+        <LiquidGlassProvider>{children}</LiquidGlassProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+### Electron
+
+Electron runs Chromium, so full refraction always works. For a native feel on macOS use `titleBarStyle: 'hiddenInset'`, `vibrancy: 'under-window'` and a transparent `backgroundColor`; mark draggable regions with `class="lg-drag"`. See [`examples/electron`](examples/electron).
+
+### Other frameworks
+
+Vue, Svelte, Astro, Angular, Solid: import the CSS, call `start()` once on the client (or `import 'liquid-glass-kit/auto'`). Components added later are enhanced automatically.
+
+The component table, API reference and theming guide above apply as-is; class names and function names are in English.
+
+### License
+
+MIT. Apple, iOS, macOS, SF Pro and Liquid Glass are trademarks of Apple Inc. This project is independent and not affiliated with or endorsed by Apple. No Apple fonts, icons or images are bundled.
