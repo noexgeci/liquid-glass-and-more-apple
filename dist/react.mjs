@@ -26,7 +26,10 @@ import {
   version as version2,
   icons,
   icon,
-  iconNames
+  iconNames,
+  registerIcons,
+  hasIcon,
+  sfAliases
 } from "./liquid-glass.mjs";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 var { forwardRef, useEffect, useLayoutEffect, useRef, useState, useCallback, useImperativeHandle } = React;
@@ -73,8 +76,12 @@ function tintStyle(tint, style, prop = "--lg-tint") {
   return { ...style, [prop]: color };
 }
 function Icon({ name, size = 24, strokeWidth = 1.9, label, className, style, ...rest }) {
-  const body = icons[name];
-  if (!body) return null;
+  const body = icons[name] || icons[sfAliases[name]];
+  const html = icon(name, { size, strokeWidth, label, className });
+  if (!html) return null;
+  if (!body || html.indexOf("stroke-linecap") < 0) {
+    return /* @__PURE__ */ jsx("span", { style: { display: "contents", ...style }, dangerouslySetInnerHTML: { __html: html }, ...rest });
+  }
   return /* @__PURE__ */ jsx(
     "svg",
     {
@@ -703,12 +710,15 @@ export {
   alert,
   closePopover as closeMenu,
   configure,
+  hasIcon,
   icon,
   iconNames,
   icons,
   menu,
   refract,
+  registerIcons,
   setTheme,
+  sfAliases,
   start,
   stop,
   supportsRefraction,

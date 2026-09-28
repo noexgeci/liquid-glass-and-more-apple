@@ -105,14 +105,159 @@ export const icons = {
   watch: '<rect x="6.5" y="6" width="11" height="12" rx="3"/><path d="M9 6l.7-3h4.6l.7 3M9 18l.7 3h4.6l.7-3"/>',
 };
 
-/** Returns an `<svg>` string for an icon. */
+/*
+ * SF Symbols names resolve to the matching built-in glyph, so markup can be
+ * written with Apple's names today and pick up real SF Symbols the moment
+ * they are registered (see registerIcons).
+ */
+export const sfAliases = {
+  'chevron.left': 'chevron-left',
+  'chevron.right': 'chevron-right',
+  'chevron.up': 'chevron-up',
+  'chevron.down': 'chevron-down',
+  'arrow.left': 'arrow-left',
+  'arrow.right': 'arrow-right',
+  'arrow.up': 'arrow-up',
+  'arrow.down': 'arrow-down',
+  'arrow.up.right': 'arrow-up-right',
+  'arrow.down.to.line': 'download',
+  'arrow.clockwise': 'refresh',
+  xmark: 'xmark',
+  checkmark: 'checkmark',
+  plus: 'plus',
+  minus: 'minus',
+  ellipsis: 'ellipsis',
+  magnifyingglass: 'search',
+  'sidebar.left': 'sidebar',
+  'line.3.horizontal': 'line-3',
+  'list.bullet': 'list',
+  'square.grid.2x2': 'grid',
+  'slider.horizontal.3': 'sliders',
+  house: 'house',
+  'house.fill': 'house',
+  gearshape: 'gear',
+  'gearshape.fill': 'gear',
+  person: 'person',
+  'person.fill': 'person',
+  'person.crop.circle': 'person-circle',
+  heart: 'heart',
+  'heart.fill': 'heart',
+  star: 'star',
+  'star.fill': 'star',
+  bell: 'bell',
+  'bell.fill': 'bell',
+  trash: 'trash',
+  'square.and.arrow.up': 'share',
+  bookmark: 'bookmark',
+  pencil: 'pencil',
+  'square.and.pencil': 'compose',
+  paperplane: 'paperplane',
+  link: 'link',
+  lock: 'lock',
+  'lock.fill': 'lock',
+  globe: 'globe',
+  bag: 'bag',
+  creditcard: 'creditcard',
+  camera: 'camera',
+  photo: 'photo',
+  folder: 'folder',
+  'doc.text': 'doc',
+  envelope: 'envelope',
+  message: 'message',
+  phone: 'phone',
+  calendar: 'calendar',
+  clock: 'clock',
+  'mappin.and.ellipse': 'location',
+  location: 'location',
+  map: 'map',
+  cloud: 'cloud',
+  sparkles: 'sparkles',
+  bolt: 'bolt',
+  'bolt.fill': 'bolt',
+  'info.circle': 'info-circle',
+  'exclamationmark.triangle': 'exclamation-triangle',
+  'checkmark.circle': 'checkmark-circle',
+  'plus.circle': 'plus-circle',
+  'xmark.circle': 'xmark-circle',
+  eye: 'eye',
+  tag: 'tag',
+  'play.fill': 'play',
+  'pause.fill': 'pause',
+  'forward.fill': 'forward',
+  'backward.fill': 'backward',
+  'music.note': 'music-note',
+  mic: 'mic',
+  'mic.fill': 'mic',
+  'speaker.wave.2': 'speaker',
+  'speaker.slash': 'speaker-slash',
+  'dot.radiowaves.left.and.right': 'radio',
+  tv: 'tv',
+  'books.vertical': 'books',
+  wifi: 'wifi',
+  airplane: 'airplane',
+  'antenna.radiowaves.left.and.right': 'antenna',
+  'battery.100': 'battery',
+  moon: 'moon',
+  'moon.fill': 'moon',
+  'sun.max': 'sun',
+  'hand.raised': 'hand-raised',
+  accessibility: 'accessibility',
+  keyboard: 'keyboard',
+  display: 'display',
+  iphone: 'iphone',
+  laptopcomputer: 'laptop',
+  applewatch: 'watch',
+};
+
+/* Icons registered by the app (e.g. SVGs exported from the SF Symbols app). */
+const registered = Object.create(null);
+
+/**
+ * Adds icons by name (see registerIcons in the core for the public API).
+ * Values are complete SVG documents or inner SVG markup.
+ */
+export function addIcons(map) {
+  for (const name in map) registered[name] = String(map[name]).trim();
+}
+
+// built-in name → SF Symbols names that map to it
+const reverseAliases = Object.create(null);
+for (const sf in sfAliases) (reverseAliases[sfAliases[sf]] = reverseAliases[sfAliases[sf]] || []).push(sf);
+
+function findRegistered(name) {
+  if (registered[name]) return registered[name];
+  const builtin = sfAliases[name] || name;
+  if (registered[builtin]) return registered[builtin];
+  for (const sf of reverseAliases[builtin] || []) if (registered[sf]) return registered[sf];
+  return null;
+}
+
+export function hasIcon(name) {
+  return !!(findRegistered(name) || icons[name] || icons[sfAliases[name]]);
+}
+
+function sizeSvg(svg, size, className, a11y) {
+  // Registered SVGs keep their own geometry; only size, color and a11y are set.
+  return svg.replace(/<svg\b([^>]*)>/i, (m, attrs) => {
+    const cleaned = attrs.replace(/\s(width|height|class|aria-hidden|role|aria-label)="[^"]*"/gi, '');
+    const fill = /\sfill=/.test(cleaned) ? '' : ' fill="currentColor"';
+    return `<svg${cleaned} width="${size}" height="${size}"${fill}${className ? ` class="${className}"` : ''} ${a11y}>`;
+  });
+}
+
+/** Returns an `<svg>` string for an icon (registered icons first, then built-in). */
 export function icon(name, options = {}) {
-  const body = icons[name];
-  if (!body) return '';
   const size = options.size || 24;
-  const sw = options.strokeWidth || 1.9;
   const label = options.label;
   const a11y = label ? `role="img" aria-label="${String(label).replace(/"/g, '&quot;')}"` : 'aria-hidden="true"';
+  const own = findRegistered(name);
+  if (own) {
+    if (/^<svg/i.test(own)) return sizeSvg(own, size, options.className, a11y);
+    return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor"${options.className ? ` class="${options.className}"` : ''} ${a11y}>${own}</svg>`;
+  }
+  const body = icons[name] || icons[sfAliases[name]];
+  if (!body) return '';
+  const sw = options.strokeWidth || 1.9;
   const cls = options.className ? ` class="${options.className}"` : '';
   // Filled parts carry data-fill; turn that into real fill attributes.
   const inner = body.replace(/ data-fill=""/g, ' fill="currentColor" stroke="none"');

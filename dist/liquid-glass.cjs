@@ -27,6 +27,7 @@ __export(index_exports, {
   createDisplacementMap: () => createDisplacementMap,
   destroy: () => destroy,
   enhance: () => enhance,
+  hasIcon: () => hasIcon,
   icon: () => icon,
   iconNames: () => iconNames,
   icons: () => icons,
@@ -36,8 +37,10 @@ __export(index_exports, {
   openPopover: () => openPopover,
   refract: () => refract,
   refresh: () => refresh,
+  registerIcons: () => registerIcons,
   select: () => select,
   setTheme: () => setTheme,
+  sfAliases: () => sfAliases,
   sheet: () => sheet,
   start: () => start,
   stop: () => stop,
@@ -142,13 +145,139 @@ var icons = {
   laptop: '<path d="M5 6.5a1.5 1.5 0 0 1 1.5-1.5h11A1.5 1.5 0 0 1 19 6.5V15H5zM2.5 17.5h19"/>',
   watch: '<rect x="6.5" y="6" width="11" height="12" rx="3"/><path d="M9 6l.7-3h4.6l.7 3M9 18l.7 3h4.6l.7-3"/>'
 };
+var sfAliases = {
+  "chevron.left": "chevron-left",
+  "chevron.right": "chevron-right",
+  "chevron.up": "chevron-up",
+  "chevron.down": "chevron-down",
+  "arrow.left": "arrow-left",
+  "arrow.right": "arrow-right",
+  "arrow.up": "arrow-up",
+  "arrow.down": "arrow-down",
+  "arrow.up.right": "arrow-up-right",
+  "arrow.down.to.line": "download",
+  "arrow.clockwise": "refresh",
+  xmark: "xmark",
+  checkmark: "checkmark",
+  plus: "plus",
+  minus: "minus",
+  ellipsis: "ellipsis",
+  magnifyingglass: "search",
+  "sidebar.left": "sidebar",
+  "line.3.horizontal": "line-3",
+  "list.bullet": "list",
+  "square.grid.2x2": "grid",
+  "slider.horizontal.3": "sliders",
+  house: "house",
+  "house.fill": "house",
+  gearshape: "gear",
+  "gearshape.fill": "gear",
+  person: "person",
+  "person.fill": "person",
+  "person.crop.circle": "person-circle",
+  heart: "heart",
+  "heart.fill": "heart",
+  star: "star",
+  "star.fill": "star",
+  bell: "bell",
+  "bell.fill": "bell",
+  trash: "trash",
+  "square.and.arrow.up": "share",
+  bookmark: "bookmark",
+  pencil: "pencil",
+  "square.and.pencil": "compose",
+  paperplane: "paperplane",
+  link: "link",
+  lock: "lock",
+  "lock.fill": "lock",
+  globe: "globe",
+  bag: "bag",
+  creditcard: "creditcard",
+  camera: "camera",
+  photo: "photo",
+  folder: "folder",
+  "doc.text": "doc",
+  envelope: "envelope",
+  message: "message",
+  phone: "phone",
+  calendar: "calendar",
+  clock: "clock",
+  "mappin.and.ellipse": "location",
+  location: "location",
+  map: "map",
+  cloud: "cloud",
+  sparkles: "sparkles",
+  bolt: "bolt",
+  "bolt.fill": "bolt",
+  "info.circle": "info-circle",
+  "exclamationmark.triangle": "exclamation-triangle",
+  "checkmark.circle": "checkmark-circle",
+  "plus.circle": "plus-circle",
+  "xmark.circle": "xmark-circle",
+  eye: "eye",
+  tag: "tag",
+  "play.fill": "play",
+  "pause.fill": "pause",
+  "forward.fill": "forward",
+  "backward.fill": "backward",
+  "music.note": "music-note",
+  mic: "mic",
+  "mic.fill": "mic",
+  "speaker.wave.2": "speaker",
+  "speaker.slash": "speaker-slash",
+  "dot.radiowaves.left.and.right": "radio",
+  tv: "tv",
+  "books.vertical": "books",
+  wifi: "wifi",
+  airplane: "airplane",
+  "antenna.radiowaves.left.and.right": "antenna",
+  "battery.100": "battery",
+  moon: "moon",
+  "moon.fill": "moon",
+  "sun.max": "sun",
+  "hand.raised": "hand-raised",
+  accessibility: "accessibility",
+  keyboard: "keyboard",
+  display: "display",
+  iphone: "iphone",
+  laptopcomputer: "laptop",
+  applewatch: "watch"
+};
+var registered = /* @__PURE__ */ Object.create(null);
+function addIcons(map) {
+  for (const name in map) registered[name] = String(map[name]).trim();
+}
+var reverseAliases = /* @__PURE__ */ Object.create(null);
+for (const sf in sfAliases) (reverseAliases[sfAliases[sf]] = reverseAliases[sfAliases[sf]] || []).push(sf);
+function findRegistered(name) {
+  if (registered[name]) return registered[name];
+  const builtin = sfAliases[name] || name;
+  if (registered[builtin]) return registered[builtin];
+  for (const sf of reverseAliases[builtin] || []) if (registered[sf]) return registered[sf];
+  return null;
+}
+function hasIcon(name) {
+  return !!(findRegistered(name) || icons[name] || icons[sfAliases[name]]);
+}
+function sizeSvg(svg, size, className, a11y) {
+  return svg.replace(/<svg\b([^>]*)>/i, (m, attrs) => {
+    const cleaned = attrs.replace(/\s(width|height|class|aria-hidden|role|aria-label)="[^"]*"/gi, "");
+    const fill = /\sfill=/.test(cleaned) ? "" : ' fill="currentColor"';
+    return `<svg${cleaned} width="${size}" height="${size}"${fill}${className ? ` class="${className}"` : ""} ${a11y}>`;
+  });
+}
 function icon(name, options = {}) {
-  const body = icons[name];
-  if (!body) return "";
   const size = options.size || 24;
-  const sw = options.strokeWidth || 1.9;
   const label = options.label;
   const a11y = label ? `role="img" aria-label="${String(label).replace(/"/g, "&quot;")}"` : 'aria-hidden="true"';
+  const own = findRegistered(name);
+  if (own) {
+    if (/^<svg/i.test(own)) return sizeSvg(own, size, options.className, a11y);
+    return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="currentColor"${options.className ? ` class="${options.className}"` : ""} ${a11y}>${own}</svg>`;
+  }
+  const body = icons[name] || icons[sfAliases[name]];
+  if (!body) return "";
+  const sw = options.strokeWidth || 1.9;
   const cls = options.className ? ` class="${options.className}"` : "";
   const inner = body.replace(/ data-fill=""/g, ' fill="currentColor" stroke="none"');
   return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"${cls} ${a11y}>${inner}</svg>`;
@@ -1126,10 +1255,17 @@ function initPageControl(el) {
     if (b) select2(dots.indexOf(b), true);
   });
 }
+var iconGeneration = 0;
+function registerIcons(map) {
+  addIcons(map);
+  iconGeneration++;
+  if (isBrowser()) for (const el of $$("[data-lg-icon]")) initIcon(el);
+}
 function initIcon(el) {
   const name = el.getAttribute("data-lg-icon");
-  if (el.__lgIcon === name) return;
+  if (el.__lgIcon === name && el.__lgIconGen === iconGeneration) return;
   el.__lgIcon = name;
+  el.__lgIconGen = iconGeneration;
   el.innerHTML = icon(name, {
     size: numAttr(el, "data-size", 24),
     strokeWidth: numAttr(el, "data-stroke", 1.9),

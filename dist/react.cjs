@@ -73,12 +73,15 @@ __export(react_exports, {
   alert: () => import_core.alert,
   closeMenu: () => import_core.closePopover,
   configure: () => import_core.configure,
+  hasIcon: () => import_core.hasIcon,
   icon: () => import_core.icon,
   iconNames: () => import_core.iconNames,
   icons: () => import_core.icons,
   menu: () => import_core.menu,
   refract: () => import_core.refract,
+  registerIcons: () => import_core.registerIcons,
   setTheme: () => import_core.setTheme,
+  sfAliases: () => import_core.sfAliases,
   start: () => import_core.start,
   stop: () => import_core.stop,
   supportsRefraction: () => import_core.supportsRefraction,
@@ -136,8 +139,12 @@ function tintStyle(tint, style, prop = "--lg-tint") {
   return { ...style, [prop]: color };
 }
 function Icon({ name, size = 24, strokeWidth = 1.9, label, className, style, ...rest }) {
-  const body = import_core.icons[name];
-  if (!body) return null;
+  const body = import_core.icons[name] || import_core.icons[import_core.sfAliases[name]];
+  const html = (0, import_core.icon)(name, { size, strokeWidth, label, className });
+  if (!html) return null;
+  if (!body || html.indexOf("stroke-linecap") < 0) {
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { display: "contents", ...style }, dangerouslySetInnerHTML: { __html: html }, ...rest });
+  }
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
     "svg",
     {
