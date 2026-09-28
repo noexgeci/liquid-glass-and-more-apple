@@ -106,6 +106,8 @@ export declare const sfAliases: Record<string, IconName>;
  */
 export declare function registerIcons(map: Record<string, string>): void;
 export declare function hasIcon(name: string): boolean;
+/** True when the app registered its own SVG for this name (directly or through an SF Symbols alias). */
+export declare function isRegisteredIcon(name: string): boolean;
 /** Returns a complete `<svg>` string. Accepts built-in and SF Symbols names. */
 export declare function icon(name: IconName | (string & {}), options?: { size?: number; strokeWidth?: number; label?: string; className?: string }): string;
 
@@ -228,7 +230,8 @@ export declare function openPopover(
   anchor?: Element | string | null,
   options?: { placement?: 'top' | 'bottom'; x?: number; y?: number; focus?: boolean }
 ): void;
-export declare function closePopover(immediate?: boolean): void;
+/** Closes the open menu or popover; with `panel`, only when that one is open. */
+export declare function closePopover(immediate?: boolean, panel?: Element | string): void;
 
 export interface SheetController {
   readonly el: HTMLElement;

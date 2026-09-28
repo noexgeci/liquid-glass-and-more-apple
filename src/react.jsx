@@ -33,12 +33,13 @@ import {
   iconNames,
   registerIcons,
   hasIcon,
+  isRegisteredIcon,
   sfAliases,
 } from './core.js';
 
-export { alert, actionSheet, toast, menu, refract, unrefract, supportsRefraction, configure, setTheme, version, start, stop, icon, icons, iconNames, registerIcons, hasIcon, sfAliases };
+export { alert, actionSheet, toast, menu, refract, unrefract, supportsRefraction, configure, setTheme, version, start, stop, icon, icons, iconNames, registerIcons, hasIcon, isRegisteredIcon, sfAliases };
 
-const { forwardRef, useEffect, useLayoutEffect, useRef, useState, useCallback, useImperativeHandle } = React;
+const { forwardRef, useEffect, useLayoutEffect, useRef, useState, useCallback } = React;
 const useIsoLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 let idCounter = 0;
 // React 18+ has useId; React 17 gets a stable per-instance fallback.
@@ -55,20 +56,51 @@ function cx(...parts) {
   return parts.filter(Boolean).join(' ');
 }
 
-function useMergedRef(forwarded) {
-  const local = useRef(null);
-  useImperativeHandle(forwarded, () => local.current, []);
-  return local;
+function assignRef(ref, value) {
+  if (typeof ref === 'function') ref(value);
+  else if (ref) ref.current = value;
 }
 
-/** Attaches Liquid Glass behaviors to the element in `ref` for the component's lifetime. */
-export function useLiquidGlass(ref) {
-  useIsoLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return undefined;
-    init(el);
-    return () => destroy(el);
+/**
+ * A local ref object plus a stable callback ref that also feeds the
+ * forwarded ref, following the element when it changes (e.g. a new `as`).
+ */
+function useMergedRef(forwarded) {
+  const local = useRef(null);
+  const outer = useRef(forwarded);
+  const setRef = useCallback((node) => {
+    local.current = node;
+    assignRef(outer.current, node);
   }, []);
+  useIsoLayoutEffect(() => {
+    if (outer.current === forwarded) return;
+    assignRef(outer.current, null);
+    outer.current = forwarded;
+    assignRef(forwarded, local.current);
+  });
+  return [local, setRef];
+}
+
+/**
+ * Attaches Liquid Glass behaviors to the element in `ref` while it is
+ * mounted; if the ref moves to another element, the old one is released.
+ */
+export function useLiquidGlass(ref) {
+  const attached = useRef(null);
+  useIsoLayoutEffect(() => {
+    const el = ref.current || null;
+    if (el === attached.current) return;
+    if (attached.current) destroy(attached.current);
+    attached.current = el;
+    if (el) init(el);
+  });
+  useIsoLayoutEffect(
+    () => () => {
+      if (attached.current) destroy(attached.current);
+      attached.current = null;
+    },
+    []
+  );
 }
 
 /** Controlled/uncontrolled state helper. */
@@ -98,13 +130,13 @@ function tintStyle(tint, style, prop = '--lg-tint') {
 
 /** SF-inspired line icon from the kit's set: <Icon name="house" /> */
 export function Icon({ name, size = 24, strokeWidth = 1.9, label, className, style, ...rest }) {
-  const body = icons[name] || icons[sfAliases[name]];
-  // Registered icons (e.g. exported SF Symbols) render through icon().
-  const html = icon(name, { size, strokeWidth, label, className });
-  if (!html) return null;
-  if (!body || html.indexOf('stroke-linecap') < 0) {
-    return <span style={{ display: 'contents', ...style }} dangerouslySetInnerHTML={{ __html: html }} {...rest} />;
+  // Registered icons (e.g. SVGs exported from the SF Symbols app) keep their own markup.
+  if (isRegisteredIcon(name)) {
+    const html = icon(name, { size, label, className });
+    return html ? <span style={{ display: 'contents', ...style }} dangerouslySetInnerHTML={{ __html: html }} {...rest} /> : null;
   }
+  const body = icons[name] || icons[sfAliases[name]];
+  if (!body) return null;
   return (
     <svg
       viewBox="0 0 24 24"
@@ -135,11 +167,19 @@ export function Icon({ name, size = 24, strokeWidth = 1.9, label, className, sty
  * declarative triggers, auto-enhancement) and optionally sets the theme.
  */
 export function LiquidGlassProvider({ children, theme, refraction, dynamicLight }) {
+  const opts = {};
+  if (refraction !== undefined) opts.refraction = refraction;
+  if (dynamicLight !== undefined) opts.dynamicLight = dynamicLight;
+  const applied = useRef(null);
+  const key = JSON.stringify(opts);
+  // Children's layout effects run before the provider's own effects, so the
+  // options are applied while rendering (client only, and only on change).
+  if (typeof window !== 'undefined' && applied.current !== key) {
+    applied.current = key;
+    configure(opts);
+  }
   useEffect(() => {
-    const opts = {};
-    if (refraction !== undefined) opts.refraction = refraction;
-    if (dynamicLight !== undefined) opts.dynamicLight = dynamicLight;
-    start(opts);
+    start();
   }, []);
   useEffect(() => {
     if (theme) setTheme(theme);
@@ -157,11 +197,11 @@ export const Glass = forwardRef(function Glass(
   { as: Tag = 'div', variant = 'regular', shape, tint, interactive, flat, adaptive, bezel, depth, magnify, className, style, children, ...rest },
   ref
 ) {
-  const local = useMergedRef(ref);
+  const [local, setRef] = useMergedRef(ref);
   useLiquidGlass(local);
   return (
     <Tag
-      ref={local}
+      ref={setRef}
       className={cx(
         'lg-glass',
         GLASS_VARIANTS[variant],
@@ -197,13 +237,13 @@ export const Button = forwardRef(function Button(
   { as, variant = 'glass', size = 'regular', shape = 'capsule', icon, destructive, tint, block, className, style, children, type, ...rest },
   ref
 ) {
-  const local = useMergedRef(ref);
+  const [local, setRef] = useMergedRef(ref);
   useLiquidGlass(local);
   const Tag = as || (rest.href ? 'a' : 'button');
   const iconOnly = shape === 'circle' || (icon && !children);
   return (
     <Tag
-      ref={local}
+      ref={setRef}
       type={Tag === 'button' ? type || 'button' : type}
       className={cx(
         'lg-button',
@@ -241,10 +281,10 @@ export const ToggleButton = forwardRef(function ToggleButton({ pressed, defaultP
 });
 
 export const ButtonGroup = forwardRef(function ButtonGroup({ className, children, height, style, ...rest }, ref) {
-  const local = useMergedRef(ref);
+  const [local, setRef] = useMergedRef(ref);
   useLiquidGlass(local);
   return (
-    <div ref={local} role="group" className={cx('lg-group lg-glass', className)} style={height ? { ...style, '--lg-group-height': height + 'px' } : style} {...rest}>
+    <div ref={setRef} role="group" className={cx('lg-group lg-glass', className)} style={height ? { ...style, '--lg-group-height': height + 'px' } : style} {...rest}>
       {children}
     </div>
   );
@@ -339,7 +379,7 @@ export const SegmentedControl = forwardRef(function SegmentedControl(
   { options, value, defaultValue, onValueChange, name, size, block, className, 'aria-label': ariaLabel, ...rest },
   ref
 ) {
-  const local = useMergedRef(ref);
+  const [local, setRef] = useMergedRef(ref);
   const autoName = 'lg-seg-' + useStableId().replace(/[^a-zA-Z0-9_-]/g, '');
   const items = (options || []).map((o) => (typeof o === 'object' ? o : { value: o, label: String(o) }));
   const [v, setV] = useControllable(value, defaultValue !== undefined ? defaultValue : items[0] && items[0].value, onValueChange);
@@ -349,7 +389,7 @@ export const SegmentedControl = forwardRef(function SegmentedControl(
   }, [v]);
   return (
     <div
-      ref={local}
+      ref={setRef}
       role="radiogroup"
       aria-label={ariaLabel}
       className={cx('lg-segmented', size === 'small' && 'lg-segmented--small', block && 'lg-segmented--block', className)}
@@ -491,7 +531,10 @@ export function PickerColumn({ items, value, defaultValue, onValueChange, label,
   useEffect(() => {
     const idx = list.findIndex((it) => it.value === v);
     const el = ref.current;
-    if (el && idx > -1 && String(el.getAttribute('data-value')) !== String(list[idx].value)) coreSelect(el, idx);
+    if (!el || idx < 0) return;
+    // React writes data-value itself, so ask the core which row it shows.
+    const shown = el.querySelector('.lg-picker-item[aria-selected="true"]');
+    if (!shown || shown.getAttribute('data-value') !== String(list[idx].value)) coreSelect(el, idx);
   }, [v]);
   return (
     <div
@@ -520,11 +563,11 @@ export const NavigationBar = forwardRef(function NavigationBar(
   { title, large, leading, trailing, scrollTarget, threshold, edge, adaptive, className, children, ...rest },
   ref
 ) {
-  const local = useMergedRef(ref);
+  const [local, setRef] = useMergedRef(ref);
   useLiquidGlass(local);
   return (
     <header
-      ref={local}
+      ref={setRef}
       className={cx('lg-navbar', large && 'lg-navbar--large', edge && 'lg-navbar--edge', className)}
       data-lg-scroll={scrollTarget}
       data-lg-threshold={threshold}
@@ -555,7 +598,7 @@ export const TabBar = forwardRef(function TabBar(
   { items, value, defaultValue, onValueChange, search, onSearch, searchLabel = 'Search', action, minimizeOnScroll, adaptive, position = 'fixed', tint, className, style, 'aria-label': ariaLabel = 'Tabs', ...rest },
   ref
 ) {
-  const local = useMergedRef(ref);
+  const [local, setRef] = useMergedRef(ref);
   const list = items || [];
   const [v, setV] = useControllable(value, defaultValue !== undefined ? defaultValue : list[0] && list[0].value, onValueChange);
   useLiquidGlass(local);
@@ -576,7 +619,7 @@ export const TabBar = forwardRef(function TabBar(
   const minimizeAttr = minimizeOnScroll === true ? 'window' : minimizeOnScroll || undefined;
   return (
     <nav
-      ref={local}
+      ref={setRef}
       aria-label={ariaLabel}
       className={cx('lg-tabbar', position === 'absolute' && 'lg-tabbar--absolute', position === 'static' && 'lg-tabbar--static', className)}
       style={tintStyle(tint, style, '--lg-tabbar-tint')}
@@ -738,7 +781,7 @@ export const Sheet = forwardRef(function Sheet(
   { open, onOpenChange, detents = ['medium', 'large'], detent, onDetentChange, title, leading, trailing, grabber = true, contained, className, children, ...rest },
   ref
 ) {
-  const local = useMergedRef(ref);
+  const [local, setRef] = useMergedRef(ref);
   const portal = usePortalTarget(!contained);
   const ctrl = useRef(null);
   const onOpenChangeRef = useRef(onOpenChange);
@@ -770,7 +813,7 @@ export const Sheet = forwardRef(function Sheet(
   }, [open, detent, portal]);
 
   const node = (
-    <div ref={local} className={cx('lg-sheet lg-glass', contained && 'lg-sheet--contained', className)} data-lg-detents={detents.join(' ')} hidden {...rest}>
+    <div ref={setRef} className={cx('lg-sheet lg-glass', contained && 'lg-sheet--contained', className)} data-lg-detents={detents.join(' ')} hidden {...rest}>
       {grabber && <div className="lg-sheet-grabber" />}
       {(title != null || leading || trailing) && (
         <div className="lg-sheet-header">
@@ -811,6 +854,8 @@ export function Menu({ trigger, children, placement, className, onOpenChange, po
     return () => {
       el.removeEventListener('lg-open', onOpen);
       el.removeEventListener('lg-close', onClose);
+      // Unmounted while open: release the document listeners and the anchor.
+      closePopover(true, el);
       unrefract(el);
     };
   }, [portal]);

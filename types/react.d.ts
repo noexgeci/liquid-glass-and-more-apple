@@ -19,6 +19,7 @@ export {
   iconNames,
   registerIcons,
   hasIcon,
+  isRegisteredIcon,
   sfAliases,
 } from './index';
 export type { IconName } from './index';

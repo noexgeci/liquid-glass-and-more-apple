@@ -221,8 +221,8 @@
 }
 
 /* Theme scoping: works on :root or on any subtree */
-[data-lg-theme="light"], .lg-light { color-scheme: light; }
-[data-lg-theme="dark"], .lg-dark { color-scheme: dark; }
+[data-lg-theme="light"], .lg-light, [data-lg-appearance="light"] { color-scheme: light; }
+[data-lg-theme="dark"], .lg-dark, [data-lg-appearance="dark"] { color-scheme: dark; }
 
 /* ==========================================================================
    2. Base
@@ -1676,6 +1676,23 @@ button.lg-row:active,
 }
 .lg-overlay.is-open { opacity: 1; }
 .lg-overlay--clear { background: transparent; }
+
+/*
+ * The core shows presentations in the top layer with popover="manual".
+ * Zero-specificity reset of the UA popover box (centered, bordered,
+ * Canvas-colored); every rule of the kit or the app still wins over it.
+ */
+:where(.lg-alert, .lg-action-sheet, .lg-sheet, .lg-menu, .lg-popover, .lg-toasts, .lg-tooltip, .lg-overlay):where([popover]) {
+  inset: auto;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: visible;
+  color: inherit;
+  background-color: transparent;
+}
 
 /* dialog reset for presentations built on <dialog> */
 dialog.lg-alert,

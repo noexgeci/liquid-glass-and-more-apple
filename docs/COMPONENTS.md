@@ -271,6 +271,8 @@ Row parts: `.lg-row-icon`, `.lg-row-title`, `.lg-row-content` + `.lg-row-subtitl
 
 ## Presentations
 
+Alerts, action sheets, viewport sheets, menus, popovers, toasts and tooltips are shown in the browser's **top layer** (`popover="manual"` + `showPopover()`). They stay where you put them in the DOM, so form fields keep their `<form>`, themes set on a wrapper (`.lg-dark`, `data-lg-theme`) still apply and framework trees are untouched, yet no `transform`, `overflow`, `contain` or `content-visibility` ancestor and no `z-index` can clip or cover them. Whatever is presented last is on top: a menu or alert opened from a sheet shows above the sheet, and Escape closes only the frontmost one. Browsers without the Popover API (Safari < 17, Firefox < 125) get the element moved to `<body>` while it is open and put back afterwards.
+
 ### Alert
 
 ```js
@@ -282,7 +284,7 @@ const choice = await LiquidGlass.alert({
 const { action, value } = await LiquidGlass.alert({ title: 'Rename', input: { value: 'Untitled' }, actions: […] });
 ```
 
-Declarative: `<button data-lg-alert="Title" data-lg-message="Message">`. Escape triggers the `cancel` action; three or more actions stack.
+Declarative: `<button data-lg-alert="Title" data-lg-message="Message">`. Escape triggers the `cancel` action; three or more actions stack. With `input`, Enter picks the prominent action (or the last non-cancel one) and is ignored while an IME is composing.
 
 ### Action sheet
 
@@ -324,7 +326,7 @@ Detents: `medium`, `large`, percentages or px. Drag the grabber/header, tap the 
 <button data-lg-popover="#info">Info</button><div class="lg-popover" id="info" hidden>Any content</div>
 ```
 
-Emits `lg-select` `{ item, value }` on the panel; `data-lg-keep-open` keeps it open. Arrow keys, Home/End and Escape work. `data-lg-placement="top"` on the trigger.
+Emits `lg-select` `{ item, value }` on the panel; `data-lg-keep-open` keeps it open. Arrow keys, Home/End and Escape work. `data-lg-placement="top"` on the trigger. `LiquidGlass.closePopover()` closes whatever is open; `closePopover(false, '#more')` closes it only if that panel is the open one.
 JS: `await LiquidGlass.menu(anchorOrPoint, [{ label, icon, value, destructive, shortcut, checked }, '-'])`.
 React: `<Menu trigger={<Button>More</Button>}><MenuItem icon onSelect shortcut destructive checked /></Menu>`, `<Popover trigger>`.
 
@@ -338,7 +340,7 @@ Swipe up to dismiss; returns `{ close }`.
 
 ### Tooltip
 
-`<button data-lg-tooltip="Share this page">…</button>` — macOS-style help tag after a short hover delay.
+`<button data-lg-tooltip="Share this page">…</button>` — macOS-style help tag after a short hover delay, and on keyboard focus (`:focus-visible`). While it shows, `lg-tooltip` is appended to the element's own `aria-describedby` ids and removed again afterwards; Escape hides it.
 
 ---
 
