@@ -5,3 +5,4 @@ node_modules/
 examples/*/dist/
 next-env.d.ts
 examples/*/package-lock.json
+*.tsbuildinfo
