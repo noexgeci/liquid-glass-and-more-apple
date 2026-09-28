@@ -1718,7 +1718,7 @@ button.lg-row:active,
   letter-spacing: -0.08px;
   text-align: center;
   text-transform: uppercase;
-  color: var(--lg-label-tertiary);
+  color: var(--lg-label-secondary);
 }
 .lg-calendar-weekdays > span { overflow: hidden; text-overflow: clip; white-space: nowrap; }
 .lg-calendar-days { touch-action: pan-y; will-change: transform; }
@@ -2447,6 +2447,14 @@ dialog.lg-sheet::backdrop { background: transparent; }
 /* ==========================================================================
    12. Accessibility preferences
    ========================================================================== */
+
+/* Increased contrast: badge text turns black on light badge colors (the
+   brighter high-contrast dark palette), white otherwise. */
+@media (prefers-contrast: more) {
+  .lg-badge { color: oklch(from var(--lg-badge-color, var(--lg-red)) clamp(0, (0.6 - l) * 1000, 1) 0 0); }
+}
+[data-lg-contrast="more"] .lg-badge,
+.lg-contrast-more .lg-badge { color: oklch(from var(--lg-badge-color, var(--lg-red)) clamp(0, (0.6 - l) * 1000, 1) 0 0); }
 
 @media (prefers-reduced-transparency: reduce) {
   .lg-glass,
