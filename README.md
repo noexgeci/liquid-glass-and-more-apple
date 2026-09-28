@@ -232,7 +232,7 @@ import { start } from 'liquid-glass-kit';
 start(); // vagy: import 'liquid-glass-kit/auto';
 ```
 
-Nuxt: tedd egy `plugins/liquid-glass.client.ts` fájlba. SvelteKit: `onMount` a gyökér layoutban. Astro: `<script>` a layoutban.
+Példa: [`examples/vue`](examples/vue) (`v-model` a kapcsolón, csúszkán és szegmensen, húzással is). Nuxt: tedd egy `plugins/liquid-glass.client.ts` fájlba. SvelteKit: `onMount` a gyökér layoutban. Astro: `<script>` a layoutban.
 
 ## Komponensek
 
