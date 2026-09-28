@@ -84,6 +84,13 @@ check('sheet opens in the top layer', await until(() => { const s = document.get
 await page.keyboard.press('Escape');
 check('Escape closes the sheet and reports it', await until(() => document.getElementById('sh').hidden && window.__open === false));
 
+check('calendar renders the controlled value', await until(() => document.querySelector('#rcal [aria-selected="true"]')?.getAttribute('data-date') === '2026-09-28'));
+await page.click('#rcal .lg-calendar-day[data-date="2026-09-17"]');
+check('calendar reports picks to React state', await until(() => window.__day === '2026-09-17'));
+await page.evaluate(() => window.__set.setDay('2026-12-24'));
+check('calendar follows state to another month', await until(() => document.querySelector('#rcal .lg-calendar-title-text').textContent === 'December 2026' && document.querySelector('#rcal [aria-selected="true"]')?.getAttribute('data-date') === '2026-12-24'));
+check('date picker shows its default value', /Jan 5, 2026/.test(await page.textContent('#rdp .lg-date-picker-button')));
+
 check('no errors or warnings', errors.length === 0, errors.join(' | '));
 await browser.close();
 if (failed) {

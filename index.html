@@ -352,6 +352,13 @@
     </div>
 
     <div class="card">
+      <h3>Dátumválasztó</h3>
+      <p>Az iOS naptára: lapozás húzással vagy nyilakkal, a címre koppintva hónap- és évkerék, magyar hét (hétfővel kezdődik).</p>
+      <div class="lg-calendar" id="demoCal" aria-label="Dátum"></div>
+      <div class="kv" style="margin-top: 8px"><span>Indulás</span><div class="lg-date-picker" id="demoDate" aria-label="Indulás"></div></div>
+    </div>
+
+    <div class="card">
       <h3>Jelzők</h3>
       <p>Folyamatjelző, gyűrű, spinner, lapozó és jelvény.</p>
       <div class="stack">
@@ -743,6 +750,13 @@ createRoot(root).render(
       var m = +minCol.getAttribute('data-value');
       document.getElementById('pickOut').textContent = hourCol.getAttribute('data-value') + ':' + (m < 10 ? '0' : '') + m;
     });
+
+    /* Date pickers start at today and a week from now */
+    function isoDay(d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+    var now = new Date();
+    document.getElementById('demoCal').setAttribute('data-value', isoDay(now));
+    document.getElementById('demoDate').setAttribute('data-min', isoDay(now));
+    document.getElementById('demoDate').setAttribute('data-value', isoDay(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7)));
 
     /* Adaptive glass demo: drag the bar across dark and light content */
     var pill = document.getElementById('adaptPill');

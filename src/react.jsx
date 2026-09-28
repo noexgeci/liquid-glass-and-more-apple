@@ -556,6 +556,64 @@ export function PickerColumn({ items, value, defaultValue, onValueChange, label,
 }
 
 /* ==========================================================================
+   Date picker
+   ========================================================================== */
+
+function isoDay(v) {
+  if (v == null || v === '') return undefined;
+  if (v instanceof Date) {
+    if (isNaN(v)) return undefined;
+    const p = (n) => (n < 10 ? '0' : '') + n;
+    return v.getFullYear() + '-' + p(v.getMonth() + 1) + '-' + p(v.getDate());
+  }
+  return String(v).slice(0, 10);
+}
+
+function useDateField(kind, props, ref) {
+  const { value, defaultValue, onValueChange, min, max, locale, firstDayOfWeek, name, className, ...rest } = props;
+  const [local, setRef] = useMergedRef(ref);
+  const [v, setV] = useControllable(value === null ? '' : isoDay(value), isoDay(defaultValue), onValueChange);
+  useLiquidGlass(local);
+  const setRefV = useRef(setV);
+  setRefV.current = setV;
+  useEffect(() => {
+    const el = local.current;
+    if (!el) return undefined;
+    const on = (e) => {
+      if (e.target === el) setRefV.current(e.detail.value);
+    };
+    el.addEventListener('lg-change', on);
+    return () => el.removeEventListener('lg-change', on);
+  }, []);
+  // A controlled value that did not follow the user's pick is put back.
+  useEffect(() => {
+    const el = local.current;
+    if (el && value !== undefined && (el.getAttribute('data-value') || '') !== (v || '')) coreSelect(el, v || '');
+  });
+  return {
+    ref: setRef,
+    className: cx(kind, className),
+    'data-value': v || undefined,
+    'data-min': isoDay(min),
+    'data-max': isoDay(max),
+    'data-locale': locale,
+    'data-first-day': firstDayOfWeek,
+    'data-name': name,
+    ...rest,
+  };
+}
+
+/** iOS graphical date picker: a month grid with month/year wheels behind the title. */
+export const Calendar = forwardRef(function Calendar(props, ref) {
+  return <div {...useDateField('lg-calendar', props, ref)} />;
+});
+
+/** Compact date picker: a capsule with the date that opens the calendar in a popover. */
+export const DatePicker = forwardRef(function DatePicker({ placeholder, ...props }, ref) {
+  return <div {...useDateField('lg-date-picker', props, ref)} data-placeholder={placeholder} />;
+});
+
+/* ==========================================================================
    Navigation
    ========================================================================== *//* ==========================================================================
    Navigation

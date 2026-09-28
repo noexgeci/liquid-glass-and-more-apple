@@ -172,6 +172,36 @@ check('picker moves with arrow keys', await until(() => window.__pick === 'd'));
 await page.locator('#pick .lg-picker-item', { hasText: 'F' }).click();
 check('picker selects a clicked row', await until(() => window.__pick === 'f'));
 
+// Date picker: locale, selection, keyboard grid, paging, bounds, compact popover
+check('calendar follows the locale (Monday first, Hungarian)', await page.evaluate(() => {
+  const h = document.querySelector('#cal .lg-calendar-weekdays span');
+  return /hétfő/i.test(h.getAttribute('aria-label')) && /szeptember/.test(document.querySelector('#cal .lg-calendar-title-text').textContent);
+}));
+await page.evaluate(() => { window.__day = null; document.getElementById('cal').addEventListener('lg-change', (e) => (window.__day = e.detail.value)); });
+await page.click('#cal .lg-calendar-day[data-date="2026-09-15"]');
+check('calendar selects a day', await until(() => window.__day === '2026-09-15' && document.querySelector('#cal input[name="day"]').value === '2026-09-15'));
+await page.keyboard.press('ArrowRight');
+await page.keyboard.press('ArrowDown');
+await page.keyboard.press('PageDown');
+check('calendar keyboard grid (arrows, PageDown)', await until(() => document.activeElement.getAttribute('data-date') === '2026-10-23'));
+await page.keyboard.press('Enter');
+check('Enter picks the focused day', await until(() => window.__day === '2026-10-23'));
+check('days before data-min are disabled', await page.evaluate(() => {
+  document.querySelector('#cal .lg-calendar-prev').click();
+  const d = document.querySelector('#cal .lg-calendar-day[data-date="2026-09-01"]');
+  return d.getAttribute('aria-disabled') === 'true' && document.querySelector('#cal .lg-calendar-prev').disabled;
+}));
+await page.click('#cal .lg-calendar-title');
+check('title opens month/year wheels', await until(() => {
+  const cols = document.querySelectorAll('#cal .lg-calendar-chooser .lg-picker-column');
+  return cols.length === 2 && cols[0].getAttribute('data-value') === '8' && cols[1].getAttribute('data-value') === '2026';
+}));
+await page.click('#cal .lg-calendar-title');
+await page.click('#dp .lg-date-picker-button');
+check('compact date picker opens its calendar in the top layer', await until(() => document.querySelector('#dp .lg-date-popover').matches(':popover-open')));
+await page.click('#dp .lg-calendar-day[data-date="2026-10-20"]');
+check('compact date picker takes the day and closes', await until(() => document.getElementById('dp').getAttribute('data-value') === '2026-10-20' && document.querySelector('#dp .lg-date-popover').hidden && /20/.test(document.querySelector('#dp .lg-date-picker-button').textContent)));
+
 // Right-to-left: switch and slider mirror like iOS / the native range
 {
   const b = await page.locator('#rtlSwitch').boundingBox();

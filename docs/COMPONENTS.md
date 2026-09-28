@@ -150,6 +150,23 @@ Emits `lg-change` `{ value }`. `<Stepper value={n} onValueChange={setN} min={0} 
 Scroll-snapped columns on a 3D wheel with momentum, click-to-select and arrow/Page/Home/End keys. Each column emits `lg-change` `{ index, value }` and mirrors the value in `data-value`. Rows: `--_rows` (default 7), row height `--_row` (34 px). `.lg-picker-column--grow` takes the remaining width. `LiquidGlass.select(column, index)` scrolls programmatically.
 `<Picker><PickerColumn items={[…]} value={v} onValueChange={setV} label="Hours" /></Picker>`.
 
+### Date picker (calendar)
+
+```html
+<!-- inline, like iOS's graphical style -->
+<div class="lg-calendar" data-value="2026-09-28" data-min="2026-01-01" data-max="2027-12-31" data-name="date" aria-label="Date"></div>
+
+<!-- compact: a capsule with the date that opens the calendar in a popover -->
+<div class="lg-date-picker" data-value="2026-10-05" data-placeholder="Pick a day" aria-label="Departure"></div>
+```
+
+Dates are local calendar days written as `YYYY-MM-DD` (no time zones). Month and weekday names, digits and the first day of the week come from the locale: `data-locale`, else the nearest `lang` attribute, else the browser; `data-first-day="0…6"` (0 = Sunday) overrides. Today is shown in the accent color, the selection as a tinted circle (filled when it is today), days outside `data-min` / `data-max` are disabled. Page months with the chevrons, a horizontal swipe, or the keyboard; tap the title for month and year wheels (Escape closes them).
+
+Keyboard (grid pattern): arrows move by day and week, Home/End to the start/end of the week, PageUp/PageDown by month, Shift+PageUp/PageDown by year, Enter/Space picks.
+
+Events: `lg-change` `{ value, date }` on pick, `lg-month` `{ year, month }` when the calendar pages. `data-name` adds a hidden input for forms. Writing `data-value`, `data-min` or `data-max` later (from any framework) updates the calendar; `LiquidGlass.select(el, '2026-12-24')` does the same from JS.
+React: `<Calendar value={day} onValueChange={setDay} min="2026-01-01" locale="hu-HU" firstDayOfWeek={1} name="date" />`, `<DatePicker value onValueChange placeholder />` (values are `YYYY-MM-DD` strings; `min`/`max`/`defaultValue` also take `Date`).
+
 ### Text field, search field, select, checkbox
 
 ```html
