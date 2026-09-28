@@ -35,7 +35,7 @@ Egy sima `<link>` és `<script>`, vagy `npm install`, és kész.
 - **Tükröződő perem (specular rim),** ami követi az egeret, és **fény a lenyomás helyén,** ahogy az Apple üveg gombjai „felragyognak”.
 - **Folyékony interakciók:** a kapcsoló gombja lenyomva üveglencsévé válik és felnagyítja a sávot; a csúszka, a szegmensvezérlő és a tab bar kijelölése húzható lencse; rugós (spring) animációk mindenhol.
 - **Apple HIG pontos értékek:** iOS 26 rendszerszínek (világos, sötét, **nagy kontraszt**), Dynamic Type skála, SF Pro betűköz-táblázat, SF Pro változó súlyok (510, 590), HIG vezérlőméretek (28 / 32 / 44 / 52 / 64 pt).
-- **35+ komponens:** gombok, kapcsoló gombok, gombcsoportok, pop-up gomb, kinyitható szakasz, kártya, súgócímke, kapcsoló, csúszka, szegmensvezérlő, léptető, szöveg- és keresőmező, navigációs sáv nagy címmel, eszköztár, lebegő tab bar (görgetéskor összecsukódik), oldalsáv, apple.com-stílusú globális navigáció, listák, alert, action sheet, sheet detentekkel, menü, popover, jobb klikkes menü, értesítés (toast), progress, spinner, gyűrű, lapozó pöttyök, badge, macOS ablak közlekedési lámpákkal.
+- **35+ komponens:** iOS görgős választó (wheel picker), gombok, kapcsoló gombok, gombcsoportok, pop-up gomb, kinyitható szakasz, kártya, súgócímke, kapcsoló, csúszka, szegmensvezérlő, léptető, szöveg- és keresőmező, navigációs sáv nagy címmel, eszköztár, lebegő tab bar (görgetéskor összecsukódik), oldalsáv, apple.com-stílusú globális navigáció, listák, alert, action sheet, sheet detentekkel, menü, popover, jobb klikkes menü, értesítés (toast), progress, spinner, gyűrű, lapozó pöttyök, badge, macOS ablak közlekedési lámpákkal.
 - **Adaptív üveg:** a tab bar, eszköztár vagy bármely üvegfelület (`data-lg-adaptive`) a mögötte lévő tartalom fényessége szerint vált világos és sötét megjelenés között, ahogy az iOS-ben.
 - **Folyékony húzás:** a húzott lencsék a sebességgel megnyúlnak, elengedéskor rugósan visszaállnak.
 - **Sötét mód** automatikusan (`light-dark()`), vagy bármely részfára kényszerítve.
@@ -253,6 +253,7 @@ Példa: [`examples/vue`](examples/vue) (`v-model` a kapcsolón, csúszkán és s
 | Csúszka | `<div class="lg-slider" data-lg-ticks="5"><input type="range"></div>` | `<Slider value onValueChange ticks={5}>` |
 | Szegmensvezérlő | `<div class="lg-segmented">` + rádiók | `<SegmentedControl options value onValueChange>` |
 | Léptető | `<div class="lg-stepper" data-min="0" data-max="10">` | `<Stepper min max value onValueChange>` |
+| Görgős választó | `<div class="lg-picker"><div class="lg-picker-column">` + `.lg-picker-item` sorok | `<Picker><PickerColumn items value onValueChange /></Picker>` |
 | Szövegmező | `<input class="lg-textfield">` | `<TextField>` |
 | Kereső | `<div class="lg-search lg-glass"><svg/><input></div>` | `<SearchField>` |
 | Navigációs sáv | `<header class="lg-navbar lg-navbar--large">` | `<NavigationBar large title leading trailing>` |

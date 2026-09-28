@@ -51,6 +51,8 @@ __export(react_exports, {
   MenuTitle: () => MenuTitle,
   NavigationBar: () => NavigationBar,
   PageControl: () => PageControl,
+  Picker: () => Picker,
+  PickerColumn: () => PickerColumn,
   Popover: () => Popover,
   ProgressBar: () => ProgressBar,
   ProgressRing: () => ProgressRing,
@@ -425,6 +427,41 @@ function Disclosure({ title, open, defaultOpen, onOpenChange, className, childre
 }
 function Card({ as: Tag = "div", className, ...rest }) {
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Tag, { className: cx("lg-card", className), ...rest });
+}
+function Picker({ rows = 7, className, style, children, ...rest }) {
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: cx("lg-picker", className), style: rows !== 7 ? { ...style, "--_rows": rows } : style, ...rest, children });
+}
+function PickerColumn({ items, value, defaultValue, onValueChange, label, grow, className, ...rest }) {
+  const ref = useRef(null);
+  const list = (items || []).map((it) => typeof it === "object" ? it : { value: it, label: String(it) });
+  const [v, setV] = useControllable(value, defaultValue !== void 0 ? defaultValue : list[0] && list[0].value, onValueChange);
+  useLiquidGlass(ref);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return void 0;
+    const onChange = (e) => {
+      const item = list[e.detail.index];
+      if (item && item.value !== v) setV(item.value);
+    };
+    el.addEventListener("lg-change", onChange);
+    return () => el.removeEventListener("lg-change", onChange);
+  });
+  useEffect(() => {
+    const idx = list.findIndex((it) => it.value === v);
+    const el = ref.current;
+    if (el && idx > -1 && String(el.getAttribute("data-value")) !== String(list[idx].value)) (0, import_core.select)(el, idx);
+  }, [v]);
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+    "div",
+    {
+      ref,
+      className: cx("lg-picker-column", grow && "lg-picker-column--grow", className),
+      "aria-label": label,
+      "data-value": String(v),
+      ...rest,
+      children: list.map((it) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "lg-picker-item", "data-value": String(it.value), children: it.label }, String(it.value)))
+    }
+  );
 }
 var NavigationBar = forwardRef(function NavigationBar2({ title, large, leading, trailing, scrollTarget, threshold, edge, adaptive, className, children, ...rest }, ref) {
   const local = useMergedRef(ref);

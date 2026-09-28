@@ -134,6 +134,15 @@ await page.mouse.move(0, 0);
 await page.click('#disc summary');
 check('disclosure opens', await page.evaluate(() => document.getElementById('disc').open));
 
+// Wheel picker: initial value, keyboard, click
+check('picker starts at data-value', await page.evaluate(() => document.querySelector('#pick [aria-selected="true"]')?.textContent === 'C'));
+await page.evaluate(() => { window.__pick = null; document.getElementById('pick').addEventListener('lg-change', (e) => (window.__pick = e.detail.value)); });
+await page.focus('#pick');
+await page.keyboard.press('ArrowDown');
+check('picker moves with arrow keys', await until(() => window.__pick === 'd'));
+await page.locator('#pick .lg-picker-item', { hasText: 'F' }).click();
+check('picker selects a clicked row', await until(() => window.__pick === 'f'));
+
 // Adaptive glass follows the content underneath
 check('adaptive glass turns dark over dark content', await until(() => document.getElementById('adaptDark').classList.contains('lg-dark')));
 check('adaptive glass stays light over light content', await until(() => document.getElementById('adaptLight').classList.contains('lg-light')));

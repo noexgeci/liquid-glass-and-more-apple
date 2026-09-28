@@ -459,6 +459,57 @@ export function Card({ as: Tag = 'div', className, ...rest }) {
   return <Tag className={cx('lg-card', className)} {...rest} />;
 }
 
+/**
+ * iOS-style wheel picker. Each column is a scroll-snapped list on a 3D wheel.
+ * <Picker label="Time">
+ *   <PickerColumn items={hours} value={h} onValueChange={setH} label="Hours" />
+ * </Picker>
+ */
+export function Picker({ rows = 7, className, style, children, ...rest }) {
+  return (
+    <div className={cx('lg-picker', className)} style={rows !== 7 ? { ...style, '--_rows': rows } : style} {...rest}>
+      {children}
+    </div>
+  );
+}
+
+export function PickerColumn({ items, value, defaultValue, onValueChange, label, grow, className, ...rest }) {
+  const ref = useRef(null);
+  const list = (items || []).map((it) => (typeof it === 'object' ? it : { value: it, label: String(it) }));
+  const [v, setV] = useControllable(value, defaultValue !== undefined ? defaultValue : list[0] && list[0].value, onValueChange);
+  useLiquidGlass(ref);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    const onChange = (e) => {
+      const item = list[e.detail.index];
+      if (item && item.value !== v) setV(item.value);
+    };
+    el.addEventListener('lg-change', onChange);
+    return () => el.removeEventListener('lg-change', onChange);
+  });
+  useEffect(() => {
+    const idx = list.findIndex((it) => it.value === v);
+    const el = ref.current;
+    if (el && idx > -1 && String(el.getAttribute('data-value')) !== String(list[idx].value)) coreSelect(el, idx);
+  }, [v]);
+  return (
+    <div
+      ref={ref}
+      className={cx('lg-picker-column', grow && 'lg-picker-column--grow', className)}
+      aria-label={label}
+      data-value={String(v)}
+      {...rest}
+    >
+      {list.map((it) => (
+        <div key={String(it.value)} className="lg-picker-item" data-value={String(it.value)}>
+          {it.label}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /* ==========================================================================
    Navigation
    ========================================================================== *//* ==========================================================================

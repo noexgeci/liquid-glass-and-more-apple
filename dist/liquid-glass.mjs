@@ -282,6 +282,9 @@ function reveal(el, fn) {
 function mq(query) {
   return !!(window.matchMedia && window.matchMedia(query).matches);
 }
+function prefersReducedMotion() {
+  return mq("(prefers-reduced-motion: reduce)");
+}
 function numAttr(el, name, fallback) {
   const v = el.getAttribute(name);
   return v == null || v === "" ? fallback : parseFloat(v);
@@ -1215,6 +1218,98 @@ function initNavbar(el) {
   listen(el, scroller, "scroll", update, { passive: true });
   update();
 }
+function initPickerColumn(col) {
+  if (!claim(col, "picker")) return;
+  if (!col.hasAttribute("role")) col.setAttribute("role", "listbox");
+  if (!col.hasAttribute("tabindex")) col.tabIndex = 0;
+  const items = () => $$(".lg-picker-item", col);
+  items().forEach((it) => it.setAttribute("role", "option"));
+  const rowH = () => {
+    const first = col.querySelector(".lg-picker-item");
+    return first && first.offsetHeight || 34;
+  };
+  let frame = 0;
+  let settle = 0;
+  let current = -1;
+  const paint = () => {
+    frame = 0;
+    const h = rowH();
+    const center = col.scrollTop / h;
+    const list2 = items();
+    const from = Math.max(0, Math.floor(center) - 6);
+    const to = Math.min(list2.length - 1, Math.ceil(center) + 6);
+    for (let i = from; i <= to; i++) {
+      const d = i - center;
+      const s = list2[i].style;
+      s.setProperty("--_rx", clamp(-d * 20, -80, 80).toFixed(1) + "deg");
+      s.setProperty("--_s", (1 - Math.min(Math.abs(d) * 0.035, 0.2)).toFixed(3));
+      s.setProperty("--_o", Math.max(0.25, 1 - Math.abs(d) * 0.2).toFixed(3));
+    }
+  };
+  const commit = (fromUser) => {
+    const list2 = items();
+    const index = clamp(Math.round(col.scrollTop / rowH()), 0, list2.length - 1);
+    if (index === current) return;
+    current = index;
+    list2.forEach((it, i) => it.setAttribute("aria-selected", i === index ? "true" : "false"));
+    const item = list2[index];
+    const value = item ? item.getAttribute("data-value") || item.textContent.trim() : null;
+    col.setAttribute("data-value", value);
+    if (item && item.id) col.setAttribute("aria-activedescendant", item.id);
+    if (fromUser) emit(col, "lg-change", { index, value });
+  };
+  const scrollToIndex = (index, smooth) => {
+    const list2 = items();
+    index = clamp(index, 0, list2.length - 1);
+    col.scrollTo({ top: index * rowH(), behavior: smooth && !prefersReducedMotion() ? "smooth" : "instant" });
+  };
+  listen(
+    col,
+    col,
+    "scroll",
+    () => {
+      if (!frame) frame = requestAnimationFrame(paint);
+      clearTimeout(settle);
+      settle = setTimeout(() => commit(true), 110);
+    },
+    { passive: true }
+  );
+  listen(col, col, "click", (e) => {
+    const it = e.target.closest(".lg-picker-item");
+    if (it) scrollToIndex(items().indexOf(it), true);
+  });
+  listen(col, col, "keydown", (e) => {
+    const keys = { ArrowDown: 1, ArrowUp: -1, PageDown: 5, PageUp: -5 };
+    if (e.key in keys) {
+      e.preventDefault();
+      scrollToIndex(Math.max(current, 0) + keys[e.key], true);
+    } else if (e.key === "Home" || e.key === "End") {
+      e.preventDefault();
+      scrollToIndex(e.key === "Home" ? 0 : items().length - 1, true);
+    }
+  });
+  state(col).select = (index) => scrollToIndex(index, true);
+  state(col).refresh = () => paint();
+  const list = items();
+  const want = col.getAttribute("data-value");
+  let start2 = want != null ? list.findIndex((it) => (it.getAttribute("data-value") || it.textContent.trim()) === want) : -1;
+  if (start2 < 0) start2 = list.findIndex((it) => it.getAttribute("aria-selected") === "true");
+  const place = () => {
+    col.scrollTop = Math.max(0, start2) * rowH();
+    paint();
+    commit(false);
+  };
+  place();
+  if (getResizeObserver()) {
+    const ro = new ResizeObserver(() => {
+      const idx = current < 0 ? Math.max(0, start2) : current;
+      col.scrollTop = idx * rowH();
+      paint();
+    });
+    ro.observe(col);
+    onCleanup(col, () => ro.disconnect());
+  }
+}
 var adaptive = /* @__PURE__ */ new Set();
 var adaptFrame = 0;
 function parseColors(str) {
@@ -2078,7 +2173,8 @@ var COMPONENTS = [
   [".lg-page-control", initPageControl],
   [".lg-spinner", initSpinner],
   ["[data-lg-icon]", initIcon],
-  ["[data-lg-adaptive]", initAdaptive]
+  ["[data-lg-adaptive]", initAdaptive],
+  [".lg-picker-column", initPickerColumn]
 ];
 function initGlass(el) {
   if (el.classList.contains("lg-button")) {
