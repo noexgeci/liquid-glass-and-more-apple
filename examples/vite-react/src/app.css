@@ -1,0 +1,27 @@
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(70% 80% at 20% 10%, #ffb86b, transparent 60%),
+    radial-gradient(80% 70% at 90% 100%, #3a1c71, transparent 60%),
+    linear-gradient(180deg, #ff7e5f, #d4418e 45%, #3a1c71) fixed;
+}
+.app {
+  display: grid;
+  gap: 20px;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 24px 16px 160px;
+}
+.card {
+  display: grid;
+  gap: 16px;
+  padding: 22px;
+  border-radius: 30px;
+}
+.between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}

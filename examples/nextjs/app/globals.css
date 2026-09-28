@@ -1,0 +1,35 @@
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(60% 50% at 15% 20%, #ff8a3d, transparent 60%),
+    radial-gradient(55% 55% at 85% 15%, #8a5cff, transparent 60%),
+    radial-gradient(60% 60% at 70% 90%, #00c8e0, transparent 60%),
+    linear-gradient(160deg, #ff5e62, #6a5cff 55%, #00b4db) fixed;
+}
+main {
+  display: grid;
+  gap: 20px;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 96px 16px 160px;
+}
+.panel {
+  display: grid;
+  gap: 16px;
+  padding: 22px;
+  border-radius: 30px;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+h1 {
+  margin: 0;
+  color: #fff;
+  font: 700 44px/1.05 var(--lg-font-display);
+  letter-spacing: -0.02em;
+}

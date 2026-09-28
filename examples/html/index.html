@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Liquid Glass × plain HTML</title>
+  <!-- From this repo; or use the CDN:
+       https://cdn.jsdelivr.net/gh/noexgeci/liquid-glass-and-more-apple@main/dist/liquid-glass.min.css -->
+  <link rel="stylesheet" href="../../dist/liquid-glass.css">
+  <style>
+    body { margin: 0; min-height: 100vh; background: linear-gradient(200deg, #43cea2, #185a9d) fixed; }
+    main { display: grid; gap: 20px; max-width: 520px; margin: 0 auto; padding: 48px 16px 140px; }
+    .card { display: grid; gap: 16px; padding: 22px; border-radius: 30px; }
+    .between { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    h1 { margin: 0; color: #fff; }
+  </style>
+</head>
+<body class="lg">
+  <main>
+    <h1 class="lg-large-title lg-emphasized">Plain HTML</h1>
+
+    <div class="card lg-glass">
+      <div class="between"><span>Wi-Fi</span><label class="lg-switch"><input type="checkbox" checked aria-label="Wi-Fi"></label></div>
+      <div class="lg-slider" data-lg-ticks="5"><span data-lg-icon="sun" data-size="20"></span><input type="range" value="60" aria-label="Brightness"></div>
+      <div class="lg-segmented lg-segmented--block" role="radiogroup" aria-label="Period">
+        <label><input type="radio" name="p" checked>Day</label>
+        <label><input type="radio" name="p">Week</label>
+        <label><input type="radio" name="p">Month</label>
+      </div>
+      <div class="between">
+        <button class="lg-button" data-lg-menu="#more">More <span data-lg-icon="chevron-down"></span></button>
+        <button class="lg-button lg-button--prominent" id="save">Save</button>
+      </div>
+    </div>
+
+    <div class="lg-menu" id="more" hidden>
+      <button class="lg-menu-item"><span data-lg-icon="doc"></span>Duplicate</button>
+      <button class="lg-menu-item"><span data-lg-icon="pencil"></span>Rename</button>
+      <div class="lg-menu-separator"></div>
+      <button class="lg-menu-item lg-menu-item--destructive"><span data-lg-icon="trash"></span>Delete</button>
+    </div>
+  </main>
+
+  <nav class="lg-tabbar" data-lg-minimize-on-scroll>
+    <div class="lg-tabbar-tabs lg-glass">
+      <a class="lg-tab is-selected" href="#"><span data-lg-icon="house"></span><span class="lg-tab-label">Home</span></a>
+      <a class="lg-tab" href="#"><span data-lg-icon="star"></span><span class="lg-tab-label">Favorites</span></a>
+      <a class="lg-tab" href="#"><span data-lg-icon="gear"></span><span class="lg-tab-label">Settings</span></a>
+    </div>
+    <button class="lg-tabbar-search lg-glass" aria-label="Search"><span data-lg-icon="search"></span></button>
+  </nav>
+
+  <script src="../../dist/liquid-glass.js"></script>
+  <script>
+    document.getElementById('save').addEventListener('click', () => {
+      LiquidGlass.toast({ title: 'Saved', message: 'Your changes are stored.', icon: LiquidGlass.icon('checkmark'), iconBackground: 'var(--lg-green)', time: 'now' });
+    });
+  </script>
+</body>
+</html>
