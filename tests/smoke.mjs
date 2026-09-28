@@ -19,8 +19,11 @@ if (!playwright) {
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const url = pathToFileURL(path.join(root, 'tests/kitchen-sink.html')).href;
-const launch = process.env.PLAYWRIGHT_BROWSERS_PATH ? {} : { executablePath: undefined };
-const browser = await playwright.chromium.launch(launch);
+// GPU rasterization matches real desktop Chrome/Electron; the software
+// raster path misplaces backdrop filters that reference SVG filters.
+const browser = await playwright.chromium.launch({
+  args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--enable-gpu-rasterization'],
+});
 const page = await browser.newPage({ viewport: { width: 1100, height: 800 } });
 const errors = [];
 page.on('pageerror', (e) => errors.push(e.message));
