@@ -87,6 +87,13 @@
   .mat.lg-glass--clear { color: #fff; }
   .mat.lg-glass--clear p { color: rgb(255 255 255 / 0.8); }
   .mat.lg-glass--prominent p { color: rgb(255 255 255 / 0.85); }
+  .adapt-demo { position: relative; display: grid; grid-template-columns: 1fr 1fr; height: 180px; margin-top: 20px; border-radius: 34px; overflow: hidden; }
+  .adapt-demo > .zone { display: flex; align-items: flex-end; padding: 18px 22px; font: 600 13px/18px var(--lg-font); letter-spacing: 0.3px; text-transform: uppercase; }
+  .adapt-demo > .zone.dark { background: linear-gradient(160deg, #1c1c1e, #000); color: rgb(255 255 255 / 0.6); }
+  .adapt-demo > .zone.light { background: linear-gradient(160deg, #ffffff, #e9e9ee); color: rgb(0 0 0 / 0.5); justify-content: flex-end; }
+  .adapt-pill { position: absolute; top: 50%; left: 0; display: flex; gap: 4px; height: 58px; padding: 4px; margin-top: -40px; border-radius: 999px; translate: var(--x, 40px) 0; cursor: grab; touch-action: none; user-select: none; }
+  .adapt-pill:active { cursor: grabbing; }
+  .adapt-pill .lg-tab { width: 74px; flex: none; }
 
   /* ---------- controls ---------- */
   .ctl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
@@ -232,6 +239,16 @@
       <div class="lg-glass lg-glass--clear lg-glass--circle" style="width: 72px; display: grid; place-items: center; color: #fff" data-lg-magnify="1.4"><span data-lg-icon="magnifyingglass" data-size="28"></span></div>
     </div>
   </div>
+  <div class="adapt-demo" aria-label="Adaptív üveg bemutató">
+    <div class="zone dark">Sötét tartalom</div>
+    <div class="zone light">Világos tartalom</div>
+    <div class="adapt-pill lg-glass" data-lg-adaptive id="adaptPill" data-lg-tooltip="Húzd át a másik oldalra">
+      <span class="lg-tab is-selected"><span data-lg-icon="house"></span><span class="lg-tab-label">Főoldal</span></span>
+      <span class="lg-tab"><span data-lg-icon="magnifyingglass"></span><span class="lg-tab-label">Keresés</span></span>
+      <span class="lg-tab"><span data-lg-icon="person"></span><span class="lg-tab-label">Profil</span></span>
+    </div>
+  </div>
+  <p class="lede" style="margin-top: 12px; font-size: 15px">Adaptív üveg: húzd a sávot a sötét és a világos rész között. Ahogy az iOS tab barja, a tartalom fényessége szerint vált megjelenést (<code>data-lg-adaptive</code>).</p>
 </section>
 
 <!-- ================= Controls ================= -->
@@ -702,6 +719,23 @@ createRoot(root).render(
       lens.addEventListener('pointermove', move);
       lens.addEventListener('pointerup', up);
       lens.addEventListener('pointercancel', up);
+    });
+
+    /* Adaptive glass demo: drag the bar across dark and light content */
+    var pill = document.getElementById('adaptPill');
+    var pillX = 40;
+    pill.addEventListener('pointerdown', function (e) {
+      var sx = e.clientX, ox = pillX, max = pill.parentElement.clientWidth - pill.offsetWidth - 12;
+      pill.setPointerCapture(e.pointerId);
+      function move(ev) {
+        pillX = Math.max(12, Math.min(max, ox + ev.clientX - sx));
+        pill.style.setProperty('--x', pillX + 'px');
+        LG.refreshAdaptive();
+      }
+      function up() { pill.removeEventListener('pointermove', move); pill.removeEventListener('pointerup', up); pill.removeEventListener('pointercancel', up); }
+      pill.addEventListener('pointermove', move);
+      pill.addEventListener('pointerup', up);
+      pill.addEventListener('pointercancel', up);
     });
 
     /* Photos grid (procedural "photos") */
