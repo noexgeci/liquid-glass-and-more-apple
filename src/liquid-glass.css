@@ -503,6 +503,8 @@
   pointer-events: none;
 }
 
+[data-lg-icon] { display: contents; }
+
 .lg-button svg,
 .lg-button img { width: 1.15em; height: 1.15em; flex: none; }
 
@@ -593,7 +595,7 @@
 .lg-group > .lg-button::after { display: none; }
 .lg-group > .lg-button--icon,
 .lg-group > button.lg-icon { width: var(--lg-group-height, 44px); padding: 0; }
-.lg-group > * > svg { width: 21px; height: 21px; }
+.lg-group > * svg { width: 21px; height: 21px; }
 .lg-group > *:active { transform: scale(1.12); }
 .lg-group > *:focus-visible { outline: 3px solid var(--lg-focus-ring); outline-offset: -3px; }
 
@@ -698,7 +700,8 @@
   color: var(--lg-label-secondary);
   touch-action: pan-y;
 }
-.lg-slider > svg { width: 20px; height: 20px; flex: none; }
+.lg-slider > svg,
+.lg-slider > [data-lg-icon] > svg { width: 20px; height: 20px; flex: none; }
 .lg-slider-body {
   position: relative;
   flex: 1;
@@ -841,7 +844,7 @@
 .lg-segmented > [aria-pressed="true"],
 .lg-segmented > [aria-selected="true"] { font-weight: var(--lg-weight-semibold); }
 .lg-segmented > label svg,
-.lg-segmented > button svg { width: 18px; height: 18px; }
+.lg-segmented > button svg { width: 18px; height: 18px; flex: none; }
 .lg-segmented > label:has(input:focus-visible) { outline: 3px solid var(--lg-focus-ring); outline-offset: -1px; }
 /* Pre-JS: selected segment gets its own background */
 .lg-segmented:not(.is-ready) > label:has(input:checked),
@@ -948,7 +951,7 @@ textarea.lg-textfield { height: auto; min-height: 88px; padding: 11px 14px; resi
   color: var(--lg-label-secondary);
 }
 .lg-search:not(.lg-glass) { background: var(--lg-fill-tertiary); }
-.lg-search > svg { width: 18px; height: 18px; flex: none; }
+.lg-search svg { width: 18px; height: 18px; flex: none; }
 .lg-search > input {
   flex: 1;
   min-width: 0;
@@ -1124,8 +1127,9 @@ textarea.lg-textfield { height: auto; min-height: 88px; padding: 11px 14px; resi
     opacity 200ms ease,
     padding var(--lg-dur-spring) var(--lg-ease-spring);
 }
-.lg-tab > svg,
+.lg-tab svg,
 .lg-tab-icon { width: 26px; height: 26px; flex: none; }
+.lg-tab .lg-badge svg { width: auto; height: auto; }
 .lg-tab-label { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lg-tab.is-selected,
 .lg-tab[aria-current="page"],
@@ -1196,8 +1200,8 @@ textarea.lg-textfield { height: auto; min-height: 88px; padding: 11px 14px; resi
   color: var(--lg-label);
   cursor: pointer;
 }
-.lg-tabbar-search > svg,
-.lg-tabbar-action > svg { width: 24px; height: 24px; }
+.lg-tabbar-search svg,
+.lg-tabbar-action svg { width: 24px; height: 24px; }
 /* Minimized state (scroll down): only the selected tab remains */
 .lg-tabbar.is-minimized .lg-tabbar-tabs { flex: 0 0 auto; }
 .lg-tabbar.is-minimized .lg-tab:not(.is-selected):not([aria-current="page"]) {
@@ -1243,13 +1247,13 @@ textarea.lg-textfield { height: auto; min-height: 88px; padding: 11px 14px; resi
   text-decoration: none;
   cursor: pointer;
 }
-.lg-sidebar-item > svg { width: 17px; height: 17px; flex: none; color: var(--lg-accent); }
+.lg-sidebar-item svg { width: 17px; height: 17px; flex: none; color: var(--lg-accent); }
 .lg-sidebar-item:hover { background: var(--lg-fill-quaternary); }
 .lg-sidebar-item.is-selected,
 .lg-sidebar-item[aria-current="page"] { background: var(--lg-fill-secondary); font-weight: var(--lg-weight-semibold); }
 .lg-sidebar-item .lg-sidebar-count { margin-left: auto; color: var(--lg-label-secondary); font-size: 12px; }
 .lg-sidebar--ios .lg-sidebar-item { min-height: 44px; font-size: 17px; letter-spacing: -0.43px; border-radius: var(--lg-radius-md); }
-.lg-sidebar--ios .lg-sidebar-item > svg { width: 22px; height: 22px; }
+.lg-sidebar--ios .lg-sidebar-item svg { width: 22px; height: 22px; }
 
 /* --- Global web navigation (apple.com-style, floating glass) --------- */
 .lg-globalnav {
@@ -1377,7 +1381,7 @@ button.lg-row:active,
   background: var(--lg-row-icon-bg, var(--lg-gray));
   color: rgb(255 255 255);
 }
-.lg-row-icon > svg { width: 19px; height: 19px; }
+.lg-row-icon svg { width: 19px; height: 19px; }
 .lg-row-content { flex: 1; min-width: 0; }
 .lg-row-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lg-row-subtitle {
@@ -1703,7 +1707,7 @@ dialog.lg-sheet::backdrop { background: transparent; }
   cursor: pointer;
   outline: none;
 }
-.lg-menu-item > svg { width: 20px; height: 20px; flex: none; }
+.lg-menu-item svg { width: 20px; height: 20px; flex: none; }
 .lg-menu-item > .lg-menu-shortcut,
 .lg-menu-item > .lg-menu-detail { margin-left: auto; color: var(--lg-label-secondary); font-size: 15px; }
 .lg-menu-item:hover,
@@ -1793,7 +1797,7 @@ dialog.lg-sheet::backdrop { background: transparent; }
   background: var(--lg-toast-icon-bg, var(--lg-accent));
   color: rgb(255 255 255);
 }
-.lg-toast-icon > svg { width: 22px; height: 22px; }
+.lg-toast-icon svg { width: 22px; height: 22px; }
 .lg-toast-body { flex: 1; min-width: 0; }
 .lg-toast-title { display: flex; gap: 8px; font: var(--lg-weight-semibold) 15px/20px var(--lg-font); letter-spacing: -0.23px; }
 .lg-toast-time { margin-left: auto; font-weight: var(--lg-weight-regular); font-size: 13px; color: var(--lg-label-secondary); }
