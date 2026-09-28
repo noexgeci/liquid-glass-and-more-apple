@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:">
+  <title>Liquid Glass × Electron</title>
+  <link rel="stylesheet" href="node_modules/liquid-glass-kit/dist/liquid-glass.css">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="lg">
+  <div class="shell">
+    <!-- Floating glass sidebar; the empty strip on top leaves room for the traffic lights -->
+    <nav class="lg-sidebar lg-glass" aria-label="Sidebar">
+      <div class="drag-strip lg-drag"></div>
+      <div class="lg-sidebar-section">Library</div>
+      <a class="lg-sidebar-item is-selected" href="#"><span data-lg-icon="music-note"></span>Songs</a>
+      <a class="lg-sidebar-item" href="#"><span data-lg-icon="grid"></span>Albums</a>
+      <a class="lg-sidebar-item" href="#"><span data-lg-icon="person"></span>Artists</a>
+      <a class="lg-sidebar-item" href="#"><span data-lg-icon="radio"></span>Radio</a>
+      <div class="lg-sidebar-section">Playlists</div>
+      <a class="lg-sidebar-item" href="#"><span data-lg-icon="list"></span>Focus<span class="lg-sidebar-count">42</span></a>
+      <a class="lg-sidebar-item" href="#"><span data-lg-icon="list"></span>Night drive</a>
+    </nav>
+
+    <main class="content">
+      <header class="toolbar lg-drag">
+        <h1 class="lg-title-2 lg-emphasized">Songs</h1>
+        <span class="lg-spacer"></span>
+        <div class="lg-group lg-glass">
+          <button class="lg-button lg-button--icon" aria-label="Shuffle"><span data-lg-icon="refresh"></span></button>
+          <button class="lg-button lg-button--icon" aria-label="Share"><span data-lg-icon="share"></span></button>
+        </div>
+        <div class="lg-search lg-glass lg-search--small"><span data-lg-icon="search"></span><input type="search" placeholder="Search" aria-label="Search songs"></div>
+      </header>
+
+      <section class="lg-list-section">
+        <ul class="lg-list" id="songs"></ul>
+      </section>
+    </main>
+
+    <!-- Mini player: clear glass floating over the content -->
+    <div class="player lg-glass">
+      <i class="cover"></i>
+      <div class="meta"><b>Northern Lights</b><span>Aurora</span></div>
+      <button class="lg-button lg-button--icon lg-button--plain" aria-label="Previous"><span data-lg-icon="backward"></span></button>
+      <button class="lg-button lg-button--icon" aria-label="Pause" id="play"><span data-lg-icon="pause"></span></button>
+      <button class="lg-button lg-button--icon lg-button--plain" aria-label="Next"><span data-lg-icon="forward"></span></button>
+      <div class="lg-slider volume"><span data-lg-icon="speaker"></span><input type="range" value="70" aria-label="Volume"></div>
+    </div>
+  </div>
+
+  <script src="node_modules/liquid-glass-kit/dist/liquid-glass.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>

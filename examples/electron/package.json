@@ -1,0 +1,14 @@
+{
+  "name": "liquid-glass-electron-example",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "liquid-glass-kit": "file:../.."
+  },
+  "devDependencies": {
+    "electron": "^38.0.0"
+  }
+}
