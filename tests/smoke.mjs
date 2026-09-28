@@ -29,10 +29,10 @@ const errors = [];
 page.on('pageerror', (e) => errors.push(e.message));
 page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
 await page.goto(url);
-await page.waitForTimeout(500);
 
 // Waits for a condition instead of sleeping a fixed time (robust on slow CI).
-const until = (fn, arg) => page.waitForFunction(fn, arg, { timeout: 3000 }).then(() => true, () => false);
+const until = (fn, arg) => page.waitForFunction(fn, arg, { timeout: 4000 }).then(() => true, () => false);
+await page.waitForTimeout(500);
 
 let failed = 0;
 const check = (name, ok, extra = '') => {
@@ -40,9 +40,10 @@ const check = (name, ok, extra = '') => {
   if (!ok) failed++;
 };
 
+await until(() => document.querySelectorAll('svg[data-lg-defs] filter').length > 3);
 const filters = await page.evaluate(() => document.querySelectorAll('svg[data-lg-defs] filter').length);
 check('refraction filters generated', filters > 3, filters + ' filters');
-check('refraction applied to glass', await page.evaluate(() => getComputedStyle(document.querySelector('.lg-glass')).backdropFilter.includes('url(')));
+check('refraction applied to glass', await until(() => getComputedStyle(document.querySelector('.lg-glass')).backdropFilter.includes('url(')));
 
 // Switch: click toggles, drag toggles
 const sw = page.locator('.lg-switch').nth(1);
