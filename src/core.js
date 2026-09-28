@@ -75,6 +75,10 @@ function mq(query) {
   return !!(window.matchMedia && window.matchMedia(query).matches);
 }
 
+function prefersReducedMotion() {
+  return mq('(prefers-reduced-motion: reduce)');
+}
+
 function numAttr(el, name, fallback) {
   const v = el.getAttribute(name);
   return v == null || v === '' ? fallback : parseFloat(v);
@@ -1151,6 +1155,111 @@ function initNavbar(el) {
 }
 
 /* ==========================================================================
+   Wheel picker — scroll-snapped columns on a 3D wheel
+   ========================================================================== */
+
+function initPickerColumn(col) {
+  if (!claim(col, 'picker')) return;
+  if (!col.hasAttribute('role')) col.setAttribute('role', 'listbox');
+  if (!col.hasAttribute('tabindex')) col.tabIndex = 0;
+  const items = () => $$('.lg-picker-item', col);
+  items().forEach((it) => it.setAttribute('role', 'option'));
+  const rowH = () => {
+    const first = col.querySelector('.lg-picker-item');
+    return (first && first.offsetHeight) || 34;
+  };
+  let frame = 0;
+  let settle = 0;
+  let current = -1;
+
+  const paint = () => {
+    frame = 0;
+    const h = rowH();
+    const center = col.scrollTop / h;
+    const list = items();
+    const from = Math.max(0, Math.floor(center) - 6);
+    const to = Math.min(list.length - 1, Math.ceil(center) + 6);
+    for (let i = from; i <= to; i++) {
+      const d = i - center; // rows from the selection band
+      const s = list[i].style;
+      s.setProperty('--_rx', clamp(-d * 20, -80, 80).toFixed(1) + 'deg');
+      s.setProperty('--_s', (1 - Math.min(Math.abs(d) * 0.035, 0.2)).toFixed(3));
+      s.setProperty('--_o', Math.max(0.25, 1 - Math.abs(d) * 0.2).toFixed(3));
+    }
+  };
+
+  const commit = (fromUser) => {
+    const list = items();
+    const index = clamp(Math.round(col.scrollTop / rowH()), 0, list.length - 1);
+    if (index === current) return;
+    current = index;
+    list.forEach((it, i) => it.setAttribute('aria-selected', i === index ? 'true' : 'false'));
+    const item = list[index];
+    const value = item ? item.getAttribute('data-value') || item.textContent.trim() : null;
+    col.setAttribute('data-value', value);
+    if (item && item.id) col.setAttribute('aria-activedescendant', item.id);
+    if (fromUser) emit(col, 'lg-change', { index, value });
+  };
+
+  const scrollToIndex = (index, smooth) => {
+    const list = items();
+    index = clamp(index, 0, list.length - 1);
+    col.scrollTo({ top: index * rowH(), behavior: smooth && !prefersReducedMotion() ? 'smooth' : 'instant' });
+  };
+
+  listen(
+    col,
+    col,
+    'scroll',
+    () => {
+      if (!frame) frame = requestAnimationFrame(paint);
+      clearTimeout(settle);
+      settle = setTimeout(() => commit(true), 110);
+    },
+    { passive: true }
+  );
+  listen(col, col, 'click', (e) => {
+    const it = e.target.closest('.lg-picker-item');
+    if (it) scrollToIndex(items().indexOf(it), true);
+  });
+  listen(col, col, 'keydown', (e) => {
+    const keys = { ArrowDown: 1, ArrowUp: -1, PageDown: 5, PageUp: -5 };
+    if (e.key in keys) {
+      e.preventDefault();
+      scrollToIndex(Math.max(current, 0) + keys[e.key], true);
+    } else if (e.key === 'Home' || e.key === 'End') {
+      e.preventDefault();
+      scrollToIndex(e.key === 'Home' ? 0 : items().length - 1, true);
+    }
+  });
+
+  state(col).select = (index) => scrollToIndex(index, true);
+  state(col).refresh = () => paint();
+
+  // initial position: data-value, then aria-selected, else the first item
+  const list = items();
+  const want = col.getAttribute('data-value');
+  let start = want != null ? list.findIndex((it) => (it.getAttribute('data-value') || it.textContent.trim()) === want) : -1;
+  if (start < 0) start = list.findIndex((it) => it.getAttribute('aria-selected') === 'true');
+  const place = () => {
+    col.scrollTop = Math.max(0, start) * rowH();
+    paint();
+    commit(false);
+  };
+  place();
+  // fonts or layout may change the row height after first paint
+  if (getResizeObserver()) {
+    const ro = new ResizeObserver(() => {
+      const idx = current < 0 ? Math.max(0, start) : current;
+      col.scrollTop = idx * rowH();
+      paint();
+    });
+    ro.observe(col);
+    onCleanup(col, () => ro.disconnect());
+  }
+}
+
+/* ==========================================================================
    Adaptive glass — like iOS tab bars and toolbars, [data-lg-adaptive]
    surfaces switch between light and dark appearance with the brightness
    of the content underneath (solid colors and CSS gradients).
@@ -2143,6 +2252,7 @@ const COMPONENTS = [
   ['.lg-spinner', initSpinner],
   ['[data-lg-icon]', initIcon],
   ['[data-lg-adaptive]', initAdaptive],
+  ['.lg-picker-column', initPickerColumn],
 ];
 
 function initGlass(el) {

@@ -342,6 +342,16 @@
     </div>
 
     <div class="card">
+      <h3>Görgős választó</h3>
+      <p>Az iOS idő- és dátumválasztója: 3D kerék, lendületes görgetés, beugrás, billentyűzettel is.</p>
+      <div class="lg-picker" aria-label="Időpont" id="timePicker">
+        <div class="lg-picker-column" aria-label="Óra" data-value="9" id="pickHour"></div>
+        <div class="lg-picker-column" aria-label="Perc" data-value="41" id="pickMin"></div>
+      </div>
+      <p class="muted" style="margin: 12px 0 0; text-align: center">Ébresztő: <b id="pickOut">9:41</b></p>
+    </div>
+
+    <div class="card">
       <h3>Jelzők</h3>
       <p>Folyamatjelző, gyűrű, spinner, lapozó és jelvény.</p>
       <div class="stack">
@@ -719,6 +729,19 @@ createRoot(root).render(
       lens.addEventListener('pointermove', move);
       lens.addEventListener('pointerup', up);
       lens.addEventListener('pointercancel', up);
+    });
+
+    /* Wheel picker: hours and minutes */
+    var hourCol = document.getElementById('pickHour'), minCol = document.getElementById('pickMin');
+    var hoursHtml = '', minsHtml = '';
+    for (var hh = 0; hh < 24; hh++) hoursHtml += '<div class="lg-picker-item" data-value="' + hh + '">' + hh + '</div>';
+    for (var mm = 0; mm < 60; mm++) minsHtml += '<div class="lg-picker-item" data-value="' + mm + '">' + (mm < 10 ? '0' : '') + mm + '</div>';
+    hourCol.innerHTML = hoursHtml;
+    minCol.innerHTML = minsHtml;
+    LG.init(document.getElementById('timePicker'));
+    document.getElementById('timePicker').addEventListener('lg-change', function () {
+      var m = +minCol.getAttribute('data-value');
+      document.getElementById('pickOut').textContent = hourCol.getAttribute('data-value') + ':' + (m < 10 ? '0' : '') + m;
     });
 
     /* Adaptive glass demo: drag the bar across dark and light content */

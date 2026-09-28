@@ -70,6 +70,8 @@ import {
   TrafficLights,
   ScrollEdge,
   Icon,
+  Picker,
+  PickerColumn,
 } from 'liquid-glass-kit/react';
 
 async function vanilla() {
@@ -150,6 +152,10 @@ function App() {
         Content
       </Disclosure>
       <Card as="section">Card</Card>
+      <Picker rows={5} aria-label="Time">
+        <PickerColumn<number> items={[1, 2, 3]} value={v} onValueChange={setV} label="Hours" />
+        <PickerColumn items={[{ value: 'am', label: 'AM' }]} defaultValue="am" grow />
+      </Picker>
       <Sheet open={open} onOpenChange={setOpen} detents={['medium', 'large']} title="Sheet" trailing={<Button variant="prominent">Done</Button>}>
         Body
       </Sheet>

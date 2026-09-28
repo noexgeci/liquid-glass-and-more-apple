@@ -134,6 +134,22 @@ Button variant: `<button aria-pressed="true">` children, emits `lg-change` `{ in
 
 Emits `lg-change` `{ value }`. `<Stepper value={n} onValueChange={setN} min={0} max={10} />`.
 
+### Wheel picker
+
+```html
+<div class="lg-picker" aria-label="Time">
+  <div class="lg-picker-column" aria-label="Hours" data-value="9">
+    <div class="lg-picker-item" data-value="8">8</div>
+    <div class="lg-picker-item" data-value="9">9</div>
+    <div class="lg-picker-item" data-value="10">10</div>
+  </div>
+  <span class="lg-picker-label">h</span>
+</div>
+```
+
+Scroll-snapped columns on a 3D wheel with momentum, click-to-select and arrow/Page/Home/End keys. Each column emits `lg-change` `{ index, value }` and mirrors the value in `data-value`. Rows: `--_rows` (default 7), row height `--_row` (34 px). `.lg-picker-column--grow` takes the remaining width. `LiquidGlass.select(column, index)` scrolls programmatically.
+`<Picker><PickerColumn items={[…]} value={v} onValueChange={setV} label="Hours" /></Picker>`.
+
 ### Text field, search field, select, checkbox
 
 ```html

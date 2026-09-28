@@ -104,6 +104,19 @@ export interface DisclosureProps extends Omit<React.DetailsHTMLAttributes<HTMLDe
 export declare function Disclosure(props: DisclosureProps): React.ReactElement;
 export declare function Card(props: React.HTMLAttributes<HTMLElement> & { as?: React.ElementType }): React.ReactElement;
 
+export declare function Picker(props: DivProps & { rows?: number }): React.ReactElement;
+export interface PickerColumnProps<V = string | number> extends Omit<DivProps, 'defaultValue' | 'onChange'> {
+  items: Array<V | { value: V; label: React.ReactNode }>;
+  value?: V;
+  defaultValue?: V;
+  onValueChange?: (value: V) => void;
+  /** Accessible name of the column. */
+  label?: string;
+  /** Take the remaining width. */
+  grow?: boolean;
+}
+export declare function PickerColumn<V = string | number>(props: PickerColumnProps<V>): React.ReactElement;
+
 export declare const ButtonGroup: React.ForwardRefExoticComponent<DivProps & { height?: number } & React.RefAttributes<HTMLDivElement>>;
 
 type InputBase = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'defaultValue' | 'size' | 'type' | 'checked' | 'defaultChecked'>;

@@ -1564,6 +1564,74 @@ button.lg-row:active,
   .lg-disclosure[open]::details-content { height: auto; }
 }
 
+/* --- Wheel picker (iOS date / time style) ------------------------------ */
+.lg-picker {
+  --_row: 34px;
+  --_rows: 7;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  height: calc(var(--_row) * var(--_rows));
+  padding: 0 12px;
+  font: var(--lg-weight-regular) 21px/1 var(--lg-font-display);
+  letter-spacing: 0.35px;
+  color: var(--lg-label);
+  user-select: none;
+  -webkit-user-select: none;
+  font-variant-numeric: tabular-nums;
+}
+.lg-picker::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: 50%;
+  height: var(--_row);
+  margin-top: calc(var(--_row) / -2);
+  border-radius: 9px;
+  background: var(--lg-fill-tertiary);
+  pointer-events: none;
+}
+.lg-picker-column {
+  position: relative;
+  flex: 0 1 auto;
+  min-width: 56px;
+  padding-block: calc(var(--_row) * (var(--_rows) - 1) / 2);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  perspective: 520px;
+  outline: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 32%, #000 68%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 32%, #000 68%, transparent);
+}
+.lg-picker-column::-webkit-scrollbar { display: none; }
+.lg-picker-column--grow { flex: 1 1 0; }
+.lg-picker-item {
+  display: grid;
+  place-items: center;
+  height: var(--_row);
+  padding: 0 10px;
+  white-space: nowrap;
+  scroll-snap-align: center;
+  cursor: pointer;
+  transform: rotateX(var(--_rx, 0deg)) scale(var(--_s, 1));
+  opacity: var(--_o, 1);
+  backface-visibility: hidden;
+  will-change: transform;
+}
+.lg-picker-item[aria-selected="true"] { font-weight: var(--lg-weight-regular); }
+.lg-picker-column:focus-visible { box-shadow: inset 0 0 0 2px var(--lg-focus-ring); border-radius: 10px; }
+.lg-picker-label {
+  align-self: center;
+  margin-left: -6px;
+  font: var(--lg-weight-semibold) 17px/1 var(--lg-font);
+  letter-spacing: -0.43px;
+  pointer-events: none;
+}
+
 /* --- Card (content layer) --------------------------------------------- */
 .lg-card {
   padding: 20px;
