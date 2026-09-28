@@ -406,3 +406,11 @@ Built-in fallback glyphs cover common SF Symbols names. To use Apple's originals
 ## Motion
 
 Springs: `--lg-ease-bouncy` / `--lg-dur-bouncy`, `--lg-ease-spring` / `--lg-dur-spring`, `--lg-ease-smooth` / `--lg-dur-smooth` (CSS `linear()` curves from damped spring equations). `prefers-reduced-motion` swaps them for short ease-outs.
+
+## Accessibility and locales
+
+- **Contrast:** `data-lg-contrast="more"` (or the system `prefers-contrast: more`) switches to Apple's Increase Contrast colors.
+- **Transparency / motion:** `prefers-reduced-transparency` makes glass opaque; `prefers-reduced-motion` replaces springs with short ease-outs.
+- **Forced colors** (Windows High Contrast): surfaces become opaque `Canvas` with a `CanvasText` outline; switch, slider, segmented control, tab bar, checkbox, progress, ring, page control and picker keep their state visible with `Highlight`.
+- **Right-to-left** (`dir="rtl"` anywhere above the control): the switch turns on to the left and mirrors drags, the slider starts on the right like the native range, menus hang from the right edge. Icons named with SF Symbols' `…backward` / `…forward` (`chevron.backward`, `arrow.forward`) mirror; explicit `chevron.left` / `arrow.right` do not, as in SF Symbols.
+- **Print:** glass prints flat with a hairline border; menus, popovers, toasts, tooltips, tab bars and the global nav are not printed.

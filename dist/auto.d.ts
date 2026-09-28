@@ -108,6 +108,8 @@ export declare function registerIcons(map: Record<string, string>): void;
 export declare function hasIcon(name: string): boolean;
 /** True when the app registered its own SVG for this name (directly or through an SF Symbols alias). */
 export declare function isRegisteredIcon(name: string): boolean;
+/** True for SF Symbols `…backward` / `…forward` names, which mirror in right-to-left layouts. */
+export declare function isDirectional(name: string): boolean;
 /** Returns a complete `<svg>` string. Accepts built-in and SF Symbols names. */
 export declare function icon(name: IconName | (string & {}), options?: { size?: number; strokeWidth?: number; label?: string; className?: string }): string;
 

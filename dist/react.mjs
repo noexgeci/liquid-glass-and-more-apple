@@ -30,6 +30,7 @@ import {
   registerIcons,
   hasIcon,
   isRegisteredIcon,
+  isDirectional,
   sfAliases
 } from "./liquid-glass.mjs";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
@@ -122,6 +123,7 @@ function Icon({ name, size = 24, strokeWidth = 1.9, label, className, style, ...
       role: label ? "img" : void 0,
       "aria-label": label,
       "aria-hidden": label ? void 0 : true,
+      "data-lg-directional": isDirectional(name) ? "" : void 0,
       dangerouslySetInnerHTML: { __html: body.replace(/ data-fill=""/g, ' fill="currentColor" stroke="none"') },
       ...rest
     }

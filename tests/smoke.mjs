@@ -61,7 +61,7 @@ await page.waitForTimeout(350);
 check('switch toggles on drag', (await sw.locator('input').isChecked()) !== on);
 
 // Slider: drag updates value and ratio
-const slider = page.locator('.lg-slider');
+const slider = page.locator('.lg-slider').first();
 const sb = await slider.boundingBox();
 await page.mouse.click(sb.x + sb.width * 0.9, sb.y + sb.height / 2);
 const val = await slider.locator('input').inputValue();
@@ -172,6 +172,21 @@ check('picker moves with arrow keys', await until(() => window.__pick === 'd'));
 await page.locator('#pick .lg-picker-item', { hasText: 'F' }).click();
 check('picker selects a clicked row', await until(() => window.__pick === 'f'));
 
+// Right-to-left: switch and slider mirror like iOS / the native range
+{
+  const b = await page.locator('#rtlSwitch').boundingBox();
+  await page.mouse.move(b.x + b.width - 12, b.y + b.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(b.x + 4, b.y + b.height / 2, { steps: 8 });
+  await page.mouse.up();
+  check('rtl: dragging the switch left turns it on', await until(() => document.querySelector('#rtlSwitch input').checked));
+  check('rtl: slider minimum is on the right', await page.evaluate(() => {
+    const body = document.querySelector('#rtlSlider .lg-slider-body').getBoundingClientRect();
+    const t = document.querySelector('#rtlSlider .lg-slider-thumb').getBoundingClientRect();
+    return Math.abs((body.right - (t.left + t.width / 2)) / body.width - 0.25) < 0.08;
+  }));
+}
+
 // Adaptive glass follows the content underneath
 check('adaptive glass turns dark over dark content', await until(() => document.getElementById('adaptDark').getAttribute('data-lg-appearance') === 'dark'));
 check('adaptive glass stays light over light content', await until(() => document.getElementById('adaptLight').getAttribute('data-lg-appearance') === 'light'));
@@ -185,6 +200,27 @@ const leaked = await page.evaluate(() => {
   return gone && !!el.querySelector('.lg-segmented-indicator');
 });
 check('destroy/enhance round trip', leaked);
+
+// Engines without the Popover API (Safari < 17, Firefox < 125): presentations
+// move to <body> while open and go back where they were afterwards.
+const legacy = await browser.newPage({ viewport: { width: 1100, height: 800 } });
+legacy.on('pageerror', (e) => errors.push('legacy: ' + e.message));
+await legacy.addInitScript(() => {
+  delete HTMLElement.prototype.showPopover;
+  delete HTMLElement.prototype.hidePopover;
+});
+await legacy.goto(url);
+const luntil = (fn) => legacy.waitForFunction(fn, null, { timeout: 4000 }).then(() => true, () => false);
+await legacy.click('#open-sheet');
+check('fallback: sheet opens from <body>', await luntil(() => { const el = document.getElementById('sheet'); return el.classList.contains('is-open') && el.parentNode === document.body; }));
+await legacy.waitForTimeout(400);
+await legacy.keyboard.press('Escape');
+check('fallback: sheet returns to its form', await luntil(() => { const el = document.getElementById('sheet'); return el.hidden && el.parentNode.id === 'sheetForm'; }));
+await legacy.click('#open-menu');
+check('fallback: menu opens from <body>', await luntil(() => { const el = document.getElementById('menu'); return el.classList.contains('is-open') && el.parentNode === document.body; }));
+await legacy.keyboard.press('Escape');
+check('fallback: menu returns home', await luntil(() => { const el = document.getElementById('menu'); return el.hidden && el.parentNode.id === 'menuHome'; }));
+await legacy.close();
 
 check('no page errors', errors.length === 0, errors.join(' | '));
 await browser.close();

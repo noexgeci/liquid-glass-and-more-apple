@@ -113,6 +113,10 @@ export const icons = {
 export const sfAliases = {
   'chevron.left': 'chevron-left',
   'chevron.right': 'chevron-right',
+  'chevron.backward': 'chevron-left',
+  'chevron.forward': 'chevron-right',
+  'arrow.backward': 'arrow-left',
+  'arrow.forward': 'arrow-right',
   'chevron.up': 'chevron-up',
   'chevron.down': 'chevron-down',
   'arrow.left': 'arrow-left',
@@ -250,11 +254,15 @@ function sizeSvg(svg, size, className, a11y) {
   });
 }
 
+/** SF Symbols `…backward` / `…forward` names mirror in right-to-left layouts. */
+export const isDirectional = (name) => /\.(backward|forward)(\.|$)/.test(String(name));
+
 /** Returns an `<svg>` string for an icon (registered icons first, then built-in). */
 export function icon(name, options = {}) {
   const size = options.size || 24;
   const label = options.label;
-  const a11y = label ? `role="img" aria-label="${String(label).replace(/"/g, '&quot;')}"` : 'aria-hidden="true"';
+  let a11y = label ? `role="img" aria-label="${String(label).replace(/"/g, '&quot;')}"` : 'aria-hidden="true"';
+  if (isDirectional(name)) a11y += ' data-lg-directional=""';
   const own = findRegistered(name);
   if (own) {
     if (/^<svg/i.test(own)) return sizeSvg(own, size, options.className, a11y);
