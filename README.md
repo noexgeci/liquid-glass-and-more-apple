@@ -307,6 +307,8 @@ A script tag build ugyanezt adja a `window.LiquidGlass` objektumon.
 | `setTheme('light' \| 'dark' \| 'auto')` | Téma váltás. |
 | `registerIcons({ név: svg })` | Saját vagy SF Symbols SVG-k regisztrálása (SF nevekkel). |
 | `icon(név, { size })` | Ikon SVG szövegként. |
+| `hasIcon(név)` / `isRegisteredIcon(név)` | Van-e ilyen ikon / regisztráltál-e hozzá saját (SF Symbols) SVG-t. |
+| `openPopover(panel, anchor)` / `closePopover(immediate?, panel?)` | Menü vagy popover nyitása/zárása programból. |
 
 Események: `lg-change` (szegmens gombokkal, tab bar, léptető, lapozó, `data-lg-toggle`), `lg-select` (menü), `lg-open` / `lg-close` (menü, sheet), `lg-detent` (sheet).
 
@@ -366,11 +368,13 @@ Az iOS színek 1:1 az Apple értékei, ezért néhány (például a másodlagos 
 
 A fénytöréshez a Chromium GPU-raszterizálása kell (asztali Chrome-ban és Electronban alapértelmezett). Kikapcsolás: `start({ refraction: false })`.
 
+A felugró elemek (alert, action sheet, sheet, menü, popover, értesítés, súgócímke) a böngésző **top layerében** jelennek meg a Popover API-val (Chrome/Edge 114+, Safari 17+, Firefox 125+): a helyükön maradnak a DOM-ban (űrlap, téma és React fa sértetlen), mégsem vághatja le vagy takarhatja ki őket semmilyen `transform`, `overflow` vagy `z-index`. Régebbi böngészőben nyitás idejére a `<body>`-ba kerülnek, zárás után vissza.
+
 ## Teljesítmény
 
 - A displacement mapokat méret szerint cache-eli és újrahasznosítja; azonos méretű gombok egyetlen SVG szűrőn osztoznak.
 - Animáció közben (átméretezés) a meglévő map nyúlik, és csak a mozgás végén generál újat.
-- A nagy felületek mapja legfeljebb 320 px oldalú, a böngésző skálázza fel.
+- A nagy felületek mapja legfeljebb 200 px oldalú (a torzítás sima, így élesen skálázható), és csak akkor készül el, amikor az elem a képernyő közelébe ér, képkockánként néhány ms-os kerettel.
 - Az interakciók csak `transform`, `opacity` és CSS változók animálásával dolgoznak: kompozitorban futnak, 60/120 fps.
 - A dinamikus fény egy `requestAnimationFrame`-mel fojtott CSS változó.
 - Használd mértékkel: az Apple is azt javasolja, hogy a Liquid Glass a vezérlőréteg legyen, ne a tartalomé.
@@ -431,6 +435,7 @@ Or with plain tags:
 - Switch, slider, segmented control and tab bar selections turn into draggable glass lenses.
 - iOS 26 system colors (light, dark, increased contrast), Dynamic Type scale, SF tracking table, HIG control sizes.
 - 30+ components, dark mode via `light-dark()`, SSR-safe core, `'use client'` React build, TypeScript types, zero dependencies.
+- Alerts, sheets, menus, popovers, toasts and tooltips open in the browser's top layer (Popover API), so they are never clipped or covered, yet stay in place in the DOM: forms, inherited themes and React trees are untouched.
 
 ### Next.js
 

@@ -53,7 +53,7 @@
   <div class="lg-page-control lg-glass" data-count="5" data-index="1"></div>
   <button class="lg-button" aria-busy="true" id="busy">Saving</button>
   <input class="lg-textfield" aria-invalid="true" style="width:160px" aria-label="Email" value="nope">
-  <button class="lg-button" id="toggle" data-lg-toggle aria-pressed="false" data-lg-tooltip="Tooltip text">Toggle</button>
+  <button class="lg-button" id="toggle" data-lg-toggle aria-pressed="false" aria-describedby="hint" data-lg-tooltip="Tooltip text">Toggle</button>
   <details class="lg-disclosure" id="disc"><summary>More</summary><div class="lg-disclosure-content">Hidden content</div></details>
 </div>
 <div class="row">
@@ -72,17 +72,29 @@
     </div>
   </div>
 </div>
-<div class="lg-menu" id="menu" hidden>
-  <button class="lg-menu-item" data-value="copy">Copy</button>
-  <button class="lg-menu-item" data-value="share">Share</button>
-  <div class="lg-menu-separator"></div>
-  <button class="lg-menu-item lg-menu-item--destructive" data-value="delete">Delete</button>
+<div id="menuHome" style="contain: paint">
+  <div class="lg-menu" id="menu" hidden>
+    <button class="lg-menu-item" data-value="copy">Copy</button>
+    <button class="lg-menu-item" data-value="share">Share</button>
+    <div class="lg-menu-separator"></div>
+    <button class="lg-menu-item lg-menu-item--destructive" data-value="delete">Delete</button>
+  </div>
 </div>
-<div class="lg-sheet" id="sheet" hidden>
-  <div class="lg-sheet-grabber"></div>
-  <div class="lg-sheet-header"><button class="lg-button lg-button--icon" data-lg-dismiss aria-label="Close"><span data-lg-icon="xmark"></span></button><h2 class="lg-sheet-title">Sheet</h2><span></span></div>
-  <div class="lg-sheet-content"><p>Sheet content</p></div>
-</div>
+<!-- A transformed ancestor traps position:fixed; the top layer must escape it. -->
+<form id="sheetForm" style="transform: translateZ(0)">
+  <div class="lg-sheet" id="sheet" hidden>
+    <div class="lg-sheet-grabber"></div>
+    <div class="lg-sheet-header"><button type="button" class="lg-button lg-button--icon" data-lg-dismiss aria-label="Close"><span data-lg-icon="xmark"></span></button><h2 class="lg-sheet-title">Sheet</h2><span></span></div>
+    <div class="lg-sheet-content">
+      <p>Sheet content</p>
+      <input class="lg-textfield" name="note" value="kept" aria-label="Note">
+      <button type="button" class="lg-button" id="sheet-menu-btn" data-lg-menu="#sheetMenu">More</button>
+      <button type="button" class="lg-button" id="sheet-alert-btn">Confirm</button>
+      <div class="lg-menu" id="sheetMenu" hidden><button type="button" class="lg-menu-item" data-value="one">One</button><button type="button" class="lg-menu-item" data-value="two">Two</button></div>
+    </div>
+  </div>
+</form>
+<p id="hint" hidden>Toggles the thing</p>
 <nav class="lg-tabbar">
   <div class="lg-tabbar-tabs lg-glass">
     <a class="lg-tab is-selected" href="#"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8"/></svg><span class="lg-tab-label">Home</span></a>
@@ -99,6 +111,9 @@
   };
   document.getElementById('open-toast').onclick = () => LiquidGlass.toast({ title: 'Messages', message: 'Hello from Liquid Glass', time: 'now' });
   document.getElementById('menu').addEventListener('lg-select', (e) => (window.__menu = e.detail.value));
+  document.getElementById('sheet-alert-btn').onclick = async () => {
+    window.__sheetAlert = await LiquidGlass.alert({ title: 'Save?', actions: [{ label: 'Cancel', role: 'cancel' }, { label: 'Save', prominent: true }] });
+  };
 </script>
 </body>
 </html>

@@ -83,6 +83,7 @@ __export(react_exports, {
   icon: () => import_core.icon,
   iconNames: () => import_core.iconNames,
   icons: () => import_core.icons,
+  isRegisteredIcon: () => import_core.isRegisteredIcon,
   menu: () => import_core.menu,
   refract: () => import_core.refract,
   registerIcons: () => import_core.registerIcons,
@@ -101,7 +102,7 @@ var React = __toESM(require("react"), 1);
 var import_react_dom = require("react-dom");
 var import_core = require("./liquid-glass.cjs");
 var import_jsx_runtime = require("react/jsx-runtime");
-var { forwardRef, useEffect, useLayoutEffect, useRef, useState, useCallback, useImperativeHandle } = React;
+var { forwardRef, useEffect, useLayoutEffect, useRef, useState, useCallback } = React;
 var useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 var idCounter = 0;
 var useStableId = React.useId || function useFallbackId() {
@@ -113,18 +114,41 @@ var REACT_MAJOR = parseInt(React.version, 10) || 18;
 function cx(...parts) {
   return parts.filter(Boolean).join(" ");
 }
+function assignRef(ref, value) {
+  if (typeof ref === "function") ref(value);
+  else if (ref) ref.current = value;
+}
 function useMergedRef(forwarded) {
   const local = useRef(null);
-  useImperativeHandle(forwarded, () => local.current, []);
-  return local;
+  const outer = useRef(forwarded);
+  const setRef = useCallback((node) => {
+    local.current = node;
+    assignRef(outer.current, node);
+  }, []);
+  useIsoLayoutEffect(() => {
+    if (outer.current === forwarded) return;
+    assignRef(outer.current, null);
+    outer.current = forwarded;
+    assignRef(forwarded, local.current);
+  });
+  return [local, setRef];
 }
 function useLiquidGlass(ref) {
+  const attached = useRef(null);
   useIsoLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return void 0;
-    (0, import_core.init)(el);
-    return () => (0, import_core.destroy)(el);
-  }, []);
+    const el = ref.current || null;
+    if (el === attached.current) return;
+    if (attached.current) (0, import_core.destroy)(attached.current);
+    attached.current = el;
+    if (el) (0, import_core.init)(el);
+  });
+  useIsoLayoutEffect(
+    () => () => {
+      if (attached.current) (0, import_core.destroy)(attached.current);
+      attached.current = null;
+    },
+    []
+  );
 }
 function useControllable(value, defaultValue, onChange) {
   const [inner, setInner] = useState(defaultValue);
@@ -145,12 +169,12 @@ function tintStyle(tint, style, prop = "--lg-tint") {
   return { ...style, [prop]: color };
 }
 function Icon({ name, size = 24, strokeWidth = 1.9, label, className, style, ...rest }) {
-  const body = import_core.icons[name] || import_core.icons[import_core.sfAliases[name]];
-  const html = (0, import_core.icon)(name, { size, strokeWidth, label, className });
-  if (!html) return null;
-  if (!body || html.indexOf("stroke-linecap") < 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { display: "contents", ...style }, dangerouslySetInnerHTML: { __html: html }, ...rest });
+  if ((0, import_core.isRegisteredIcon)(name)) {
+    const html = (0, import_core.icon)(name, { size, label, className });
+    return html ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { display: "contents", ...style }, dangerouslySetInnerHTML: { __html: html }, ...rest }) : null;
   }
+  const body = import_core.icons[name] || import_core.icons[import_core.sfAliases[name]];
+  if (!body) return null;
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
     "svg",
     {
@@ -173,11 +197,17 @@ function Icon({ name, size = 24, strokeWidth = 1.9, label, className, style, ...
   );
 }
 function LiquidGlassProvider({ children, theme, refraction, dynamicLight }) {
+  const opts = {};
+  if (refraction !== void 0) opts.refraction = refraction;
+  if (dynamicLight !== void 0) opts.dynamicLight = dynamicLight;
+  const applied = useRef(null);
+  const key = JSON.stringify(opts);
+  if (typeof window !== "undefined" && applied.current !== key) {
+    applied.current = key;
+    (0, import_core.configure)(opts);
+  }
   useEffect(() => {
-    const opts = {};
-    if (refraction !== void 0) opts.refraction = refraction;
-    if (dynamicLight !== void 0) opts.dynamicLight = dynamicLight;
-    (0, import_core.start)(opts);
+    (0, import_core.start)();
   }, []);
   useEffect(() => {
     if (theme) (0, import_core.setTheme)(theme);
@@ -186,12 +216,12 @@ function LiquidGlassProvider({ children, theme, refraction, dynamicLight }) {
 }
 var GLASS_VARIANTS = { regular: "", clear: "lg-glass--clear", tinted: "lg-glass--tinted", prominent: "lg-glass--prominent", thick: "lg-glass--thick", opaque: "lg-glass--opaque", dimmed: "lg-glass--dimmed" };
 var Glass = forwardRef(function Glass2({ as: Tag = "div", variant = "regular", shape, tint, interactive, flat, adaptive, bezel, depth, magnify, className, style, children, ...rest }, ref) {
-  const local = useMergedRef(ref);
+  const [local, setRef] = useMergedRef(ref);
   useLiquidGlass(local);
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
     Tag,
     {
-      ref: local,
+      ref: setRef,
       className: cx(
         "lg-glass",
         GLASS_VARIANTS[variant],
@@ -216,14 +246,14 @@ function ScrollEdge({ position = "top", className, ...rest }) {
 }
 var BUTTON_SIZES = { mini: "lg-button--mini", small: "lg-button--small", regular: "", large: "lg-button--large", xl: "lg-button--xl" };
 var Button = forwardRef(function Button2({ as, variant = "glass", size = "regular", shape = "capsule", icon: icon2, destructive, tint, block, className, style, children, type, ...rest }, ref) {
-  const local = useMergedRef(ref);
+  const [local, setRef] = useMergedRef(ref);
   useLiquidGlass(local);
   const Tag = as || (rest.href ? "a" : "button");
   const iconOnly = shape === "circle" || icon2 && !children;
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
     Tag,
     {
-      ref: local,
+      ref: setRef,
       type: Tag === "button" ? type || "button" : type,
       className: cx(
         "lg-button",
@@ -260,9 +290,9 @@ var ToggleButton = forwardRef(function ToggleButton2({ pressed, defaultPressed =
   );
 });
 var ButtonGroup = forwardRef(function ButtonGroup2({ className, children, height, style, ...rest }, ref) {
-  const local = useMergedRef(ref);
+  const [local, setRef] = useMergedRef(ref);
   useLiquidGlass(local);
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { ref: local, role: "group", className: cx("lg-group lg-glass", className), style: height ? { ...style, "--lg-group-height": height + "px" } : style, ...rest, children });
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { ref: setRef, role: "group", className: cx("lg-group lg-glass", className), style: height ? { ...style, "--lg-group-height": height + "px" } : style, ...rest, children });
 });
 var Switch = forwardRef(function Switch2({ checked, defaultChecked = false, onCheckedChange, onChange, disabled, size, tint, className, style, id, name, value, "aria-label": ariaLabel, label, ...rest }, ref) {
   const local = useRef(null);
@@ -336,7 +366,7 @@ var Slider = forwardRef(function Slider2({ value, defaultValue = 50, min = 0, ma
   );
 });
 var SegmentedControl = forwardRef(function SegmentedControl2({ options, value, defaultValue, onValueChange, name, size, block, className, "aria-label": ariaLabel, ...rest }, ref) {
-  const local = useMergedRef(ref);
+  const [local, setRef] = useMergedRef(ref);
   const autoName = "lg-seg-" + useStableId().replace(/[^a-zA-Z0-9_-]/g, "");
   const items = (options || []).map((o) => typeof o === "object" ? o : { value: o, label: String(o) });
   const [v, setV] = useControllable(value, defaultValue !== void 0 ? defaultValue : items[0] && items[0].value, onValueChange);
@@ -347,7 +377,7 @@ var SegmentedControl = forwardRef(function SegmentedControl2({ options, value, d
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
     "div",
     {
-      ref: local,
+      ref: setRef,
       role: "radiogroup",
       "aria-label": ariaLabel,
       className: cx("lg-segmented", size === "small" && "lg-segmented--small", block && "lg-segmented--block", className),
@@ -449,7 +479,9 @@ function PickerColumn({ items, value, defaultValue, onValueChange, label, grow, 
   useEffect(() => {
     const idx = list.findIndex((it) => it.value === v);
     const el = ref.current;
-    if (el && idx > -1 && String(el.getAttribute("data-value")) !== String(list[idx].value)) (0, import_core.select)(el, idx);
+    if (!el || idx < 0) return;
+    const shown = el.querySelector('.lg-picker-item[aria-selected="true"]');
+    if (!shown || shown.getAttribute("data-value") !== String(list[idx].value)) (0, import_core.select)(el, idx);
   }, [v]);
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
     "div",
@@ -464,12 +496,12 @@ function PickerColumn({ items, value, defaultValue, onValueChange, label, grow, 
   );
 }
 var NavigationBar = forwardRef(function NavigationBar2({ title, large, leading, trailing, scrollTarget, threshold, edge, adaptive, className, children, ...rest }, ref) {
-  const local = useMergedRef(ref);
+  const [local, setRef] = useMergedRef(ref);
   useLiquidGlass(local);
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
     "header",
     {
-      ref: local,
+      ref: setRef,
       className: cx("lg-navbar", large && "lg-navbar--large", edge && "lg-navbar--edge", className),
       "data-lg-scroll": scrollTarget,
       "data-lg-threshold": threshold,
@@ -494,7 +526,7 @@ function Spacer() {
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "lg-spacer" });
 }
 var TabBar = forwardRef(function TabBar2({ items, value, defaultValue, onValueChange, search, onSearch, searchLabel = "Search", action, minimizeOnScroll, adaptive, position = "fixed", tint, className, style, "aria-label": ariaLabel = "Tabs", ...rest }, ref) {
-  const local = useMergedRef(ref);
+  const [local, setRef] = useMergedRef(ref);
   const list = items || [];
   const [v, setV] = useControllable(value, defaultValue !== void 0 ? defaultValue : list[0] && list[0].value, onValueChange);
   useLiquidGlass(local);
@@ -516,7 +548,7 @@ var TabBar = forwardRef(function TabBar2({ items, value, defaultValue, onValueCh
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
     "nav",
     {
-      ref: local,
+      ref: setRef,
       "aria-label": ariaLabel,
       className: cx("lg-tabbar", position === "absolute" && "lg-tabbar--absolute", position === "static" && "lg-tabbar--static", className),
       style: tintStyle(tint, style, "--lg-tabbar-tint"),
@@ -625,7 +657,7 @@ function usePortalTarget(enabled) {
   return target;
 }
 var Sheet = forwardRef(function Sheet2({ open, onOpenChange, detents = ["medium", "large"], detent, onDetentChange, title, leading, trailing, grabber = true, contained, className, children, ...rest }, ref) {
-  const local = useMergedRef(ref);
+  const [local, setRef] = useMergedRef(ref);
   const portal = usePortalTarget(!contained);
   const ctrl = useRef(null);
   const onOpenChangeRef = useRef(onOpenChange);
@@ -653,7 +685,7 @@ var Sheet = forwardRef(function Sheet2({ open, onOpenChange, detents = ["medium"
     else if (!open && c.isOpen) c.close();
     else if (open && detent && c.detent !== detent) c.setDetent(detent);
   }, [open, detent, portal]);
-  const node = /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { ref: local, className: cx("lg-sheet lg-glass", contained && "lg-sheet--contained", className), "data-lg-detents": detents.join(" "), hidden: true, ...rest, children: [
+  const node = /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { ref: setRef, className: cx("lg-sheet lg-glass", contained && "lg-sheet--contained", className), "data-lg-detents": detents.join(" "), hidden: true, ...rest, children: [
     grabber && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "lg-sheet-grabber" }),
     (title != null || leading || trailing) && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "lg-sheet-header", children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { children: leading }),
@@ -681,6 +713,7 @@ function Menu({ trigger, children, placement, className, onOpenChange, popover, 
     return () => {
       el.removeEventListener("lg-open", onOpen);
       el.removeEventListener("lg-close", onClose);
+      (0, import_core.closePopover)(true, el);
       (0, import_core.unrefract)(el);
     };
   }, [portal]);

@@ -232,6 +232,11 @@ function findRegistered(name) {
   return null;
 }
 
+/** True when the app registered an SVG for this name (directly or via an SF Symbols alias). */
+export function isRegisteredIcon(name) {
+  return !!findRegistered(name);
+}
+
 export function hasIcon(name) {
   return !!(findRegistered(name) || icons[name] || icons[sfAliases[name]]);
 }

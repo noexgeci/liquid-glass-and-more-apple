@@ -95,8 +95,10 @@ check('tab bar selects', await page.locator('.lg-tab').nth(2).evaluate((el) => e
 // Menu
 await page.click('#open-menu');
 check('menu opens', await until(() => { const el = document.getElementById('menu'); return !el.hidden && el.classList.contains('is-open'); }));
+check('menu opens in the top layer without leaving its parent', await page.evaluate(() => { const el = document.getElementById('menu'); return el.parentNode.id === 'menuHome' && el.matches(':popover-open'); }));
 await page.locator('#menu .lg-menu-item').nth(1).click();
 check('menu selects and closes', await until(() => window.__menu === 'share' && document.getElementById('menu').hidden));
+check('menu leaves the top layer on close', await until(() => !document.getElementById('menu').hasAttribute('popover')));
 
 // Context menu
 await page.click('#ctx', { button: 'right' });
@@ -108,8 +110,32 @@ await until(() => document.getElementById('menu').hidden);
 await page.click('#open-sheet');
 check('sheet opens', await until(() => { const el = document.getElementById('sheet'); return el.classList.contains('is-open') && el.getBoundingClientRect().height > 100; }));
 await page.waitForTimeout(500);
-await page.locator('#sheet [data-lg-dismiss]').click();
-check('sheet closes', await until(() => document.getElementById('sheet').hidden));
+check('sheet escapes a transformed ancestor, stays in its form', await page.evaluate(() => {
+  const el = document.getElementById('sheet');
+  const r = el.getBoundingClientRect();
+  return el.parentNode.id === 'sheetForm' && el.matches(':popover-open') && Math.abs(r.bottom - innerHeight) < 24 && document.getElementById('sheetForm').elements.note.value === 'kept';
+}));
+await page.click('#sheet-menu-btn');
+check('menu inside a sheet shows above it', await until(() => {
+  const m = document.getElementById('sheetMenu');
+  if (!m.classList.contains('is-open')) return false;
+  const r = m.querySelector('.lg-menu-item').getBoundingClientRect();
+  return m.contains(document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2));
+}));
+await page.keyboard.press('Escape');
+check('Escape closes only the menu above the sheet', await until(() => document.getElementById('sheetMenu').hidden && document.getElementById('sheet').classList.contains('is-open')));
+await page.click('#sheet-alert-btn');
+check('alert from a sheet shows above it', await until(() => {
+  const a = document.querySelector('.lg-alert.is-open');
+  if (!a) return false;
+  const r = a.getBoundingClientRect();
+  return a.contains(document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2));
+}));
+await page.keyboard.press('Escape');
+check('Escape closes only the alert above the sheet', await until(() => window.__sheetAlert === 'Cancel' && document.getElementById('sheet').classList.contains('is-open')));
+await page.waitForTimeout(350);
+await page.keyboard.press('Escape');
+check('sheet closes', await until(() => document.getElementById('sheet').hidden && !document.getElementById('sheet').hasAttribute('popover')));
 
 // Alert
 await page.click('#open-alert');
@@ -131,7 +157,9 @@ check('toggle button flips aria-pressed', (await page.getAttribute('#toggle', 'a
 await page.mouse.move(0, 0);
 await page.hover('#toggle');
 check('tooltip appears on hover', await until(() => { const t = document.querySelector('.lg-tooltip'); return !!t && t.classList.contains('is-open') && t.textContent === 'Tooltip text'; }));
+check('tooltip adds to aria-describedby', (await page.getAttribute('#toggle', 'aria-describedby')) === 'hint lg-tooltip');
 await page.mouse.move(0, 0);
+check('tooltip restores aria-describedby', await until(() => document.getElementById('toggle').getAttribute('aria-describedby') === 'hint'));
 await page.click('#disc summary');
 check('disclosure opens', await page.evaluate(() => document.getElementById('disc').open));
 
@@ -145,8 +173,8 @@ await page.locator('#pick .lg-picker-item', { hasText: 'F' }).click();
 check('picker selects a clicked row', await until(() => window.__pick === 'f'));
 
 // Adaptive glass follows the content underneath
-check('adaptive glass turns dark over dark content', await until(() => document.getElementById('adaptDark').classList.contains('lg-dark')));
-check('adaptive glass stays light over light content', await until(() => document.getElementById('adaptLight').classList.contains('lg-light')));
+check('adaptive glass turns dark over dark content', await until(() => document.getElementById('adaptDark').getAttribute('data-lg-appearance') === 'dark'));
+check('adaptive glass stays light over light content', await until(() => document.getElementById('adaptLight').getAttribute('data-lg-appearance') === 'light'));
 
 // Destroy/enhance round trip
 const leaked = await page.evaluate(() => {

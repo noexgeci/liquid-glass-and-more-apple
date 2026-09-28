@@ -32,6 +32,7 @@ __export(index_exports, {
   iconNames: () => iconNames,
   icons: () => icons,
   init: () => init,
+  isRegisteredIcon: () => isRegisteredIcon,
   isStarted: () => isStarted,
   menu: () => menu,
   openPopover: () => openPopover,
@@ -257,6 +258,9 @@ function findRegistered(name) {
   for (const sf of reverseAliases[builtin] || []) if (registered[sf]) return registered[sf];
   return null;
 }
+function isRegisteredIcon(name) {
+  return !!findRegistered(name);
+}
 function hasIcon(name) {
   return !!(findRegistered(name) || icons[name] || icons[sfAliases[name]]);
 }
@@ -347,9 +351,47 @@ function state(el) {
 }
 function claim(el, flag) {
   const s = state(el);
-  if (s.flags[flag]) return false;
+  if (s.flags[flag]) {
+    if (s.revive) s.revive();
+    return false;
+  }
   s.flags[flag] = true;
   return true;
+}
+var classObserver = null;
+function watchClass(el) {
+  const s = state(el);
+  if (s.watched || typeof MutationObserver === "undefined") return;
+  s.watched = true;
+  if (!classObserver) {
+    classObserver = new MutationObserver((records) => {
+      for (const r of records) {
+        const t = r.target;
+        const st = t.__lg;
+        if (st && st.owned) {
+          for (const c of st.owned) if (!t.classList.contains(c)) t.classList.add(c);
+        }
+        if (tracked.has(t)) {
+          const tr = tracked.get(t);
+          tr.dirty = true;
+          if (tr.visible) queueMap(t);
+        }
+      }
+    });
+  }
+  classObserver.observe(el, { attributes: true, attributeFilter: ["class"] });
+}
+function ownClass(el, name, on) {
+  const s = state(el);
+  if (!s.owned) s.owned = /* @__PURE__ */ new Set();
+  if (on) {
+    s.owned.add(name);
+    el.classList.add(name);
+    watchClass(el);
+  } else {
+    s.owned.delete(name);
+    el.classList.remove(name);
+  }
 }
 function onCleanup(el, fn) {
   state(el).cleanups.push(fn);
@@ -390,6 +432,15 @@ var MAX_UNUSED = 32;
 var MAP_MAX_SIDE = 200;
 function getDefs() {
   if (defs && defs.isConnected) return defs;
+  if (defs) {
+    filters.clear();
+    unused.length = 0;
+    tracked.forEach((st, el) => {
+      st.key = null;
+      st.dirty = true;
+      if (el.isConnected && st.visible) setTimeout(() => queueMap(el), 0);
+    });
+  }
   const svg = document.createElementNS(SVG_NS, "svg");
   svg.setAttribute("aria-hidden", "true");
   svg.setAttribute("focusable", "false");
@@ -696,7 +747,7 @@ function applyRefraction(el) {
   releaseFilter(st.key);
   st.key = key;
   el.style.setProperty("--lg-refract", "url(#" + id + ")");
-  el.classList.add("lg-refractive");
+  ownClass(el, "lg-refractive", true);
 }
 function refract(el, opts) {
   el = $(el);
@@ -706,13 +757,13 @@ function refract(el, opts) {
   if (existing) {
     if (opts) {
       existing.opts = opts;
-      existing.key = null;
       applyRefraction(el);
     }
     return el;
   }
   tracked.set(el, { opts: opts || {}, key: null, w: 0, h: 0, last: 0, timer: 0, visible: void 0, dirty: false });
   getResizeObserver().observe(el);
+  watchClass(el);
   const io = getIntersectionObserver();
   if (io) io.observe(el);
   return el;
@@ -729,7 +780,7 @@ function unrefract(el) {
   releaseFilter(st.key);
   tracked.delete(el);
   el.style.removeProperty("--lg-refract");
-  el.classList.remove("lg-refractive");
+  ownClass(el, "lg-refractive", false);
 }
 function sweepDisconnected() {
   tracked.forEach((_, el) => {
@@ -824,7 +875,9 @@ function initSwitch(el) {
   if (!input.hasAttribute("role")) input.setAttribute("role", "switch");
   let thumb = el.querySelector(".lg-switch-thumb");
   if (!thumb) thumb = inject(el, create("span", "lg-switch-thumb", { "aria-hidden": "true" }));
-  refract(thumb, { bezel: 7, depth: 0.35, magnify: 1.12, saturate: 1.6, brightness: 1.08, blur: 0.4 });
+  const lensOpts = { bezel: 7, depth: 0.35, magnify: 1.12, saturate: 1.6, brightness: 1.08, blur: 0.4 };
+  refract(thumb, lensOpts);
+  state(el).revive = () => refract(thumb, lensOpts);
   let pointerId = null;
   let startX = 0;
   let startOn = false;
@@ -923,7 +976,9 @@ function initSlider(el) {
   }
   let thumb = body.querySelector(".lg-slider-thumb");
   if (!thumb) thumb = inject(body, create("div", "lg-slider-thumb", { "aria-hidden": "true" }));
-  refract(thumb, { bezel: 7, depth: 0.35, magnify: 1.18, saturate: 1.5, brightness: 1.08, blur: 0.4 });
+  const lensOpts = { bezel: 7, depth: 0.35, magnify: 1.18, saturate: 1.5, brightness: 1.08, blur: 0.4 };
+  refract(thumb, lensOpts);
+  state(el).revive = () => refract(thumb, lensOpts);
   const sync = () => {
     const min = parseFloat(input.min || 0);
     const max = parseFloat(input.max || 100);
@@ -933,8 +988,8 @@ function initSlider(el) {
   sync();
   listen(el, input, "input", sync);
   listen(el, input, "change", sync);
-  el.classList.add("is-ready");
-  onCleanup(el, () => el.classList.remove("is-ready"));
+  ownClass(el, "is-ready", true);
+  onCleanup(el, () => ownClass(el, "is-ready", false));
   state(el).sync = sync;
   let activeAt = 0;
   const stretch = makeStretch(thumb, 1.5, 1.6);
@@ -974,7 +1029,9 @@ function initSegmented(el) {
   if (!claim(el, "segmented")) return;
   let indicator = el.querySelector(":scope > .lg-segmented-indicator");
   if (!indicator) indicator = inject(el, create("span", "lg-segmented-indicator", { "aria-hidden": "true" }), el.firstChild);
-  refract(indicator, { bezel: 8, depth: 0.35, magnify: 1.1, saturate: 1.5, brightness: 1.06, blur: 0 });
+  const lensOpts = { bezel: 8, depth: 0.35, magnify: 1.1, saturate: 1.5, brightness: 1.06, blur: 0 };
+  refract(indicator, lensOpts);
+  state(el).revive = () => refract(indicator, lensOpts);
   const items = () => Array.from(el.children).filter((c) => c.matches("label, button"));
   const isSelected = (item) => {
     const input = item.querySelector("input");
@@ -1014,9 +1071,9 @@ function initSegmented(el) {
   state(el).refresh = () => place(selectedIndex());
   indicator.style.transition = "none";
   place(selectedIndex());
-  el.classList.add("is-ready");
+  ownClass(el, "is-ready", true);
   nextFrame(() => indicator.style.transition = "");
-  onCleanup(el, () => el.classList.remove("is-ready"));
+  onCleanup(el, () => ownClass(el, "is-ready", false));
   listen(el, el, "change", () => place(selectedIndex()));
   listen(el, el, "click", (e) => {
     const item = e.target.closest("button");
@@ -1098,7 +1155,9 @@ function initTabbar(bar) {
   if (!indicator) indicator = inject(tabsEl, create("div", "lg-tabbar-indicator", { "aria-hidden": "true" }), tabsEl.firstChild);
   let lens = bar.querySelector(":scope > .lg-tabbar-lens");
   if (!lens) lens = inject(bar, create("div", "lg-tabbar-lens", { "aria-hidden": "true" }));
-  refract(lens, { bezel: 14, depth: 0.4, magnify: 1.16, saturate: 1.4, brightness: 1.05, blur: 0 });
+  const lensOpts = { bezel: 14, depth: 0.4, magnify: 1.16, saturate: 1.4, brightness: 1.05, blur: 0 };
+  refract(lens, lensOpts);
+  state(bar).revive = () => refract(lens, lensOpts);
   const tabs = () => $$(".lg-tab", tabsEl);
   const current = () => tabs().findIndex((t) => t.classList.contains("is-selected") || t.getAttribute("aria-current") === "page" || t.getAttribute("aria-selected") === "true");
   const place = (index) => {
@@ -1157,7 +1216,7 @@ function initTabbar(bar) {
     const t = e.target.closest(".lg-tab");
     if (!t) return;
     if (t.tagName === "A" && (t.getAttribute("href") || "#").charAt(0) === "#") e.preventDefault();
-    bar.classList.remove("is-minimized");
+    ownClass(bar, "is-minimized", false);
     select2(tabs().indexOf(t), true);
   });
   let drag = null;
@@ -1239,8 +1298,8 @@ function initTabbar(bar) {
         () => {
           const y = getY();
           const dy = y - lastY;
-          if (y < 40 || dy < -12) bar.classList.remove("is-minimized");
-          else if (dy > 6 && y > 80) bar.classList.add("is-minimized");
+          if (y < 40 || dy < -12) ownClass(bar, "is-minimized", false);
+          else if (dy > 6 && y > 80) ownClass(bar, "is-minimized", true);
           if (Math.abs(dy) > 6 || y < 40) lastY = y;
         },
         { passive: true }
@@ -1265,7 +1324,7 @@ function initNavbar(el) {
   const threshold = numAttr(el, "data-lg-threshold", el.classList.contains("lg-navbar--large") ? 44 : 2);
   const update = () => {
     const y = scroller === window ? window.scrollY : scroller.scrollTop;
-    el.classList.toggle("is-scrolled", y > threshold);
+    ownClass(el, "is-scrolled", y > threshold);
   };
   listen(el, scroller, "scroll", update, { passive: true });
   update();
@@ -1417,16 +1476,10 @@ function adapt(el) {
   }
   if (!n) return;
   const l = sum / n;
-  const dark = el.classList.contains("lg-dark");
-  if (!dark && l < 0.18) {
-    el.classList.add("lg-dark");
-    el.classList.remove("lg-light");
-  } else if (dark && l > 0.3) {
-    el.classList.remove("lg-dark");
-    el.classList.add("lg-light");
-  } else if (!dark && !el.classList.contains("lg-light")) {
-    el.classList.add("lg-light");
-  }
+  const dark = el.getAttribute("data-lg-appearance") === "dark";
+  if (!dark && l < 0.18) el.setAttribute("data-lg-appearance", "dark");
+  else if (dark && l > 0.3) el.setAttribute("data-lg-appearance", "light");
+  else if (!dark && !el.hasAttribute("data-lg-appearance")) el.setAttribute("data-lg-appearance", "light");
 }
 function scheduleAdapt() {
   if (adaptFrame || !adaptive.size) return;
@@ -1439,7 +1492,14 @@ function refreshAdaptive() {
   scheduleAdapt();
 }
 function initAdaptive(el) {
-  if (!claim(el, "adaptive")) return;
+  state(el).reviveAdaptive = () => {
+    adaptive.add(el);
+    scheduleAdapt();
+  };
+  if (!claim(el, "adaptive")) {
+    state(el).reviveAdaptive();
+    return;
+  }
   adaptive.add(el);
   if (adaptive.size === 1) {
     window.addEventListener("scroll", scheduleAdapt, { passive: true, capture: true });
@@ -1447,7 +1507,7 @@ function initAdaptive(el) {
   }
   onCleanup(el, () => {
     adaptive.delete(el);
-    el.classList.remove("lg-dark", "lg-light");
+    el.removeAttribute("data-lg-appearance");
   });
   scheduleAdapt();
 }
@@ -1526,6 +1586,47 @@ function initSpinner(el) {
   if (!el.hasAttribute("role")) el.setAttribute("role", "progressbar");
   if (!el.hasAttribute("aria-label")) el.setAttribute("aria-label", "Loading");
 }
+var canPopover = () => typeof HTMLElement !== "undefined" && typeof HTMLElement.prototype.showPopover === "function";
+function lift(el) {
+  const s = state(el);
+  if (s.lifted) lower(el);
+  if (canPopover()) {
+    if (!el.hasAttribute("popover")) {
+      el.setAttribute("popover", "manual");
+      s.ownPopover = true;
+    }
+    try {
+      el.showPopover();
+      s.lifted = "popover";
+      return;
+    } catch (_) {
+      if (s.ownPopover) el.removeAttribute("popover");
+      s.ownPopover = false;
+    }
+  }
+  if (el.parentNode !== document.body) {
+    s.home = { parent: el.parentNode, next: el.nextSibling };
+    document.body.appendChild(el);
+  }
+  s.lifted = "body";
+}
+function lower(el) {
+  const s = state(el);
+  const how = s.lifted;
+  s.lifted = null;
+  if (how === "popover") {
+    try {
+      if (el.matches(":popover-open")) el.hidePopover();
+    } catch (_) {
+    }
+    if (s.ownPopover) el.removeAttribute("popover");
+    s.ownPopover = false;
+  } else if (how === "body" && s.home) {
+    const { parent, next } = s.home;
+    s.home = null;
+    if (parent.isConnected && el.parentNode === document.body) parent.insertBefore(el, next && next.parentNode === parent ? next : null);
+  }
+}
 var openPanel = null;
 function placePanel(panel, anchor, placement, point) {
   const margin = 8;
@@ -1556,14 +1657,10 @@ function openPopover(panel, anchor, options = {}) {
     return;
   }
   closePopover(true);
-  if (panel.parentNode !== document.body) {
-    const home = { parent: panel.parentNode, next: panel.nextSibling };
-    state(panel).home = state(panel).home || home;
-    document.body.appendChild(panel);
-  }
   panel.classList.add("lg-glass");
   panel.classList.remove("is-closing", "is-open");
   panel.hidden = false;
+  lift(panel);
   refract(panel);
   placePanel(panel, anchor, options.placement || anchor && anchor.getAttribute("data-lg-placement"), { x: options.x || 0, y: options.y || 0 });
   if (anchor) anchor.setAttribute("aria-expanded", "true");
@@ -1604,27 +1701,30 @@ function openPopover(panel, anchor, options = {}) {
   });
   emit(panel, "lg-open", { anchor });
 }
-function closePopover(immediate) {
+function closePopover(immediate, panel) {
   const s = openPanel;
-  if (!s) return;
+  if (!s || panel && $(panel) !== s.panel) return;
   openPanel = null;
-  const panel = s.panel;
+  const el = s.panel;
   document.removeEventListener("pointerdown", s.onDown, true);
   document.removeEventListener("keydown", s.onKey);
   window.removeEventListener("resize", s.onResize);
   if (s.anchor) s.anchor.setAttribute("aria-expanded", "false");
-  panel.classList.remove("is-open");
+  el.classList.remove("is-open");
+  const hide = () => {
+    el.classList.remove("is-closing");
+    el.hidden = true;
+    lower(el);
+  };
   if (immediate === true) {
-    panel.hidden = true;
+    hide();
   } else {
-    panel.classList.add("is-closing");
+    el.classList.add("is-closing");
     setTimeout(() => {
-      if (openPanel && openPanel.panel === panel) return;
-      panel.classList.remove("is-closing");
-      panel.hidden = true;
+      if (!(openPanel && openPanel.panel === el)) hide();
     }, 220);
   }
-  emit(panel, "lg-close", {});
+  emit(el, "lg-close", {});
 }
 function onMenuItemClick(e) {
   const item = e.target.closest(".lg-menu-item, [data-lg-dismiss]");
@@ -1712,6 +1812,7 @@ function trapFocus(container, e) {
 function makeOverlay(parent, className) {
   const ov = create("div", "lg-overlay" + (className ? " " + className : ""), { "aria-hidden": "true" });
   (parent || document.body).appendChild(ov);
+  if (!parent) lift(ov);
   reveal(ov, () => ov.classList.add("is-open"));
   return ov;
 }
@@ -1764,6 +1865,7 @@ function presentModal(box, overlay, cancelAction, resolve, getResult) {
   };
   document.addEventListener("keydown", onKey);
   document.body.appendChild(box);
+  lift(box);
   refract(box);
   reveal(box, () => {
     box.classList.add("is-open");
@@ -1820,10 +1922,10 @@ function alert(options) {
     close = presentModal(box, overlay, cancel || (actions.length === 1 ? actions[0] : null), resolve, getResult);
     if (field) {
       field.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-          const primary = actions.find((a) => a.prominent) || actions[actions.length - 1];
-          close(resultOf(primary));
-        }
+        if (e.key !== "Enter" || e.isComposing || e.keyCode === 229) return;
+        e.preventDefault();
+        const primary = actions.find((a) => a.prominent || a.style === "prominent") || actions.filter((a) => a.role !== "cancel").pop() || actions[actions.length - 1];
+        close(resultOf(primary));
       });
     }
     if (options.dismissOnOverlay && cancel) overlay.addEventListener("click", () => close(resultOf(cancel)));
@@ -1855,6 +1957,7 @@ function actionSheet(options) {
     overlay.addEventListener("click", () => close(resultOf(cancel)));
   });
 }
+var sheetStack = [];
 var Sheet = class {
   constructor(el) {
     this.el = el;
@@ -1927,20 +2030,30 @@ var Sheet = class {
       return this;
     }
     this.prevFocus = document.activeElement;
-    if (!this.contained && el.parentNode !== document.body) document.body.appendChild(el);
-    this.overlay = makeOverlay(el.parentNode, "lg-overlay--sheet");
+    clearTimeout(this._hideTimer);
     if (this.contained) {
+      this.overlay = makeOverlay(el.parentNode, "lg-overlay--sheet");
       this.overlay.style.position = "absolute";
       this.overlay.style.zIndex = "999";
+      el.parentNode.insertBefore(this.overlay, el);
+      el.hidden = false;
+    } else {
+      lower(el);
+      this.overlay = makeOverlay(null, "lg-overlay--sheet");
+      el.hidden = false;
+      lift(el);
     }
-    el.parentNode.insertBefore(this.overlay, el);
     this.overlay.addEventListener("click", () => this.close());
-    el.hidden = false;
     this.setDetent(detent || this.detents()[0]);
     refract(el);
+    sheetStack.push(this);
     this._onKey = (e) => {
-      if (e.key === "Escape") this.close();
-      else trapFocus(el, e);
+      if (sheetStack[sheetStack.length - 1] !== this || modalStack.length || openPanel) return;
+      if (e.key === "Escape") {
+        if (e.defaultPrevented) return;
+        e.preventDefault();
+        this.close();
+      } else trapFocus(el, e);
     };
     document.addEventListener("keydown", this._onKey);
     reveal(el, () => {
@@ -1958,8 +2071,12 @@ var Sheet = class {
     removeOverlay(this.overlay);
     this.overlay = null;
     document.removeEventListener("keydown", this._onKey);
-    setTimeout(() => {
-      if (!this.isOpen) el.hidden = true;
+    const i = sheetStack.indexOf(this);
+    if (i > -1) sheetStack.splice(i, 1);
+    this._hideTimer = setTimeout(() => {
+      if (this.isOpen) return;
+      el.hidden = true;
+      if (!this.contained) lower(el);
     }, 450);
     if (this.prevFocus && this.prevFocus.focus) this.prevFocus.focus({ preventScroll: true });
     emit(el, "lg-close", {});
@@ -2068,6 +2185,7 @@ function toast(options) {
   }
   t.appendChild(body);
   toastHost.insertBefore(t, toastHost.firstChild);
+  lift(toastHost);
   refract(t);
   reveal(t, () => t.classList.add("is-open"));
   let timer = 0;
@@ -2116,18 +2234,21 @@ function toast(options) {
 var tooltipEl = null;
 var tooltipTimer = 0;
 var tooltipTarget = null;
+function describe(el, on) {
+  const ids = (el.getAttribute("aria-describedby") || "").split(/\s+/).filter((x) => x && x !== "lg-tooltip");
+  if (on) ids.push("lg-tooltip");
+  if (ids.length) el.setAttribute("aria-describedby", ids.join(" "));
+  else el.removeAttribute("aria-describedby");
+}
 function hideTooltip() {
   clearTimeout(tooltipTimer);
+  if (tooltipTarget) describe(tooltipTarget, false);
   tooltipTarget = null;
   if (tooltipEl) tooltipEl.classList.remove("is-open");
 }
-function onTooltipOver(e) {
-  if (e.pointerType === "touch" || e.buttons) return;
-  const t = e.target.closest && e.target.closest("[data-lg-tooltip]");
-  if (!t || t === tooltipTarget) return;
+function showTooltip(t, delay) {
   hideTooltip();
   tooltipTarget = t;
-  const delay = tooltipEl && tooltipEl.classList.contains("was-open") ? 80 : 650;
   tooltipTimer = setTimeout(() => {
     if (tooltipTarget !== t || !t.isConnected) return;
     if (!tooltipEl || !tooltipEl.isConnected) {
@@ -2135,7 +2256,8 @@ function onTooltipOver(e) {
       document.body.appendChild(tooltipEl);
     }
     tooltipEl.textContent = t.getAttribute("data-lg-tooltip");
-    t.setAttribute("aria-describedby", "lg-tooltip");
+    describe(t, true);
+    lift(tooltipEl);
     const r = t.getBoundingClientRect();
     tooltipEl.style.left = "0px";
     tooltipEl.style.top = "0px";
@@ -2148,6 +2270,12 @@ function onTooltipOver(e) {
     reveal(tooltipEl, () => tooltipEl.classList.add("is-open", "was-open"));
   }, delay);
 }
+function onTooltipOver(e) {
+  if (e.pointerType === "touch" || e.buttons) return;
+  const t = e.target.closest && e.target.closest("[data-lg-tooltip]");
+  if (!t || t === tooltipTarget) return;
+  showTooltip(t, tooltipEl && tooltipEl.classList.contains("was-open") ? 80 : 650);
+}
 function onTooltipOut(e) {
   const t = tooltipTarget;
   if (!t || e.relatedTarget && t.contains(e.relatedTarget)) return;
@@ -2155,6 +2283,22 @@ function onTooltipOut(e) {
   setTimeout(() => {
     if (!tooltipTarget && tooltipEl) tooltipEl.classList.remove("was-open");
   }, 400);
+}
+function onTooltipFocus(e) {
+  const t = e.target;
+  if (!t.hasAttribute || !t.hasAttribute("data-lg-tooltip") || t === tooltipTarget) return;
+  let visible = true;
+  try {
+    visible = t.matches(":focus-visible");
+  } catch (_) {
+  }
+  if (visible) showTooltip(t, 300);
+}
+function onTooltipBlur(e) {
+  if (e.target === tooltipTarget) hideTooltip();
+}
+function onTooltipKey(e) {
+  if (e.key === "Escape" && tooltipTarget && tooltipEl && tooltipEl.classList.contains("is-open")) hideTooltip();
 }
 function onDocumentClick(e) {
   const toggle = e.target.closest("[data-lg-toggle]");
@@ -2188,6 +2332,7 @@ function onContextMenu(e) {
   const panel = $(t.getAttribute("data-lg-context-menu"));
   if (!panel) return;
   e.preventDefault();
+  if (openPanel && openPanel.panel === panel) return;
   openPopover(panel, null, { x: e.clientX, y: e.clientY });
 }
 function onLongPressStart(e) {
@@ -2308,6 +2453,9 @@ function start(options) {
     document.addEventListener("contextmenu", onContextMenu);
     document.addEventListener("pointerover", onTooltipOver, { passive: true });
     document.addEventListener("pointerout", onTooltipOut, { passive: true });
+    document.addEventListener("focusin", onTooltipFocus);
+    document.addEventListener("focusout", onTooltipBlur);
+    document.addEventListener("keydown", onTooltipKey);
     document.addEventListener("pointerdown", hideTooltip, { passive: true, capture: true });
     window.addEventListener("scroll", hideTooltip, { passive: true, capture: true });
     if (config.dynamicLight) document.addEventListener("pointermove", onLightMove, { passive: true });
@@ -2339,6 +2487,9 @@ function stop() {
   document.removeEventListener("contextmenu", onContextMenu);
   document.removeEventListener("pointerover", onTooltipOver);
   document.removeEventListener("pointerout", onTooltipOut);
+  document.removeEventListener("focusin", onTooltipFocus);
+  document.removeEventListener("focusout", onTooltipBlur);
+  document.removeEventListener("keydown", onTooltipKey);
   document.removeEventListener("pointerdown", hideTooltip, true);
   window.removeEventListener("scroll", hideTooltip, true);
   hideTooltip();
