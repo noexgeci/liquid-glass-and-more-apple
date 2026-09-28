@@ -54,6 +54,14 @@
   <button class="lg-button" id="toggle" data-lg-toggle aria-pressed="false" data-lg-tooltip="Tooltip text">Toggle</button>
   <details class="lg-disclosure" id="disc"><summary>More</summary><div class="lg-disclosure-content">Hidden content</div></details>
 </div>
+<div class="row">
+  <div id="darkZone" style="background:#101012;width:300px;height:80px;border-radius:20px;position:relative">
+    <div class="lg-glass" data-lg-adaptive id="adaptDark" style="position:absolute;inset:18px 30px;border-radius:999px;display:grid;place-items:center">Adaptive</div>
+  </div>
+  <div id="lightZone" style="background:#f5f5f7;width:300px;height:80px;border-radius:20px;position:relative">
+    <div class="lg-glass" data-lg-adaptive id="adaptLight" style="position:absolute;inset:18px 30px;border-radius:999px;display:grid;place-items:center">Adaptive</div>
+  </div>
+</div>
 <div class="lg-menu" id="menu" hidden>
   <button class="lg-menu-item" data-value="copy">Copy</button>
   <button class="lg-menu-item" data-value="share">Share</button>

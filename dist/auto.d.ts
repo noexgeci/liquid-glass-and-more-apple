@@ -158,6 +158,9 @@ export declare function createDisplacementMap(
   magnify: number
 ): { url: string; scale: number; width: number; height: number };
 
+/** Re-evaluates `[data-lg-adaptive]` surfaces (they update on scroll and resize automatically). */
+export declare function refreshAdaptive(): void;
+
 export declare function setTheme(theme: Theme, root?: Element | string): void;
 
 export interface AlertAction<V = string> {

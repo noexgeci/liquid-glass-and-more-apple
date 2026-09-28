@@ -26,6 +26,7 @@
     openPopover: () => openPopover,
     refract: () => refract,
     refresh: () => refresh,
+    refreshAdaptive: () => refreshAdaptive,
     registerIcons: () => registerIcons,
     select: () => select,
     setTheme: () => setTheme,
@@ -768,6 +769,39 @@
     document.addEventListener("pointerup", end);
     document.addEventListener("pointercancel", end);
   }
+  function makeStretch(el, baseX, baseY) {
+    let lastX = 0;
+    let lastT = 0;
+    let v = 0;
+    let timer = 0;
+    const apply = (sx, sy) => {
+      el.style.setProperty("--_sx", sx.toFixed(3));
+      el.style.setProperty("--_sy", sy.toFixed(3));
+    };
+    return {
+      start(x) {
+        lastX = x;
+        lastT = performance.now();
+        v = 0;
+      },
+      move(x) {
+        const now = performance.now();
+        const dt = Math.max(8, now - lastT);
+        v = v * 0.6 + (x - lastX) / dt * 0.4;
+        lastX = x;
+        lastT = now;
+        const k = Math.min(Math.abs(v) * 0.09, 0.22);
+        apply(baseX * (1 + k), baseY * (1 - k * 0.55));
+        clearTimeout(timer);
+        timer = setTimeout(() => apply(baseX, baseY), 90);
+      },
+      end() {
+        clearTimeout(timer);
+        el.style.removeProperty("--_sx");
+        el.style.removeProperty("--_sy");
+      }
+    };
+  }
   function initSwitch(el) {
     if (!claim(el, "switch")) return;
     const input = el.querySelector("input");
@@ -784,6 +818,7 @@
     let travel = 0;
     let pressedAt = 0;
     let suppressClick = false;
+    const stretch = makeStretch(thumb, 1.42, 1.5);
     listen(el, el, "pointerdown", (e) => {
       if (input.disabled || e.button > 0) return;
       pointerId = e.pointerId;
@@ -795,6 +830,7 @@
       travel = el.clientWidth - thumb.offsetWidth - pad * 2;
       x = startOn ? travel : 0;
       el.classList.add("is-pressed");
+      stretch.start(e.clientX);
       try {
         el.setPointerCapture(pointerId);
       } catch (_) {
@@ -810,12 +846,14 @@
       if (moved) {
         x = clamp((startOn ? travel : 0) + dx, 0, travel);
         thumb.style.setProperty("--_x", x + "px");
+        stretch.move(e.clientX);
       }
     });
     const end = (e) => {
       if (e.pointerId !== pointerId) return;
       pointerId = null;
       el.classList.remove("is-dragging");
+      stretch.end();
       if (moved) {
         thumb.style.removeProperty("--_x");
         if (x > travel / 2 !== input.checked) input.click();
@@ -884,11 +922,17 @@
     onCleanup(el, () => el.classList.remove("is-ready"));
     state(el).sync = sync;
     let activeAt = 0;
+    const stretch = makeStretch(thumb, 1.5, 1.6);
+    const onMove = (e) => stretch.move(e.clientX);
     listen(el, input, "pointerdown", (e) => {
       if (input.disabled || e.button > 0) return;
       activeAt = performance.now();
       el.classList.add("is-active");
+      stretch.start(e.clientX);
+      document.addEventListener("pointermove", onMove, { passive: true });
       const end = () => {
+        document.removeEventListener("pointermove", onMove);
+        stretch.end();
         document.removeEventListener("pointerup", end);
         document.removeEventListener("pointercancel", end);
         setTimeout(() => el.classList.remove("is-active"), Math.max(0, 220 - (performance.now() - activeAt)));
@@ -976,6 +1020,8 @@
       const idx = list.indexOf(item);
       if (idx < 0 || idx !== selectedIndex()) return;
       drag = { id: e.pointerId, startX: e.clientX, x0: item.offsetLeft, w: item.offsetWidth, moved: false, near: idx };
+      drag.stretch = makeStretch(indicator, 1.12, 1.3);
+      drag.stretch.start(e.clientX);
       el.classList.add("is-dragging");
       try {
         el.setPointerCapture(e.pointerId);
@@ -991,6 +1037,7 @@
       const pad = parseFloat(getComputedStyle(el).paddingLeft) || 0;
       const x = clamp(drag.x0 + dx, pad, el.clientWidth - pad - drag.w);
       indicator.style.setProperty("--_x", x + "px");
+      drag.stretch.move(e.clientX);
       const center = x + drag.w / 2;
       let best = Infinity;
       items().forEach((it, i) => {
@@ -1005,6 +1052,7 @@
       if (!drag || e.pointerId !== drag.id) return;
       const d = drag;
       drag = null;
+      d.stretch.end();
       indicator.classList.remove("is-moving");
       setTimeout(() => el.classList.remove("is-dragging"), d.moved ? 0 : 180);
       if (d.moved) {
@@ -1190,6 +1238,95 @@
     };
     listen(el, scroller, "scroll", update, { passive: true });
     update();
+  }
+  var adaptive = /* @__PURE__ */ new Set();
+  var adaptFrame = 0;
+  function parseColors(str) {
+    const out = [];
+    const re = /rgba?\(([^)]+)\)/g;
+    let m;
+    while (m = re.exec(str)) {
+      const p = m[1].split(/[\s,/]+/).filter(Boolean).map(parseFloat);
+      out.push([p[0], p[1], p[2], p.length > 3 ? p[3] : 1]);
+    }
+    return out;
+  }
+  function relLuminance(r, g, b) {
+    const f = (c) => {
+      c /= 255;
+      return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    };
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+  }
+  function luminanceBehind(el, x, y) {
+    const stack = document.elementsFromPoint(x, y);
+    for (const node of stack) {
+      if (el === node || el.contains(node)) continue;
+      const tag = node.tagName;
+      if (tag === "IMG" || tag === "VIDEO" || tag === "CANVAS" || tag === "IFRAME") return null;
+      const cs = getComputedStyle(node);
+      if (cs.backgroundImage && cs.backgroundImage !== "none") {
+        if (/url\(/.test(cs.backgroundImage)) return null;
+        const stops = parseColors(cs.backgroundImage).filter((c) => c[3] > 0.2);
+        if (stops.length) {
+          let sum = 0;
+          for (const c of stops) sum += relLuminance(c[0], c[1], c[2]);
+          return sum / stops.length;
+        }
+      }
+      const bg = parseColors(cs.backgroundColor)[0];
+      if (bg && bg[3] > 0.5) return relLuminance(bg[0], bg[1], bg[2]);
+    }
+    return null;
+  }
+  function adapt(el) {
+    const r = el.getBoundingClientRect();
+    if (!r.width || r.bottom < 0 || r.top > window.innerHeight) return;
+    const y = r.top + r.height / 2;
+    let sum = 0;
+    let n = 0;
+    for (const fx of [0.2, 0.5, 0.8]) {
+      const l2 = luminanceBehind(el, r.left + r.width * fx, y);
+      if (l2 != null) {
+        sum += l2;
+        n++;
+      }
+    }
+    if (!n) return;
+    const l = sum / n;
+    const dark = el.classList.contains("lg-dark");
+    if (!dark && l < 0.18) {
+      el.classList.add("lg-dark");
+      el.classList.remove("lg-light");
+    } else if (dark && l > 0.3) {
+      el.classList.remove("lg-dark");
+      el.classList.add("lg-light");
+    } else if (!dark && !el.classList.contains("lg-light")) {
+      el.classList.add("lg-light");
+    }
+  }
+  function scheduleAdapt() {
+    if (adaptFrame || !adaptive.size) return;
+    adaptFrame = requestAnimationFrame(() => {
+      adaptFrame = 0;
+      adaptive.forEach((el) => el.isConnected ? adapt(el) : adaptive.delete(el));
+    });
+  }
+  function refreshAdaptive() {
+    scheduleAdapt();
+  }
+  function initAdaptive(el) {
+    if (!claim(el, "adaptive")) return;
+    adaptive.add(el);
+    if (adaptive.size === 1) {
+      window.addEventListener("scroll", scheduleAdapt, { passive: true, capture: true });
+      window.addEventListener("resize", scheduleAdapt, { passive: true });
+    }
+    onCleanup(el, () => {
+      adaptive.delete(el);
+      el.classList.remove("lg-dark", "lg-light");
+    });
+    scheduleAdapt();
   }
   var MINUS = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
   var PLUS = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5v14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
@@ -1861,7 +1998,7 @@
     if (tooltipEl) tooltipEl.classList.remove("is-open");
   }
   function onTooltipOver(e) {
-    if (e.pointerType === "touch") return;
+    if (e.pointerType === "touch" || e.buttons) return;
     const t = e.target.closest && e.target.closest("[data-lg-tooltip]");
     if (!t || t === tooltipTarget) return;
     hideTooltip();
@@ -1964,7 +2101,8 @@
     [".lg-stepper", initStepper],
     [".lg-page-control", initPageControl],
     [".lg-spinner", initSpinner],
-    ["[data-lg-icon]", initIcon]
+    ["[data-lg-icon]", initIcon],
+    ["[data-lg-adaptive]", initAdaptive]
   ];
   function initGlass(el) {
     if (el.classList.contains("lg-button")) {
