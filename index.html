@@ -1,0 +1,774 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Liquid Glass Kit</title>
+<meta name="description" content="Apple Liquid Glass UI a webre: valódi fénytörés, iOS 26 és macOS 26 komponensek, React és Next.js támogatás.">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="dist/liquid-glass.css">
+<style>
+  /* ---------- page scaffolding (demo only) ---------- */
+  html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+  .lg-globalnav { position: fixed; left: 0; right: 0; }
+  body { margin: 0; overflow-x: hidden; }
+  .wrap { width: min(1080px, 100% - 32px); margin-inline: auto; }
+  section.block { padding-block: 72px 24px; content-visibility: auto; contain-intrinsic-size: auto 900px; }
+  .eyebrow { font: var(--lg-weight-semibold) 13px/18px var(--lg-font); letter-spacing: 0.4px; text-transform: uppercase; color: var(--lg-accent); margin: 0 0 8px; }
+  .h2 { margin: 0 0 10px; font: var(--lg-weight-bold) clamp(32px, 5vw, 48px)/1.08 var(--lg-font-display); letter-spacing: -0.02em; text-wrap: balance; }
+  .lede { margin: 0 0 28px; max-width: 62ch; font: 400 19px/1.45 var(--lg-font); letter-spacing: -0.2px; color: var(--lg-label-secondary); text-wrap: pretty; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .stack { display: grid; gap: 16px; }
+  .muted { color: var(--lg-label-secondary); }
+  .card { padding: 22px; border-radius: 30px; background: var(--lg-bg-grouped-secondary); box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 30px -12px rgb(0 0 0 / 0.12); }
+  .card h3 { margin: 0 0 4px; font: var(--lg-weight-semibold) 17px/22px var(--lg-font); letter-spacing: -0.43px; }
+  .card p { margin: 0 0 16px; font: 400 15px/20px var(--lg-font); letter-spacing: -0.23px; color: var(--lg-label-secondary); }
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+  .label { font: var(--lg-weight-medium) 13px/18px var(--lg-font); color: var(--lg-label-secondary); letter-spacing: -0.08px; }
+  code, pre { font-family: var(--lg-font-mono); }
+  :not(pre) > code { padding: 1px 6px; border-radius: 6px; background: var(--lg-fill-tertiary); font-size: 0.9em; }
+
+  /* ---------- wallpaper (procedural, no image assets) ---------- */
+  .wall {
+    position: absolute; inset: 0; overflow: hidden; z-index: 0;
+    background:
+      radial-gradient(55% 60% at 12% 18%, #ff8a3d 0, transparent 62%),
+      radial-gradient(50% 55% at 88% 12%, #8a5cff 0, transparent 60%),
+      radial-gradient(60% 55% at 78% 88%, #00c8e0 0, transparent 60%),
+      radial-gradient(45% 50% at 18% 92%, #ffd23f 0, transparent 60%),
+      radial-gradient(40% 45% at 50% 50%, #ff3d7f 0, transparent 70%),
+      linear-gradient(160deg, #ff5e62, #6a5cff 55%, #00b4db);
+  }
+  .wall::before {
+    content: ""; position: absolute; inset: -10%;
+    background: repeating-radial-gradient(circle at 30% 120%, rgb(255 255 255 / 0.22) 0 2px, transparent 2px 38px);
+    mix-blend-mode: soft-light;
+  }
+  .wall--dusk { background: radial-gradient(70% 80% at 20% 10%, #ffb86b, transparent 60%), radial-gradient(80% 70% at 90% 100%, #3a1c71, transparent 60%), linear-gradient(180deg, #ff7e5f, #d4418e 45%, #3a1c71); }
+  .wall--sea { background: radial-gradient(60% 60% at 80% 20%, #9be7ff, transparent 60%), radial-gradient(70% 70% at 10% 90%, #004e92, transparent 60%), linear-gradient(200deg, #43cea2, #185a9d); }
+
+  /* ---------- hero ---------- */
+  .hero { position: relative; min-height: 720px; overflow: hidden; color: #fff; isolation: isolate; }
+  .hero-type {
+    position: absolute; left: 50%; top: 50%; z-index: 1; translate: -50% -58%;
+    margin: 0; white-space: nowrap; text-align: center; pointer-events: none;
+    font: 800 clamp(72px, 15.5vw, 210px)/0.86 var(--lg-font-display); letter-spacing: -0.045em;
+    color: rgb(255 255 255 / 0.95); text-shadow: 0 2px 30px rgb(0 0 0 / 0.08);
+  }
+  .hero-copy { position: relative; z-index: 3; padding-top: 520px; display: grid; justify-items: center; gap: 18px; text-align: center; }
+  .hero-copy p { margin: 0; max-width: 40ch; font: 500 clamp(19px, 2.4vw, 24px)/1.35 var(--lg-font-display); letter-spacing: -0.3px; text-shadow: 0 1px 12px rgb(0 0 0 / 0.18); text-wrap: balance; }
+  .hero .lg-button:not(.lg-button--prominent) { color: #fff; }
+  .lens {
+    position: absolute; z-index: 2; left: 0; top: 0; width: 190px; height: 190px; border-radius: 50%;
+    cursor: grab; touch-action: none; translate: var(--x, 60%) var(--y, 150px);
+    display: grid; place-items: center; color: rgb(255 255 255 / 0.9);
+    font: 600 12px/1 var(--lg-font); letter-spacing: 0.3px; text-transform: uppercase;
+  }
+  .lens:active { cursor: grabbing; }
+  .lens span { opacity: 0.85; text-shadow: 0 1px 6px rgb(0 0 0 / 0.25); }
+  .chip { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border-radius: 999px; color: #fff; font: var(--lg-weight-semibold) 13px/1 var(--lg-font); }
+  .chip svg { width: 16px; height: 16px; }
+  .floaters { position: absolute; z-index: 3; inset: 0; pointer-events: none; }
+  .floaters > * { position: absolute; pointer-events: auto; }
+  .cc { display: grid; grid-template-columns: repeat(2, 64px); gap: 10px; padding: 12px; border-radius: 30px; }
+  .cc .lg-button { --_h: 64px; }
+  .cc .lg-button svg { width: 42%; height: 42%; }
+  .cc .on { --lg-tint: var(--lg-blue); }
+
+  /* ---------- material demo ---------- */
+  .material-stage { position: relative; overflow: hidden; border-radius: 34px; padding: 28px; min-height: 360px; isolation: isolate; }
+  .material-stage .wall { z-index: -1; }
+  .stage-type { position: absolute; left: 0; right: 0; top: 50%; translate: 0 -62%; z-index: -1; text-align: center; font: 800 clamp(120px, 22vw, 260px)/1 var(--lg-font-display); letter-spacing: -0.05em; color: rgb(255 255 255 / 0.9); white-space: nowrap; }
+  .mat { min-height: 150px; padding: 20px; border-radius: 30px; display: grid; align-content: space-between; color: var(--lg-label); }
+  .mat h3 { margin: 0; font: var(--lg-weight-semibold) 20px/25px var(--lg-font-display); letter-spacing: -0.45px; }
+  .mat p { margin: 0; font: 400 14px/19px var(--lg-font); color: var(--lg-label-secondary); }
+  .mat.lg-glass--clear { color: #fff; }
+  .mat.lg-glass--clear p { color: rgb(255 255 255 / 0.8); }
+  .mat.lg-glass--prominent p { color: rgb(255 255 255 / 0.85); }
+
+  /* ---------- controls ---------- */
+  .ctl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+  .kv { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 44px; }
+
+  /* ---------- devices ---------- */
+  .devices { display: flex; flex-wrap: wrap; justify-content: center; gap: 36px; }
+  .phone {
+    position: relative; width: 390px; height: 844px; flex: none; border-radius: 58px; padding: 12px; box-sizing: content-box;
+    background: linear-gradient(145deg, #3a3a3c, #0c0c0e); box-shadow: 0 0 0 1.5px #555 inset, 0 40px 80px -30px rgb(0 0 0 / 0.5);
+    transform-origin: top center;
+  }
+  .screen { position: relative; width: 100%; height: 100%; border-radius: 46px; overflow: hidden; background: var(--lg-bg-grouped); isolation: isolate; }
+  .island { position: absolute; z-index: 60; left: 50%; top: 11px; width: 124px; height: 36px; margin-left: -62px; border-radius: 20px; background: #000; }
+  .statusbar { position: absolute; z-index: 55; left: 0; right: 0; top: 0; height: 54px; display: flex; align-items: center; justify-content: space-between; padding: 6px 34px 0 44px; font: var(--lg-weight-semibold) 17px/1 var(--lg-font); letter-spacing: -0.4px; color: var(--lg-label); pointer-events: none; }
+  .statusbar .sys { display: flex; gap: 6px; align-items: center; }
+  .statusbar svg { width: 18px; height: 18px; }
+  .scroller { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+  .scroller::-webkit-scrollbar { display: none; }
+  .scroller .lg-navbar { padding-top: 54px; }
+  .scroller .lg-list-section { margin-inline: 16px; }
+  .phone .lg-search { margin: 0 16px 20px; }
+  .home-indicator { position: absolute; z-index: 70; left: 50%; bottom: 8px; width: 140px; height: 5px; margin-left: -70px; border-radius: 3px; background: var(--lg-label); opacity: 0.85; pointer-events: none; }
+  .music { color: #fff; }
+  .music .screen { background: #1b0f2e; }
+  .art { position: absolute; inset: 0; z-index: 0; background: radial-gradient(60% 40% at 30% 25%, #ff9a8b, transparent 60%), radial-gradient(50% 50% at 80% 40%, #ff6a88, transparent 60%), radial-gradient(70% 50% at 50% 80%, #6a11cb, transparent 70%), linear-gradient(180deg, #ff99ac, #6a11cb); }
+  .art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, rgb(0 0 0 / 0.55)); }
+  .art-cover { position: absolute; z-index: 1; left: 50%; top: 130px; width: 300px; height: 300px; margin-left: -150px; border-radius: 22px; overflow: hidden; box-shadow: 0 30px 60px -20px rgb(0 0 0 / 0.5); background: conic-gradient(from 200deg at 60% 40%, #ffd86f, #fc6262, #a445b2, #5b86e5, #36d1dc, #ffd86f); }
+  .art-cover::after { content: "Aurora"; position: absolute; left: 20px; bottom: 16px; font: 800 44px/1 var(--lg-font-display); letter-spacing: -0.04em; color: rgb(255 255 255 / 0.92); }
+  .np { position: absolute; z-index: 2; left: 20px; right: 20px; top: 460px; display: grid; gap: 16px; }
+  .np-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .np-title b { display: block; font: var(--lg-weight-semibold) 21px/26px var(--lg-font-display); letter-spacing: -0.4px; }
+  .np-title span { font: 400 17px/22px var(--lg-font); color: rgb(255 255 255 / 0.7); }
+  .np-time { display: flex; justify-content: space-between; margin-top: -8px; font: var(--lg-weight-medium) 12px/1 var(--lg-font); color: rgb(255 255 255 / 0.6); font-variant-numeric: tabular-nums; }
+  .np-ctrl { display: flex; align-items: center; justify-content: space-around; }
+  .np .lg-slider { --lg-slider-tint: rgb(255 255 255 / 0.9); color: rgb(255 255 255 / 0.7); }
+  .np .lg-slider .lg-slider-track { background: rgb(255 255 255 / 0.25); }
+  .np .lg-button { color: #fff; }
+  .mini { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; height: 48px; padding: 0 6px 0 8px; border-radius: 999px; color: #fff; }
+  .mini i { width: 34px; height: 34px; border-radius: 8px; flex: none; background: conic-gradient(from 200deg at 60% 40%, #ffd86f, #fc6262, #a445b2, #5b86e5, #36d1dc, #ffd86f); }
+  .mini b { font: var(--lg-weight-semibold) 14px/18px var(--lg-font); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mini .lg-group { --lg-group-height: 40px; background: none; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .mini .lg-group::after { display: none; }
+
+  /* ---------- mac window ---------- */
+  .mac { height: 600px; }
+  .mac .lg-window-main { padding-top: 64px; padding-right: 16px; }
+  .photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 4px; padding-bottom: 16px; }
+  .photos i { aspect-ratio: 1; border-radius: 4px; background: var(--g); }
+  .mac .lg-window-toolbar .lg-segmented { --_h: 36px; }
+  .mac-title { font: var(--lg-weight-bold) 26px/32px var(--lg-font-display); letter-spacing: 0.2px; margin: 0 0 14px; }
+
+  /* ---------- colors & type ---------- */
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  .sw { border-radius: 20px; overflow: hidden; background: var(--lg-bg-grouped-secondary); box-shadow: 0 1px 2px rgb(0 0 0 / 0.05); }
+  .sw i { display: block; height: 72px; background: var(--c); }
+  .sw div { padding: 10px 12px 12px; font: 400 12px/16px var(--lg-font); color: var(--lg-label-secondary); }
+  .sw b { display: block; font: var(--lg-weight-semibold) 14px/18px var(--lg-font); color: var(--lg-label); }
+  .type-row { display: grid; grid-template-columns: 150px 1fr auto; align-items: baseline; gap: 16px; padding: 12px 0; border-bottom: 0.5px solid var(--lg-separator); }
+  .type-row:last-child { border-bottom: 0; }
+  .type-row .meta { font: 400 12px/16px var(--lg-font-mono); color: var(--lg-label-secondary); white-space: nowrap; }
+  @media (max-width: 640px) { .type-row { grid-template-columns: 1fr; gap: 2px; } }
+
+  /* ---------- code ---------- */
+  .code { position: relative; margin: 0; padding: 20px 22px; border-radius: 24px; overflow: auto; background: #111214; color: #e8e8ed; font: 400 13.5px/1.6 var(--lg-font-mono); }
+  .code .c { color: #7f8490; } .code .k { color: #ff7ab2; } .code .s { color: #ffa17a; } .code .t { color: #6bdfff; } .code .a { color: #d9c97c; }
+  .copy { position: absolute; top: 10px; right: 10px; }
+  .tabs-panel[hidden] { display: none; }
+
+  footer.site { padding: 48px 0 140px; text-align: center; font: 400 13px/18px var(--lg-font); color: var(--lg-label-secondary); }
+
+  @media (max-width: 860px) {
+    .phone { transform: scale(0.82); margin-bottom: -150px; }
+    .hero-copy { padding-top: 470px; }
+  }
+  @media (max-width: 480px) {
+    .phone { transform: scale(0.72); margin: 0 -40px -236px; }
+    .floaters .cc, .floaters .chip-b { display: none; }
+  }
+</style>
+</head>
+<body class="lg">
+
+<!-- ================= Global navigation ================= -->
+<div class="lg-globalnav">
+  <nav class="lg-globalnav-bar lg-glass" aria-label="Fő navigáció">
+    <a class="lg-globalnav-brand" href="#top"><span data-lg-icon="sparkles" data-size="20"></span>Liquid Glass</a>
+    <div class="lg-globalnav-links">
+      <a href="#anyag">Anyag</a>
+      <a href="#vezerlok">Vezérlők</a>
+      <a href="#eszkozok">iPhone és Mac</a>
+      <a href="#szinek">Színek</a>
+      <a href="#kezdes">Kezdés</a>
+    </div>
+    <button class="lg-button lg-button--icon lg-button--small" id="themeToggle" aria-label="Világos vagy sötét mód"><span data-lg-icon="moon" data-size="18"></span></button>
+  </nav>
+</div>
+
+<!-- ================= Hero ================= -->
+<header class="hero" id="top">
+  <div class="wall" aria-hidden="true"></div>
+  <h1 class="hero-type" aria-label="Liquid Glass">Liquid<br>Glass</h1>
+
+  <div class="lens lg-glass lg-glass--clear" id="lens" data-lg-magnify="1.35" data-lg-bezel="44" data-lg-depth="0.5" role="img" aria-label="Húzható üveglencse"><span>Húzz meg</span></div>
+
+  <div class="floaters" aria-hidden="false">
+    <div class="chip lg-glass lg-glass--clear" style="left: 7%; top: 120px"><span data-lg-icon="sparkles"></span>iOS 26 · macOS 26</div>
+    <div class="chip chip-b lg-glass lg-glass--clear" style="right: 8%; top: 150px"><span data-lg-icon="bolt"></span>Valódi fénytörés</div>
+    <div class="cc lg-glass lg-glass--clear" style="right: 7%; top: 250px" aria-label="Vezérlőközpont">
+      <button class="lg-button lg-button--prominent lg-button--icon on" aria-label="Repülőgép mód" style="--lg-tint: var(--lg-orange)"><span data-lg-icon="airplane"></span></button>
+      <button class="lg-button lg-button--prominent lg-button--icon on" aria-label="Wi-Fi"><span data-lg-icon="wifi"></span></button>
+      <button class="lg-button lg-button--clear lg-button--icon" aria-label="Bluetooth"><span data-lg-icon="bluetooth"></span></button>
+      <button class="lg-button lg-button--clear lg-button--icon" aria-label="Fókusz"><span data-lg-icon="moon"></span></button>
+    </div>
+  </div>
+
+  <div class="hero-copy wrap">
+    <p>Apple Liquid Glass a webre. Valódi fénytörés, iOS 26 komponensek, egy sor kóddal.</p>
+    <div class="row" style="justify-content: center">
+      <a class="lg-button lg-button--prominent lg-button--large" href="#kezdes">Kezdés</a>
+      <a class="lg-button lg-button--clear lg-button--large" href="https://github.com/noexgeci/liquid-glass-and-more-apple"><span data-lg-icon="arrow-up-right" data-size="18"></span>GitHub</a>
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- ================= Material ================= -->
+<section class="block wrap" id="anyag">
+  <p class="eyebrow">Anyag</p>
+  <h2 class="h2">Üveg, ami tényleg megtöri a fényt.</h2>
+  <p class="lede">Minden felület saját, méretre számolt fénytörési térképet kap. A peremen a tartalom meghajlik, a közép tiszta marad, a tükröződő él követi a kurzort. Chromiumban és Electronban valódi lencse, Safariban és Firefoxban homályos üveg.</p>
+  <div class="material-stage">
+    <div class="wall wall--dusk" aria-hidden="true"></div>
+    <div class="stage-type" aria-hidden="true">Glass</div>
+    <div class="grid-3">
+      <div class="mat lg-glass"><h3>Regular</h3><p>Homályosít és kiegyenlíti a fényerőt. A legtöbb vezérlő, sáv és dialógus ezt használja.</p></div>
+      <div class="mat lg-glass lg-glass--clear"><h3>Clear</h3><p>Szinte teljesen átlátszó. Fotók és videók fölé, ahol a tartalom a lényeg.</p></div>
+      <div class="mat lg-glass lg-glass--prominent" style="--lg-tint: var(--lg-indigo)"><h3>Tinted</h3><p>Színezett üveg a fő műveletekhez, mint a Kész gomb.</p></div>
+    </div>
+    <div class="row" style="margin-top: 20px">
+      <div class="lg-glass" style="padding: 14px 18px; border-radius: 999px" data-lg-bezel="20"><span class="lg-headline">Bezel 20</span></div>
+      <div class="lg-glass lg-glass--interactive" style="padding: 14px 18px; border-radius: 999px"><span class="lg-headline">Nyomd meg</span></div>
+      <div class="lg-glass lg-glass--clear lg-glass--circle" style="width: 72px; display: grid; place-items: center; color: #fff" data-lg-magnify="1.4"><span data-lg-icon="search" data-size="28"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Controls ================= -->
+<section class="block wrap" id="vezerlok">
+  <p class="eyebrow">Vezérlők</p>
+  <h2 class="h2">Minden, amit az iOS 26-ban megszoktál.</h2>
+  <p class="lede">Nyomd meg és húzd őket. A kapcsoló, a csúszka és a szegmensvezérlő kijelölése üveglencsévé válik, és felnagyítja azt, ami alatta van.</p>
+
+  <div class="ctl-grid">
+    <div class="card">
+      <h3>Gombok</h3>
+      <p>Glass, prominent, clear, bordered, filled és plain. HIG méretek: 28, 32, 44, 52, 64 pt.</p>
+      <div class="stack">
+        <div class="row">
+          <button class="lg-button">Glass</button>
+          <button class="lg-button lg-button--prominent">Prominent</button>
+          <button class="lg-button lg-button--bordered">Bordered</button>
+          <button class="lg-button lg-button--filled">Filled</button>
+          <button class="lg-button lg-button--plain">Plain</button>
+        </div>
+        <div class="row">
+          <button class="lg-button lg-button--mini">Mini</button>
+          <button class="lg-button lg-button--small">Small</button>
+          <button class="lg-button">Regular</button>
+          <button class="lg-button lg-button--large">Large</button>
+        </div>
+        <div class="row">
+          <button class="lg-button lg-button--icon" aria-label="Vissza"><span data-lg-icon="chevron-left"></span></button>
+          <button class="lg-button lg-button--icon" aria-label="Megosztás"><span data-lg-icon="share"></span></button>
+          <button class="lg-button lg-button--icon lg-button--prominent" aria-label="Kész"><span data-lg-icon="checkmark"></span></button>
+          <div class="lg-group lg-glass" role="group" aria-label="Szerkesztés">
+            <button class="lg-button lg-button--icon" aria-label="Kedvenc"><span data-lg-icon="heart"></span></button>
+            <button class="lg-button lg-button--icon" aria-label="Információ"><span data-lg-icon="info-circle"></span></button>
+            <button>Szerkesztés</button>
+          </div>
+          <button class="lg-button lg-button--destructive lg-button--bordered"><span data-lg-icon="trash" data-size="18"></span>Törlés</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Kapcsolók, csúszkák</h3>
+      <p>Tartsd lenyomva a kapcsolót vagy húzd a csúszkát.</p>
+      <div class="stack">
+        <div class="kv"><span>Repülőgép üzemmód</span><label class="lg-switch"><input type="checkbox" aria-label="Repülőgép üzemmód"></label></div>
+        <div class="kv"><span>Wi-Fi</span><label class="lg-switch"><input type="checkbox" checked aria-label="Wi-Fi"></label></div>
+        <div class="kv"><span>Egyedi szín</span><label class="lg-switch" style="--lg-switch-tint: var(--lg-indigo)"><input type="checkbox" checked aria-label="Egyedi szín"></label></div>
+        <div class="lg-slider"><span data-lg-icon="speaker-slash" data-size="20"></span><input type="range" min="0" max="100" value="62" aria-label="Hangerő"><span data-lg-icon="speaker" data-size="20"></span></div>
+        <div class="lg-slider" data-lg-ticks="6" style="--lg-slider-tint: var(--lg-orange)"><input type="range" min="0" max="5" step="1" value="2" aria-label="Szövegméret"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Szegmens, léptető, kereső</h3>
+      <p>A szegmens kijelölését meg is foghatod és áthúzhatod.</p>
+      <div class="stack">
+        <div class="lg-segmented lg-segmented--block" role="radiogroup" aria-label="Időszak">
+          <label><input type="radio" name="period" checked>Nap</label>
+          <label><input type="radio" name="period">Hét</label>
+          <label><input type="radio" name="period">Hónap</label>
+          <label><input type="radio" name="period">Év</label>
+        </div>
+        <div class="kv"><span>Példányszám: <b id="qty">2</b></span><div class="lg-stepper" data-min="0" data-max="9" data-value="2" data-lg-output="#qty"></div></div>
+        <div class="lg-search"><span data-lg-icon="search" data-size="18"></span><input type="search" placeholder="Keresés" aria-label="Keresés"><span data-lg-icon="mic" data-size="18"></span></div>
+        <input class="lg-textfield" placeholder="Név" aria-label="Név">
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Jelzők</h3>
+      <p>Folyamatjelző, gyűrű, spinner, lapozó és jelvény.</p>
+      <div class="stack">
+        <progress class="lg-progress" value="0.64" aria-label="Letöltés"></progress>
+        <progress class="lg-progress" aria-label="Betöltés" style="--lg-progress-tint: var(--lg-green)"></progress>
+        <div class="row" style="gap: 20px">
+          <span class="lg-ring" style="--lg-value: 0.72" role="progressbar" aria-valuenow="72" aria-label="Tárhely"></span>
+          <span class="lg-ring" style="--lg-value: 0.35; --lg-ring-tint: var(--lg-pink); --_size: 36px; --_stroke: 5px" role="progressbar" aria-valuenow="35" aria-label="Mozgás"></span>
+          <span class="lg-spinner"></span>
+          <span class="lg-spinner lg-spinner--large"></span>
+          <div class="lg-page-control lg-glass" data-count="5" data-index="1" aria-label="Oldalak"></div>
+          <span class="lg-badge">3</span>
+          <span class="lg-badge" style="--lg-badge-color: var(--lg-blue)">128</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Devices ================= -->
+<section class="block wrap" id="eszkozok" style="contain-intrinsic-size: auto 1700px">
+  <p class="eyebrow">iPhone és Mac</p>
+  <h2 class="h2">Navigáció, ami a tartalom fölött lebeg.</h2>
+  <p class="lede">Görgesd a telefonokat: a navigációs sáv nagy címe beúszik, a tab bar összecsukódik, a tartalom átlátszik alattuk. Húzd végig az ujjad a tab baron, és egy lencse követi.</p>
+
+  <div class="devices">
+    <!-- iPhone: Settings -->
+    <div class="phone" aria-label="iPhone: Beállítások">
+      <div class="screen">
+        <div class="island"></div>
+        <div class="statusbar"><span>9:41</span><span class="sys"><span data-lg-icon="antenna" data-size="18"></span><span data-lg-icon="wifi" data-size="18"></span><span data-lg-icon="battery" data-size="22"></span></span></div>
+        <div class="scroller" id="settingsScroll">
+          <header class="lg-navbar lg-navbar--large" data-lg-scroll="#settingsScroll">
+            <div class="lg-navbar-leading"></div>
+            <div class="lg-navbar-title">Beállítások</div>
+            <div class="lg-navbar-trailing"><button class="lg-button lg-button--icon" aria-label="Fiók"><span data-lg-icon="person-circle"></span></button></div>
+          </header>
+          <h1 class="lg-large-title-header">Beállítások</h1>
+          <div class="lg-search lg-glass"><span data-lg-icon="search" data-size="18"></span><input type="search" placeholder="Keresés" aria-label="Beállítások keresése"><span data-lg-icon="mic" data-size="18"></span></div>
+
+          <section class="lg-list-section">
+            <ul class="lg-list">
+              <li class="lg-row"><span class="lg-row-icon" style="--lg-row-icon-bg: var(--lg-orange)"><span data-lg-icon="airplane" data-size="19"></span></span><span class="lg-row-title">Repülőgép üzemmód</span><label class="lg-switch"><input type="checkbox" aria-label="Repülőgép üzemmód"></label></li>
+              <li><a class="lg-row" href="#" data-lg-sheet="#wifiSheet"><span class="lg-row-icon" style="--lg-row-icon-bg: var(--lg-blue)"><span data-lg-icon="wifi" data-size="19"></span></span><span class="lg-row-title">Wi-Fi</span><span class="lg-row-detail">Otthon</span><span class="lg-chevron"></span></a></li>
+              <li><a class="lg-row" href="#"><span class="lg-row-icon" style="--lg-row-icon-bg: var(--lg-blue)"><span data-lg-icon="bluetooth" data-size="19"></span></span><span class="lg-row-title">Bluetooth</span><span class="lg-row-detail">Be</span><span class="lg-chevron"></span></a></li>
+              <li><a class="lg-row" href="#"><span class="lg-row-icon" style="--lg-row-icon-bg: var(--lg-green)"><span data-lg-icon="antenna" data-size="19"></span></span><span class="lg-row-title">Mobilhálózat</span><span class="lg-chevron"></span></a></li>
+            </ul>
+          </section>
+          <section class="lg-list-section">
+            <ul class="lg-list">
+              <li><a class="lg-row" href="#"><span class="lg-row-icon" style="--lg-row-icon-bg: var(--lg-red)"><span data-lg-icon="bell" data-size="19"></span></span><span class="lg-row-title">Értesítések</span><span class="lg-chevron"></span></a></li>
+              <li><a class="lg-row" href="#"><span class="lg-row-icon" style="--lg-row-icon-bg: var(--lg-pink)"><span data-lg-icon="speaker" data-size="19"></span></span><span class="lg-row-title">Hangok és haptika</span><span class="lg-chevron"></span></a></li>
+              <li><a class="lg-row" href="#"><span class="lg-row-icon" style="--lg-row-icon-bg: var(--lg-indigo)"><span data-lg-icon="moon" data-size="19"></span></span><span class="lg-row-title">Fókusz</span><span class="lg-chevron"></span></a></li>
+              <li><a class="lg-row" href="#"><span class="lg-row-icon" style="--lg-row-icon-bg: var(--lg-indigo)"><span data-lg-icon="clock" data-size="19"></span></span><span class="lg-row-title">Képernyőidő</span><span class="lg-chevron"></span></a></li>
+            </ul>
+          </section>
+          <section class="lg-list-section">
+            <ul class="lg-list">
+              <li><a class="lg-row" href="#"><span class="lg-row-icon"><span data-lg-icon="gear" data-size="19"></span></span><span class="lg-row-title">Általános</span><span class="lg-chevron"></span></a></li>
+              <li><a class="lg-row" href="#"><span class="lg-row-icon" style="--lg-row-icon-bg: var(--lg-blue)"><span data-lg-icon="accessibility" data-size="19"></span></span><span class="lg-row-title">Kisegítő lehetőségek</span><span class="lg-chevron"></span></a></li>
+              <li><a class="lg-row" href="#"><span class="lg-row-icon" style="--lg-row-icon-bg: var(--lg-blue)"><span data-lg-icon="sun" data-size="19"></span></span><span class="lg-row-title">Kijelző és fényerő</span><span class="lg-chevron"></span></a></li>
+              <li><a class="lg-row" href="#"><span class="lg-row-icon" style="--lg-row-icon-bg: var(--lg-cyan)"><span data-lg-icon="photo" data-size="19"></span></span><span class="lg-row-title">Háttérkép</span><span class="lg-chevron"></span></a></li>
+              <li><a class="lg-row" href="#"><span class="lg-row-icon" style="--lg-row-icon-bg: var(--lg-green)"><span data-lg-icon="battery" data-size="19"></span></span><span class="lg-row-title">Akkumulátor</span><span class="lg-chevron"></span></a></li>
+              <li><a class="lg-row" href="#"><span class="lg-row-icon" style="--lg-row-icon-bg: var(--lg-blue)"><span data-lg-icon="hand-raised" data-size="19"></span></span><span class="lg-row-title">Adatvédelem és biztonság</span><span class="lg-chevron"></span></a></li>
+            </ul>
+            <div class="lg-list-footer">Az iPhone neve: Noel iPhone-ja</div>
+          </section>
+          <div style="height: 120px"></div>
+        </div>
+
+        <nav class="lg-tabbar lg-tabbar--absolute" data-lg-minimize-on-scroll="#settingsScroll" aria-label="Lapok">
+          <div class="lg-tabbar-tabs lg-glass">
+            <a class="lg-tab is-selected" href="#"><span data-lg-icon="gear" data-size="26"></span><span class="lg-tab-label">Beállítások</span></a>
+            <a class="lg-tab" href="#"><span data-lg-icon="person" data-size="26"></span><span class="lg-tab-label">Fiók</span><span class="lg-badge">1</span></a>
+            <a class="lg-tab" href="#"><span data-lg-icon="bell" data-size="26"></span><span class="lg-tab-label">Értesítések</span></a>
+          </div>
+          <button class="lg-tabbar-search lg-glass" aria-label="Keresés"><span data-lg-icon="search" data-size="24"></span></button>
+        </nav>
+
+        <div class="lg-sheet lg-sheet--contained" id="wifiSheet" data-lg-detents="medium large" hidden>
+          <div class="lg-sheet-grabber"></div>
+          <div class="lg-sheet-header">
+            <button class="lg-button lg-button--icon" data-lg-dismiss aria-label="Bezárás"><span data-lg-icon="xmark"></span></button>
+            <h2 class="lg-sheet-title">Wi-Fi</h2>
+            <button class="lg-button lg-button--icon lg-button--prominent" data-lg-dismiss aria-label="Kész"><span data-lg-icon="checkmark"></span></button>
+          </div>
+          <div class="lg-sheet-content">
+            <ul class="lg-list">
+              <li class="lg-row"><span class="lg-row-title">Wi-Fi</span><label class="lg-switch"><input type="checkbox" checked aria-label="Wi-Fi"></label></li>
+              <li class="lg-row"><span class="lg-checkmark"></span><span class="lg-row-title">Otthon</span><span data-lg-icon="lock" data-size="16" class="muted"></span><span data-lg-icon="wifi" data-size="18"></span></li>
+            </ul>
+            <div class="lg-list-header" style="padding-top: 22px">Hálózatok</div>
+            <ul class="lg-list">
+              <li class="lg-row"><span class="lg-row-title">Kávézó</span><span data-lg-icon="wifi" data-size="18"></span></li>
+              <li class="lg-row"><span class="lg-row-title">Iroda 5G</span><span data-lg-icon="lock" data-size="16" class="muted"></span><span data-lg-icon="wifi" data-size="18"></span></li>
+              <li class="lg-row"><span class="lg-row-title">Vendég</span><span data-lg-icon="wifi" data-size="18"></span></li>
+            </ul>
+          </div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+
+    <!-- iPhone: Music -->
+    <div class="phone music" aria-label="iPhone: Zene">
+      <div class="screen lg-dark">
+        <div class="island"></div>
+        <div class="art" aria-hidden="true"></div>
+        <div class="statusbar" style="color: #fff"><span>9:41</span><span class="sys"><span data-lg-icon="antenna" data-size="18"></span><span data-lg-icon="wifi" data-size="18"></span><span data-lg-icon="battery" data-size="22"></span></span></div>
+        <div style="position: absolute; z-index: 3; left: 16px; right: 16px; top: 62px; display: flex; justify-content: space-between">
+          <button class="lg-button lg-button--icon lg-button--clear" aria-label="Bezárás"><span data-lg-icon="chevron-down"></span></button>
+          <div class="lg-group lg-glass lg-glass--clear">
+            <button class="lg-button lg-button--icon" aria-label="Kedvenc"><span data-lg-icon="star"></span></button>
+            <button class="lg-button lg-button--icon" data-lg-menu="#songMenu" aria-label="Továbbiak"><span data-lg-icon="ellipsis"></span></button>
+          </div>
+        </div>
+        <div class="art-cover" role="img" aria-label="Albumborító: Aurora"></div>
+        <div class="np">
+          <div class="np-title"><div><b>Északi fény</b><span>Aurora · Liquid Sessions</span></div></div>
+          <div class="lg-slider" style="--_track: 7px"><input type="range" min="0" max="238" value="84" aria-label="Lejátszási pozíció"></div>
+          <div class="np-time"><span>1:24</span><span>−2:34</span></div>
+          <div class="np-ctrl">
+            <button class="lg-button lg-button--icon lg-button--clear lg-button--large" aria-label="Előző"><span data-lg-icon="backward"></span></button>
+            <button class="lg-button lg-button--icon lg-button--clear lg-button--xl" aria-label="Szünet" id="playBtn"><span data-lg-icon="pause"></span></button>
+            <button class="lg-button lg-button--icon lg-button--clear lg-button--large" aria-label="Következő"><span data-lg-icon="forward"></span></button>
+          </div>
+          <div class="lg-slider"><span data-lg-icon="speaker-slash" data-size="18"></span><input type="range" min="0" max="100" value="70" aria-label="Hangerő"><span data-lg-icon="speaker" data-size="18"></span></div>
+        </div>
+        <nav class="lg-tabbar lg-tabbar--absolute" aria-label="Zene lapok">
+          <div class="lg-tabbar-tabs lg-glass">
+            <a class="lg-tab" href="#"><span data-lg-icon="house" data-size="26"></span><span class="lg-tab-label">Kezdőlap</span></a>
+            <a class="lg-tab" href="#"><span data-lg-icon="grid" data-size="26"></span><span class="lg-tab-label">Új</span></a>
+            <a class="lg-tab is-selected" href="#"><span data-lg-icon="radio" data-size="26"></span><span class="lg-tab-label">Rádió</span></a>
+            <a class="lg-tab" href="#"><span data-lg-icon="books" data-size="26"></span><span class="lg-tab-label">Könyvtár</span></a>
+          </div>
+          <button class="lg-tabbar-search lg-glass" aria-label="Keresés"><span data-lg-icon="search" data-size="24"></span></button>
+        </nav>
+        <div class="home-indicator" style="background: #fff"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lg-menu" id="songMenu" hidden>
+    <div class="lg-menu-row">
+      <button class="lg-menu-item"><span data-lg-icon="plus-circle"></span>Hozzáadás</button>
+      <button class="lg-menu-item"><span data-lg-icon="download"></span>Letöltés</button>
+      <button class="lg-menu-item"><span data-lg-icon="share"></span>Megosztás</button>
+    </div>
+    <button class="lg-menu-item"><span data-lg-icon="list"></span>Lejátszás következőként</button>
+    <button class="lg-menu-item"><span data-lg-icon="radio"></span>Állomás létrehozása</button>
+    <div class="lg-menu-separator"></div>
+    <button class="lg-menu-item"><span data-lg-icon="star"></span>Kedvenc</button>
+    <button class="lg-menu-item lg-menu-item--destructive"><span data-lg-icon="trash"></span>Törlés a könyvtárból</button>
+  </div>
+
+  <!-- macOS window -->
+  <div class="lg-window lg-window--sidebar mac" style="margin-top: 56px; --lg-sidebar-width: 220px" aria-label="macOS ablak: Fotók">
+    <div class="lg-window-body">
+      <nav class="lg-sidebar lg-glass" aria-label="Fotók oldalsáv">
+        <div class="lg-sidebar-section">Fotók</div>
+        <a class="lg-sidebar-item is-selected" href="#"><span data-lg-icon="photo"></span>Könyvtár</a>
+        <a class="lg-sidebar-item" href="#"><span data-lg-icon="heart"></span>Kedvencek<span class="lg-sidebar-count">128</span></a>
+        <a class="lg-sidebar-item" href="#"><span data-lg-icon="clock"></span>Legutóbbiak</a>
+        <a class="lg-sidebar-item" href="#"><span data-lg-icon="location"></span>Térkép</a>
+        <div class="lg-sidebar-section">Albumok</div>
+        <a class="lg-sidebar-item" href="#"><span data-lg-icon="folder"></span>Nyár 2026</a>
+        <a class="lg-sidebar-item" href="#"><span data-lg-icon="folder"></span>Balaton</a>
+        <a class="lg-sidebar-item" href="#"><span data-lg-icon="folder"></span>Budapest éjjel</a>
+        <a class="lg-sidebar-item" href="#"><span data-lg-icon="person"></span>Emberek</a>
+      </nav>
+      <div class="lg-window-main" id="macScroll">
+        <h3 class="mac-title">Könyvtár</h3>
+        <div class="photos" id="photos"></div>
+      </div>
+      <div class="lg-window-toolbar lg-drag">
+        <div class="lg-traffic-lights"><span></span><span></span><span></span></div>
+        <span class="lg-spacer"></span>
+        <div class="lg-segmented lg-segmented--small" role="radiogroup" aria-label="Nézet">
+          <label><input type="radio" name="macview">Évek</label>
+          <label><input type="radio" name="macview">Hónapok</label>
+          <label><input type="radio" name="macview" checked>Minden fotó</label>
+        </div>
+        <div class="lg-group lg-glass">
+          <button class="lg-button lg-button--icon" aria-label="Kicsinyítés"><span data-lg-icon="minus"></span></button>
+          <button class="lg-button lg-button--icon" aria-label="Nagyítás"><span data-lg-icon="plus"></span></button>
+        </div>
+        <div class="lg-group lg-glass">
+          <button class="lg-button lg-button--icon" aria-label="Megosztás"><span data-lg-icon="share"></span></button>
+          <button class="lg-button lg-button--icon" aria-label="Kedvenc"><span data-lg-icon="heart"></span></button>
+        </div>
+        <div class="lg-search lg-glass lg-search--small" style="width: 180px"><span data-lg-icon="search" data-size="16"></span><input type="search" placeholder="Keresés" aria-label="Fotók keresése"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Presentations ================= -->
+<section class="block wrap" id="prezentaciok">
+  <p class="eyebrow">Prezentációk</p>
+  <h2 class="h2">Alert, sheet, menü, értesítés.</h2>
+  <p class="lede">Rugós animációkkal nyílnak onnan, ahonnan indítod őket. Billentyűzettel is működnek: Escape bezár, a nyilak lépkednek a menüben.</p>
+  <div class="card">
+    <div class="row">
+      <button class="lg-button lg-button--prominent" id="demoAlert">Alert</button>
+      <button class="lg-button" id="demoPrompt">Alert szövegmezővel</button>
+      <button class="lg-button" id="demoAction">Action sheet</button>
+      <button class="lg-button" data-lg-sheet="#pageSheet">Sheet</button>
+      <button class="lg-button" data-lg-menu="#pageMenu">Menü <span data-lg-icon="chevron-down" data-size="16"></span></button>
+      <button class="lg-button" data-lg-popover="#pagePopover">Popover</button>
+      <button class="lg-button" id="demoToast">Értesítés</button>
+    </div>
+    <div class="lg-glass" data-lg-context-menu="#pageMenu" style="margin-top: 18px; padding: 26px; border-radius: 24px; text-align: center; color: var(--lg-label-secondary)">Kattints ide jobb gombbal (vagy tartsd lenyomva érintőképernyőn)</div>
+  </div>
+
+  <div class="lg-menu" id="pageMenu" hidden>
+    <div class="lg-menu-title">Dokumentum</div>
+    <button class="lg-menu-item" data-value="copy"><span data-lg-icon="doc"></span>Másolás<span class="lg-menu-shortcut">⌘C</span></button>
+    <button class="lg-menu-item" data-value="duplicate"><span data-lg-icon="plus-circle"></span>Duplikálás<span class="lg-menu-shortcut">⌘D</span></button>
+    <button class="lg-menu-item" data-value="rename"><span data-lg-icon="pencil"></span>Átnevezés</button>
+    <button class="lg-menu-item" role="menuitemcheckbox" aria-checked="true" data-value="pin"><span data-lg-icon="bookmark"></span>Kitűzve</button>
+    <div class="lg-menu-separator"></div>
+    <button class="lg-menu-item lg-menu-item--destructive" data-value="delete"><span data-lg-icon="trash"></span>Törlés</button>
+  </div>
+
+  <div class="lg-popover" id="pagePopover" hidden>
+    <p class="lg-headline" style="margin: 0 0 6px">Szöveg mérete</p>
+    <p class="lg-footnote muted" style="margin: 0 0 14px">A popover bármilyen tartalmat megjeleníthet.</p>
+    <div class="lg-slider" data-lg-ticks="5"><span data-lg-icon="doc" data-size="16"></span><input type="range" min="0" max="4" value="2" aria-label="Szövegméret"><span data-lg-icon="doc" data-size="22"></span></div>
+  </div>
+
+  <div class="lg-sheet" id="pageSheet" data-lg-detents="medium large" hidden>
+    <div class="lg-sheet-grabber"></div>
+    <div class="lg-sheet-header">
+      <button class="lg-button lg-button--icon" data-lg-dismiss aria-label="Bezárás"><span data-lg-icon="xmark"></span></button>
+      <h2 class="lg-sheet-title">Új emlékeztető</h2>
+      <button class="lg-button lg-button--icon lg-button--prominent" data-lg-dismiss aria-label="Kész"><span data-lg-icon="checkmark"></span></button>
+    </div>
+    <div class="lg-sheet-content stack">
+      <input class="lg-textfield" placeholder="Cím" aria-label="Cím">
+      <textarea class="lg-textfield" placeholder="Jegyzet" aria-label="Jegyzet"></textarea>
+      <ul class="lg-list">
+        <li class="lg-row"><span class="lg-row-icon" style="--lg-row-icon-bg: var(--lg-red)"><span data-lg-icon="calendar" data-size="19"></span></span><span class="lg-row-title">Dátum</span><label class="lg-switch"><input type="checkbox" checked aria-label="Dátum"></label></li>
+        <li class="lg-row"><span class="lg-row-icon" style="--lg-row-icon-bg: var(--lg-blue)"><span data-lg-icon="clock" data-size="19"></span></span><span class="lg-row-title">Idő</span><label class="lg-switch"><input type="checkbox" aria-label="Idő"></label></li>
+        <li class="lg-row"><span class="lg-row-icon" style="--lg-row-icon-bg: var(--lg-orange)"><span data-lg-icon="tag" data-size="19"></span></span><span class="lg-row-title">Címke</span><span class="lg-row-detail">Munka</span></li>
+      </ul>
+      <p class="lg-footnote muted">Húzd a fogantyút fel vagy le, vagy koppints rá a méretek közti váltáshoz.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Colors ================= -->
+<section class="block wrap" id="szinek">
+  <p class="eyebrow">Színek</p>
+  <h2 class="h2">Az iOS 26 rendszerszínei, pontosan.</h2>
+  <p class="lede">Az értékek az Apple HIG oldaláról származnak. Világos, sötét és nagy kontrasztú változat, automatikusan váltva. Kapcsold át a témát fent jobbra.</p>
+  <div class="swatches" id="swatches"></div>
+</section>
+
+<!-- ================= Typography ================= -->
+<section class="block wrap" id="tipografia">
+  <p class="eyebrow">Tipográfia</p>
+  <h2 class="h2">Dynamic Type, SF betűközökkel.</h2>
+  <p class="lede">Apple eszközökön a rendszer SF Pro betűje jelenik meg a pontos 510-es és 590-es súlyokkal, máshol a rendszer alapértelmezett betűje.</p>
+  <div class="card" id="typeScale"></div>
+</section>
+
+<!-- ================= Get started ================= -->
+<section class="block wrap" id="kezdes">
+  <p class="eyebrow">Kezdés</p>
+  <h2 class="h2">Egy perc alatt a projektedben.</h2>
+  <p class="lede">Sima HTML, Next.js, Vite vagy Electron: válaszd ki, másold be.</p>
+  <div class="lg-segmented" role="radiogroup" aria-label="Környezet" id="setupTabs" style="margin-bottom: 16px">
+    <label><input type="radio" name="setup" value="html" checked>HTML</label>
+    <label><input type="radio" name="setup" value="next">Next.js</label>
+    <label><input type="radio" name="setup" value="vite">Vite + React</label>
+    <label><input type="radio" name="setup" value="electron">Electron</label>
+  </div>
+  <div class="tabs-panel" data-panel="html"><pre class="code"><button class="lg-button lg-button--small copy">Másolás</button><span class="c">&lt;!-- a &lt;head&gt;-be --&gt;</span>
+&lt;<span class="t">link</span> <span class="a">rel</span>=<span class="s">"stylesheet"</span> <span class="a">href</span>=<span class="s">"https://cdn.jsdelivr.net/gh/noexgeci/liquid-glass-and-more-apple@main/dist/liquid-glass.min.css"</span>&gt;
+&lt;<span class="t">script</span> <span class="a">src</span>=<span class="s">"https://cdn.jsdelivr.net/gh/noexgeci/liquid-glass-and-more-apple@main/dist/liquid-glass.min.js"</span> <span class="a">defer</span>&gt;&lt;/<span class="t">script</span>&gt;
+
+<span class="c">&lt;!-- bárhol a &lt;body&gt;-ban --&gt;</span>
+&lt;<span class="t">button</span> <span class="a">class</span>=<span class="s">"lg-button lg-button--prominent"</span>&gt;Kész&lt;/<span class="t">button</span>&gt;
+&lt;<span class="t">label</span> <span class="a">class</span>=<span class="s">"lg-switch"</span>&gt;&lt;<span class="t">input</span> <span class="a">type</span>=<span class="s">"checkbox"</span> <span class="a">checked</span>&gt;&lt;/<span class="t">label</span>&gt;</pre></div>
+  <div class="tabs-panel" data-panel="next" hidden><pre class="code"><button class="lg-button lg-button--small copy">Másolás</button><span class="c"># telepítés</span>
+npm install github:noexgeci/liquid-glass-and-more-apple
+
+<span class="c">// app/layout.tsx</span>
+<span class="k">import</span> <span class="s">'liquid-glass-kit/css'</span>;
+<span class="k">import</span> { LiquidGlassProvider } <span class="k">from</span> <span class="s">'liquid-glass-kit/react'</span>;
+
+<span class="k">export default function</span> <span class="t">RootLayout</span>({ children }) {
+  <span class="k">return</span> (
+    &lt;<span class="t">html</span> <span class="a">lang</span>=<span class="s">"hu"</span>&gt;
+      &lt;<span class="t">body</span> <span class="a">className</span>=<span class="s">"lg"</span>&gt;&lt;<span class="t">LiquidGlassProvider</span>&gt;{children}&lt;/<span class="t">LiquidGlassProvider</span>&gt;&lt;/<span class="t">body</span>&gt;
+    &lt;/<span class="t">html</span>&gt;
+  );
+}
+
+<span class="c">// app/page.tsx</span>
+<span class="k">import</span> { Button, Switch, TabBar, Icon } <span class="k">from</span> <span class="s">'liquid-glass-kit/react'</span>;</pre></div>
+  <div class="tabs-panel" data-panel="vite" hidden><pre class="code"><button class="lg-button lg-button--small copy">Másolás</button>npm create vite@latest my-app -- --template react
+npm install github:noexgeci/liquid-glass-and-more-apple
+
+<span class="c">// src/main.jsx</span>
+<span class="k">import</span> <span class="s">'liquid-glass-kit/css'</span>;
+<span class="k">import</span> { LiquidGlassProvider, Button } <span class="k">from</span> <span class="s">'liquid-glass-kit/react'</span>;
+
+createRoot(root).render(
+  &lt;<span class="t">LiquidGlassProvider</span>&gt;&lt;<span class="t">Button</span> <span class="a">variant</span>=<span class="s">"prominent"</span>&gt;Szia&lt;/<span class="t">Button</span>&gt;&lt;/<span class="t">LiquidGlassProvider</span>&gt;
+);</pre></div>
+  <div class="tabs-panel" data-panel="electron" hidden><pre class="code"><button class="lg-button lg-button--small copy">Másolás</button><span class="c">// main.js: natív macOS üveg az ablak mögött</span>
+<span class="k">new</span> <span class="t">BrowserWindow</span>({
+  titleBarStyle: <span class="s">'hiddenInset'</span>,
+  vibrancy: <span class="s">'under-window'</span>,
+  visualEffectState: <span class="s">'active'</span>,
+  backgroundMaterial: <span class="s">'acrylic'</span>, <span class="c">// Windows 11</span>
+  backgroundColor: <span class="s">'#00000000'</span>,
+});
+
+<span class="c">// renderer: ugyanaz, mint a weben, a teljes fénytöréssel</span>
+<span class="k">import</span> <span class="s">'liquid-glass-kit/css'</span>;
+<span class="k">import</span> <span class="s">'liquid-glass-kit/auto'</span>;</pre></div>
+</section>
+</main>
+
+<footer class="site wrap">
+  Liquid Glass Kit · MIT licenc · Független projekt, nem áll kapcsolatban az Apple Inc.-kel.<br>
+  Az értékek forrása: <a href="https://developer.apple.com/design/" style="color: var(--lg-link)">Apple Human Interface Guidelines</a>.
+</footer>
+
+<script src="dist/liquid-glass.js"></script>
+<script>
+  (function () {
+    var LG = window.LiquidGlass;
+
+    /* Theme toggle */
+    var themeBtn = document.getElementById('themeToggle');
+    function isDark() {
+      var t = document.documentElement.getAttribute('data-lg-theme');
+      return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    function paintThemeIcon() {
+      themeBtn.firstElementChild.setAttribute('data-lg-icon', isDark() ? 'sun' : 'moon');
+      LG.init(themeBtn);
+    }
+    themeBtn.addEventListener('click', function () {
+      LG.setTheme(isDark() ? 'light' : 'dark');
+      paintThemeIcon();
+    });
+    paintThemeIcon();
+
+    /* Draggable hero lens */
+    var lens = document.getElementById('lens');
+    var hero = lens.parentElement;
+    var pos = { x: 0, y: 0 };
+    function placeLens(x, y) {
+      var r = hero.getBoundingClientRect();
+      pos.x = Math.max(-40, Math.min(r.width - 150, x));
+      pos.y = Math.max(60, Math.min(r.height - 150, y));
+      lens.style.setProperty('--x', pos.x + 'px');
+      lens.style.setProperty('--y', pos.y + 'px');
+    }
+    function resetLens() {
+      var r = hero.getBoundingClientRect();
+      placeLens(r.width * 0.5 - 95 - Math.min(260, r.width * 0.22), 190);
+    }
+    resetLens();
+    addEventListener('resize', resetLens);
+    lens.addEventListener('pointerdown', function (e) {
+      var sx = e.clientX, sy = e.clientY, ox = pos.x, oy = pos.y;
+      lens.setPointerCapture(e.pointerId);
+      function move(ev) { placeLens(ox + ev.clientX - sx, oy + ev.clientY - sy); }
+      function up() { lens.removeEventListener('pointermove', move); lens.removeEventListener('pointerup', up); lens.removeEventListener('pointercancel', up); }
+      lens.addEventListener('pointermove', move);
+      lens.addEventListener('pointerup', up);
+      lens.addEventListener('pointercancel', up);
+    });
+
+    /* Photos grid (procedural "photos") */
+    var photos = document.getElementById('photos');
+    var html = '';
+    for (var i = 0; i < 60; i++) {
+      var h = (i * 47) % 360, h2 = (h + 40 + (i % 5) * 20) % 360;
+      html += '<i style="--g: radial-gradient(circle at ' + (20 + (i * 13) % 60) + '% ' + (20 + (i * 29) % 60) + '%, hsl(' + h + ' 90% 72%), transparent 60%), linear-gradient(' + (i * 37) % 360 + 'deg, hsl(' + h + ' 70% 55%), hsl(' + h2 + ' 75% 35%))"></i>';
+    }
+    photos.innerHTML = html;
+
+    /* Color swatches (HIG values) */
+    var colors = [
+      ['Red', 'red', '255 56 60', '255 66 69'], ['Orange', 'orange', '255 141 40', '255 146 48'], ['Yellow', 'yellow', '255 204 0', '255 214 0'],
+      ['Green', 'green', '52 199 89', '48 209 88'], ['Mint', 'mint', '0 200 179', '0 218 195'], ['Teal', 'teal', '0 195 208', '0 210 224'],
+      ['Cyan', 'cyan', '0 192 232', '60 211 254'], ['Blue', 'blue', '0 136 255', '0 145 255'], ['Indigo', 'indigo', '97 85 245', '109 124 255'],
+      ['Purple', 'purple', '203 48 224', '219 52 242'], ['Pink', 'pink', '255 45 85', '255 55 95'], ['Brown', 'brown', '172 127 94', '183 138 102'],
+      ['Gray', 'gray', '142 142 147', '142 142 147'], ['Gray 2', 'gray-2', '174 174 178', '99 99 102'], ['Gray 3', 'gray-3', '199 199 204', '72 72 74'],
+      ['Gray 4', 'gray-4', '209 209 214', '58 58 60'], ['Gray 5', 'gray-5', '229 229 234', '44 44 46'], ['Gray 6', 'gray-6', '242 242 247', '28 28 30'],
+    ];
+    document.getElementById('swatches').innerHTML = colors.map(function (c) {
+      return '<div class="sw"><i style="--c: var(--lg-' + c[1] + ')"></i><div><b>' + c[0] + '</b>--lg-' + c[1] + '<br>Világos ' + c[2] + '<br>Sötét ' + c[3] + '</div></div>';
+    }).join('');
+
+    /* Type scale */
+    var styles = [
+      ['lg-large-title', 'Large Title', '34 / 41 · +0.40'], ['lg-title-1', 'Title 1', '28 / 34 · +0.38'], ['lg-title-2', 'Title 2', '22 / 28 · −0.26'],
+      ['lg-title-3', 'Title 3', '20 / 25 · −0.45'], ['lg-headline', 'Headline', '17 / 22 · −0.43 · 590'], ['lg-body', 'Body', '17 / 22 · −0.43'],
+      ['lg-callout', 'Callout', '16 / 21 · −0.31'], ['lg-subheadline', 'Subheadline', '15 / 20 · −0.23'], ['lg-footnote', 'Footnote', '13 / 18 · −0.08'],
+      ['lg-caption-1', 'Caption 1', '12 / 16 · 0'], ['lg-caption-2', 'Caption 2', '11 / 13 · +0.06'],
+    ];
+    document.getElementById('typeScale').innerHTML = styles.map(function (s) {
+      return '<div class="type-row"><span class="label">' + s[1] + '</span><span class="' + s[0] + '">Árvíztűrő tükörfúrógép</span><span class="meta">' + s[2] + '</span></div>';
+    }).join('');
+
+    /* Setup tabs */
+    var tabs = document.getElementById('setupTabs');
+    tabs.addEventListener('change', function (e) {
+      document.querySelectorAll('.tabs-panel').forEach(function (p) { p.hidden = p.getAttribute('data-panel') !== e.target.value; });
+    });
+    document.querySelectorAll('.copy').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var text = b.parentElement.innerText.replace(/^Másolás\s*/, '');
+        var done = function () { b.textContent = 'Másolva'; setTimeout(function () { b.textContent = 'Másolás'; }, 1400); };
+        if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, done); else done();
+      });
+    });
+
+    /* Presentations */
+    document.getElementById('demoAlert').addEventListener('click', function () {
+      LG.alert({
+        title: 'Törlöd a fotót?',
+        message: 'A fotó minden eszközödről törlődik. Ez nem vonható vissza.',
+        actions: [{ label: 'Mégse', role: 'cancel' }, { label: 'Törlés', role: 'destructive', prominent: true }],
+      }).then(function (r) {
+        if (r === 'Törlés') LG.toast({ title: 'Fotók', message: 'A fotót törölted.', icon: LG.icon('trash'), iconBackground: 'var(--lg-red)', time: 'most' });
+      });
+    });
+    document.getElementById('demoPrompt').addEventListener('click', function () {
+      LG.alert({
+        title: 'Új mappa',
+        message: 'Add meg a mappa nevét.',
+        input: { placeholder: 'Név', value: 'Nyaralás' },
+        actions: [{ label: 'Mégse', role: 'cancel' }, { label: 'Mentés', prominent: true }],
+      }).then(function (r) {
+        if (r && r.action === 'Mentés') LG.toast({ title: 'Mappa létrehozva', message: r.value, icon: LG.icon('folder'), iconBackground: 'var(--lg-blue)', time: 'most' });
+      });
+    });
+    document.getElementById('demoAction').addEventListener('click', function () {
+      LG.actionSheet({
+        title: 'Biztosan kijelentkezel?',
+        message: 'A letöltött tartalmak az eszközön maradnak.',
+        actions: [{ label: 'Kijelentkezés', role: 'destructive' }, { label: 'Fiókváltás' }, { label: 'Mégse', role: 'cancel' }],
+      });
+    });
+    document.getElementById('demoToast').addEventListener('click', function () {
+      LG.toast({ title: 'Üzenetek', message: 'Anna: Láttad már az új Liquid Glass kitet? 😍', icon: LG.icon('message'), iconBackground: 'var(--lg-green)', time: 'most' });
+    });
+    document.getElementById('pageMenu').addEventListener('lg-select', function (e) {
+      LG.toast({ title: 'Menü', message: 'Kiválasztva: ' + e.detail.item.textContent.replace(/⌘.$/, '').trim(), icon: LG.icon('checkmark'), iconBackground: 'var(--lg-indigo)', duration: 2200 });
+    });
+
+    /* Music: play/pause */
+    var play = document.getElementById('playBtn'), playing = true;
+    play.addEventListener('click', function () {
+      playing = !playing;
+      play.firstElementChild.setAttribute('data-lg-icon', playing ? 'pause' : 'play');
+      play.setAttribute('aria-label', playing ? 'Szünet' : 'Lejátszás');
+      LG.init(play);
+    });
+  })();
+</script>
+</body>
+</html>
