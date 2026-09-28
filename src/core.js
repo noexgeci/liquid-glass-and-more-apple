@@ -1835,10 +1835,67 @@ export function toast(options) {
 }
 
 /* ==========================================================================
+   Tooltips — [data-lg-tooltip="text"], shown after a short hover delay
+   ========================================================================== */
+
+let tooltipEl = null;
+let tooltipTimer = 0;
+let tooltipTarget = null;
+
+function hideTooltip() {
+  clearTimeout(tooltipTimer);
+  tooltipTarget = null;
+  if (tooltipEl) tooltipEl.classList.remove('is-open');
+}
+
+function onTooltipOver(e) {
+  if (e.pointerType === 'touch') return;
+  const t = e.target.closest && e.target.closest('[data-lg-tooltip]');
+  if (!t || t === tooltipTarget) return;
+  hideTooltip();
+  tooltipTarget = t;
+  const delay = tooltipEl && tooltipEl.classList.contains('was-open') ? 80 : 650;
+  tooltipTimer = setTimeout(() => {
+    if (tooltipTarget !== t || !t.isConnected) return;
+    if (!tooltipEl || !tooltipEl.isConnected) {
+      tooltipEl = create('div', 'lg-tooltip', { role: 'tooltip', id: 'lg-tooltip' });
+      document.body.appendChild(tooltipEl);
+    }
+    tooltipEl.textContent = t.getAttribute('data-lg-tooltip');
+    t.setAttribute('aria-describedby', 'lg-tooltip');
+    const r = t.getBoundingClientRect();
+    tooltipEl.style.left = '0px';
+    tooltipEl.style.top = '0px';
+    const w = tooltipEl.offsetWidth;
+    const h = tooltipEl.offsetHeight;
+    const vw = document.documentElement.clientWidth;
+    const below = r.bottom + 8 + h < window.innerHeight;
+    tooltipEl.style.left = Math.round(clamp(r.left + r.width / 2 - w / 2, 8, vw - w - 8)) + 'px';
+    tooltipEl.style.top = Math.round(below ? r.bottom + 8 : r.top - h - 8) + 'px';
+    reveal(tooltipEl, () => tooltipEl.classList.add('is-open', 'was-open'));
+  }, delay);
+}
+
+function onTooltipOut(e) {
+  const t = tooltipTarget;
+  if (!t || (e.relatedTarget && t.contains(e.relatedTarget))) return;
+  hideTooltip();
+  setTimeout(() => {
+    if (!tooltipTarget && tooltipEl) tooltipEl.classList.remove('was-open');
+  }, 400);
+}
+
+/* ==========================================================================
    Declarative triggers (event delegation)
    ========================================================================== */
 
 function onDocumentClick(e) {
+  const toggle = e.target.closest('[data-lg-toggle]');
+  if (toggle && !toggle.disabled) {
+    const on = toggle.getAttribute('aria-pressed') !== 'true';
+    toggle.setAttribute('aria-pressed', String(on));
+    emit(toggle, 'lg-change', { pressed: on });
+  }
   const t = e.target.closest('[data-lg-menu], [data-lg-popover], [data-lg-sheet], [data-lg-alert]');
   if (!t) {
     onMenuItemClick(e);
@@ -2014,6 +2071,10 @@ export function start(options) {
     document.addEventListener('pointerdown', onLongPressStart, { passive: true });
     document.addEventListener('click', onDocumentClick);
     document.addEventListener('contextmenu', onContextMenu);
+    document.addEventListener('pointerover', onTooltipOver, { passive: true });
+    document.addEventListener('pointerout', onTooltipOut, { passive: true });
+    document.addEventListener('pointerdown', hideTooltip, { passive: true, capture: true });
+    window.addEventListener('scroll', hideTooltip, { passive: true, capture: true });
     if (config.dynamicLight) document.addEventListener('pointermove', onLightMove, { passive: true });
     init(document);
     if (config.observe && typeof MutationObserver !== 'undefined') {
@@ -2043,6 +2104,11 @@ export function stop() {
   document.removeEventListener('pointerdown', onLongPressStart);
   document.removeEventListener('click', onDocumentClick);
   document.removeEventListener('contextmenu', onContextMenu);
+  document.removeEventListener('pointerover', onTooltipOver);
+  document.removeEventListener('pointerout', onTooltipOut);
+  document.removeEventListener('pointerdown', hideTooltip, true);
+  window.removeEventListener('scroll', hideTooltip, true);
+  hideTooltip();
   document.removeEventListener('pointermove', onLightMove);
   if (mutationObserver) mutationObserver.disconnect();
   mutationObserver = null;

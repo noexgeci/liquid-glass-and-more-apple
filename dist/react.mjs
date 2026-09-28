@@ -174,6 +174,21 @@ var Button = forwardRef(function Button2({ as, variant = "glass", size = "regula
     }
   );
 });
+var ToggleButton = forwardRef(function ToggleButton2({ pressed, defaultPressed = false, onPressedChange, onClick, ...rest }, ref) {
+  const [on, setOn] = useControllable(pressed, defaultPressed, onPressedChange);
+  return /* @__PURE__ */ jsx(
+    Button,
+    {
+      ref,
+      "aria-pressed": on,
+      onClick: (e) => {
+        if (onClick) onClick(e);
+        if (!e.defaultPrevented) setOn(!on);
+      },
+      ...rest
+    }
+  );
+});
 var ButtonGroup = forwardRef(function ButtonGroup2({ className, children, height, style, ...rest }, ref) {
   const local = useMergedRef(ref);
   useLiquidGlass(local);
@@ -321,6 +336,28 @@ var SearchField = forwardRef(function SearchField2({ glass = true, size, classNa
 var Checkbox = forwardRef(function Checkbox2({ className, ...rest }, ref) {
   return /* @__PURE__ */ jsx("input", { ref, type: "checkbox", className: cx("lg-checkbox", className), ...rest });
 });
+var Select = forwardRef(function Select2({ plain, className, children, ...rest }, ref) {
+  return /* @__PURE__ */ jsx("select", { ref, className: cx("lg-select", plain && "lg-select--plain", className), ...rest, children });
+});
+function Disclosure({ title, open, defaultOpen, onOpenChange, className, children, ...rest }) {
+  const controlled = open !== void 0;
+  return /* @__PURE__ */ jsxs(
+    "details",
+    {
+      className: cx("lg-disclosure", className),
+      open: controlled ? open : defaultOpen,
+      onToggle: (e) => onOpenChange && onOpenChange(e.currentTarget.open),
+      ...rest,
+      children: [
+        /* @__PURE__ */ jsx("summary", { children: title }),
+        /* @__PURE__ */ jsx("div", { className: "lg-disclosure-content", children })
+      ]
+    }
+  );
+}
+function Card({ as: Tag = "div", className, ...rest }) {
+  return /* @__PURE__ */ jsx(Tag, { className: cx("lg-card", className), ...rest });
+}
 var NavigationBar = forwardRef(function NavigationBar2({ title, large, leading, trailing, scrollTarget, threshold, edge, className, children, ...rest }, ref) {
   const local = useMergedRef(ref);
   useLiquidGlass(local);
@@ -671,7 +708,9 @@ export {
   Badge,
   Button,
   ButtonGroup,
+  Card,
   Checkbox,
+  Disclosure,
   Glass,
   GlobalNav,
   Icon,
@@ -692,6 +731,7 @@ export {
   ScrollEdge,
   SearchField,
   SegmentedControl,
+  Select,
   Sheet,
   Sidebar,
   SidebarItem,
@@ -703,6 +743,7 @@ export {
   Switch,
   TabBar,
   TextField,
+  ToggleButton,
   Toolbar,
   TrafficLights,
   Window,

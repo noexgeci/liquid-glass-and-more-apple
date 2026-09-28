@@ -33,7 +33,7 @@ Egy sima `<link>` és `<script>`, vagy `npm install`, és kész.
 - **Tükröződő perem (specular rim),** ami követi az egeret, és **fény a lenyomás helyén,** ahogy az Apple üveg gombjai „felragyognak”.
 - **Folyékony interakciók:** a kapcsoló gombja lenyomva üveglencsévé válik és felnagyítja a sávot; a csúszka, a szegmensvezérlő és a tab bar kijelölése húzható lencse; rugós (spring) animációk mindenhol.
 - **Apple HIG pontos értékek:** iOS 26 rendszerszínek (világos, sötét, **nagy kontraszt**), Dynamic Type skála, SF Pro betűköz-táblázat, SF Pro változó súlyok (510, 590), HIG vezérlőméretek (28 / 32 / 44 / 52 / 64 pt).
-- **30+ komponens:** gombok, gombcsoportok, kapcsoló, csúszka, szegmensvezérlő, léptető, szöveg- és keresőmező, navigációs sáv nagy címmel, eszköztár, lebegő tab bar (görgetéskor összecsukódik), oldalsáv, apple.com-stílusú globális navigáció, listák, alert, action sheet, sheet detentekkel, menü, popover, jobb klikkes menü, értesítés (toast), progress, spinner, gyűrű, lapozó pöttyök, badge, macOS ablak közlekedési lámpákkal.
+- **35+ komponens:** gombok, kapcsoló gombok, gombcsoportok, pop-up gomb, kinyitható szakasz, kártya, súgócímke, kapcsoló, csúszka, szegmensvezérlő, léptető, szöveg- és keresőmező, navigációs sáv nagy címmel, eszköztár, lebegő tab bar (görgetéskor összecsukódik), oldalsáv, apple.com-stílusú globális navigáció, listák, alert, action sheet, sheet detentekkel, menü, popover, jobb klikkes menü, értesítés (toast), progress, spinner, gyűrű, lapozó pöttyök, badge, macOS ablak közlekedési lámpákkal.
 - **Sötét mód** automatikusan (`light-dark()`), vagy bármely részfára kényszerítve.
 - **SSR-biztos** mag (Next.js szerverkomponensek importálhatják), **`'use client'`** React build, **TypeScript** típusok.
 - **SF Symbols nevek** az ikonokhoz, és egy hívással bekötheted az eredeti Apple SF Symbols SVG-ket.
@@ -238,7 +238,12 @@ Nuxt: tedd egy `plugins/liquid-glass.client.ts` fájlba. SvelteKit: `onMount` a 
 | --- | --- | --- |
 | Üvegfelület | `<div class="lg-glass">` (+ `--clear`, `--tinted`, `--prominent`, `--thick`) | `<Glass variant="clear">` |
 | Gomb | `<button class="lg-button">` (+ `--prominent`, `--clear`, `--bordered`, `--filled`, `--plain`, `--small`, `--large`, `--icon`) | `<Button variant="prominent" size="large">` |
+| Kapcsoló gomb | `<button class="lg-button" data-lg-toggle aria-pressed="false">` | `<ToggleButton pressed onPressedChange>` |
 | Gombcsoport | `<div class="lg-group lg-glass">` | `<ButtonGroup>` |
+| Pop-up gomb | `<select class="lg-select">` | `<Select>` |
+| Kinyitható szakasz | `<details class="lg-disclosure"><summary>…</summary><div class="lg-disclosure-content">` | `<Disclosure title>` |
+| Kártya (tartalomréteg) | `<div class="lg-card">` | `<Card>` |
+| Súgócímke | `data-lg-tooltip="Szöveg"` bármely elemen | `data-lg-tooltip` |
 | Kapcsoló | `<label class="lg-switch"><input type="checkbox"></label>` | `<Switch checked onCheckedChange>` |
 | Csúszka | `<div class="lg-slider" data-lg-ticks="5"><input type="range"></div>` | `<Slider value onValueChange ticks={5}>` |
 | Szegmensvezérlő | `<div class="lg-segmented">` + rádiók | `<SegmentedControl options value onValueChange>` |
@@ -297,7 +302,7 @@ A script tag build ugyanezt adja a `window.LiquidGlass` objektumon.
 | `registerIcons({ név: svg })` | Saját vagy SF Symbols SVG-k regisztrálása (SF nevekkel). |
 | `icon(név, { size })` | Ikon SVG szövegként. |
 
-Események: `lg-change` (szegmens gombokkal, tab bar, léptető, lapozó), `lg-select` (menü), `lg-open` / `lg-close` (menü, sheet), `lg-detent` (sheet).
+Események: `lg-change` (szegmens gombokkal, tab bar, léptető, lapozó, `data-lg-toggle`), `lg-select` (menü), `lg-open` / `lg-close` (menü, sheet), `lg-detent` (sheet).
 
 ## Ikonok és az Apple SF Symbols
 

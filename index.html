@@ -301,6 +301,30 @@
     </div>
 
     <div class="card">
+      <h3>Továbbiak</h3>
+      <p>Kapcsoló gombok, lenyíló választó, kinyitható szakasz és súgócímke (vidd az egeret a gombok fölé).</p>
+      <div class="stack">
+        <div class="row">
+          <button class="lg-button" data-lg-toggle aria-pressed="true" data-lg-tooltip="Csak a kedvencek"><span data-lg-icon="heart.fill"></span>Kedvencek</button>
+          <button class="lg-button" data-lg-toggle aria-pressed="false" data-lg-tooltip="Szűrés olvasatlanra"><span data-lg-icon="bell"></span>Olvasatlan</button>
+          <div class="lg-group lg-glass" role="group" aria-label="Formázás">
+            <button class="lg-button lg-button--icon" data-lg-toggle aria-pressed="true" aria-label="Félkövér" data-lg-tooltip="Félkövér"><b>B</b></button>
+            <button class="lg-button lg-button--icon" data-lg-toggle aria-pressed="false" aria-label="Dőlt" data-lg-tooltip="Dőlt"><i>I</i></button>
+          </div>
+        </div>
+        <div class="kv"><span>Rendezés</span>
+          <select class="lg-select" aria-label="Rendezés">
+            <option>Dátum szerint</option><option>Név szerint</option><option>Méret szerint</option>
+          </select>
+        </div>
+        <details class="lg-disclosure" style="background: var(--lg-bg-grouped)">
+          <summary>Speciális beállítások</summary>
+          <div class="lg-disclosure-content">A kinyitható szakasz natív &lt;details&gt; elem, rugós animációval nyílik, billentyűzettel is kezelhető.</div>
+        </details>
+      </div>
+    </div>
+
+    <div class="card">
       <h3>Jelzők</h3>
       <p>Folyamatjelző, gyűrű, spinner, lapozó és jelvény.</p>
       <div class="stack">

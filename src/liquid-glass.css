@@ -598,6 +598,14 @@
 .lg-button--destructive:not(.lg-button--prominent):not(.lg-button--filled) { --_fg: var(--lg-destructive); }
 .lg-button--tinted-label { --_fg: var(--lg-tint, var(--lg-accent)); }
 
+/* Toggle buttons (HIG: outside lists, a button that toggles shows a tinted
+   highlight while on) */
+.lg-button[aria-pressed="true"] {
+  --_fg: var(--lg-tint, var(--lg-accent));
+  --_fill: color-mix(in srgb, var(--lg-tint, var(--lg-accent)) 16%, var(--lg-glass-fill));
+}
+.lg-button--bordered[aria-pressed="true"] { --_fill: color-mix(in srgb, var(--lg-tint, var(--lg-accent)) 18%, transparent); }
+
 /* Grouped controls sharing one glass surface (toolbar groups) */
 .lg-group {
   display: inline-flex;
@@ -637,6 +645,10 @@
 .lg-group > button.lg-icon { width: var(--lg-group-height, 44px); padding: 0; }
 .lg-group > * svg { width: 21px; height: 21px; }
 .lg-group > *:active { transform: scale(1.12); }
+.lg-group > [aria-pressed="true"] {
+  color: var(--lg-tint, var(--lg-accent));
+  background: color-mix(in srgb, var(--lg-tint, var(--lg-accent)) 14%, transparent);
+}
 .lg-group > *:focus-visible { outline: 3px solid var(--lg-focus-ring); outline-offset: -3px; }
 
 /* ==========================================================================
@@ -1010,6 +1022,28 @@ textarea.lg-textfield { height: auto; min-height: 88px; padding: 11px 14px; resi
 .lg-search > input::-webkit-search-cancel-button { display: none; }
 .lg-search:focus-within { outline: 3px solid var(--lg-focus-ring); outline-offset: 0; }
 .lg-search--small { --_h: 36px; }
+
+/* --- Pop-up button (native select, Apple styling) ---------------------- */
+.lg-select {
+  box-sizing: border-box;
+  height: 36px;
+  padding: 0 34px 0 14px;
+  border: 0;
+  border-radius: var(--lg-radius-full);
+  background:
+    var(--lg-fill-tertiary)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 14'%3E%3Cpath d='M1.5 5L5 1.5 8.5 5M1.5 9L5 12.5 8.5 9' fill='none' stroke='%238a8a8e' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    right 14px center / 9px 13px no-repeat;
+  font: var(--lg-weight-regular) 15px/1 var(--lg-font);
+  letter-spacing: -0.23px;
+  color: var(--lg-label);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.lg-select:focus-visible { outline: 3px solid var(--lg-focus-ring); outline-offset: 2px; }
+.lg-select:disabled { color: var(--lg-label-tertiary); cursor: default; }
+.lg-select--plain { background-color: transparent; color: var(--lg-accent); padding-left: 0; }
 
 /* --- Checkbox (macOS-style) ------------------------------------------- */
 .lg-checkbox {
@@ -1471,6 +1505,72 @@ button.lg-row:active,
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14'%3E%3Cpath d='M1.5 7.6l4.4 4.6L14.5 1.6' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14'%3E%3Cpath d='M1.5 7.6l4.4 4.6L14.5 1.6' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
 }
+
+/* --- Disclosure (expandable row / section) ----------------------------- */
+.lg-disclosure { border-radius: var(--lg-radius-xl); background: var(--lg-bg-grouped-secondary); overflow: hidden; }
+.lg-disclosure + .lg-disclosure { margin-top: 12px; }
+.lg-disclosure > summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 8px 16px;
+  font: var(--lg-weight-semibold) 17px/22px var(--lg-font);
+  letter-spacing: -0.43px;
+  color: var(--lg-label);
+  list-style: none;
+  cursor: pointer;
+}
+.lg-disclosure > summary::-webkit-details-marker { display: none; }
+.lg-disclosure > summary::after {
+  content: "";
+  width: 14px;
+  height: 14px;
+  margin-left: auto;
+  background: var(--lg-accent);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M4.5 2l5 5-5 5' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M4.5 2l5 5-5 5' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+  transition: transform var(--lg-dur-spring) var(--lg-ease-spring);
+}
+.lg-disclosure[open] > summary::after { transform: rotate(90deg); }
+.lg-disclosure > summary:focus-visible { outline: 3px solid var(--lg-focus-ring); outline-offset: -3px; }
+.lg-disclosure-content { padding: 0 16px 16px; font: 400 15px/20px var(--lg-font); letter-spacing: -0.23px; color: var(--lg-label-secondary); }
+.lg-disclosure-content > .lg-list { margin: 0 -16px -16px; border-radius: 0; }
+@supports (interpolate-size: allow-keywords) {
+  .lg-disclosure { interpolate-size: allow-keywords; }
+  .lg-disclosure::details-content { height: 0; overflow: clip; transition: height var(--lg-dur-spring) var(--lg-ease-spring), content-visibility var(--lg-dur-spring) allow-discrete; }
+  .lg-disclosure[open]::details-content { height: auto; }
+}
+
+/* --- Card (content layer) --------------------------------------------- */
+.lg-card {
+  padding: 20px;
+  border-radius: var(--lg-radius-xl);
+  background: var(--lg-bg-grouped-secondary);
+  color: var(--lg-label);
+  box-shadow: 0 1px 2px light-dark(rgb(0 0 0 / 0.04), rgb(0 0 0 / 0.4)), 0 8px 30px -12px light-dark(rgb(0 0 0 / 0.12), rgb(0 0 0 / 0.6));
+}
+.lg-card--material { background: none; box-shadow: none; }
+
+/* --- Tooltip (macOS help tag) ------------------------------------------ */
+.lg-tooltip {
+  position: fixed;
+  z-index: 1300;
+  max-width: 280px;
+  padding: 5px 9px;
+  border-radius: 8px;
+  background: light-dark(rgb(246 246 246 / 0.92), rgb(44 44 46 / 0.92));
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  backdrop-filter: blur(20px) saturate(1.6);
+  box-shadow: 0 0 0 0.5px light-dark(rgb(0 0 0 / 0.15), rgb(255 255 255 / 0.12)), 0 4px 14px rgb(0 0 0 / 0.14);
+  font: var(--lg-weight-regular) 12px/15px var(--lg-font);
+  color: var(--lg-label);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(2px);
+  transition: opacity 120ms ease, transform 160ms var(--lg-ease-out);
+}
+.lg-tooltip.is-open { opacity: 1; transform: none; }
 
 /* ==========================================================================
    9. Presentations — alert, action sheet, sheet, menu/popover, toast
