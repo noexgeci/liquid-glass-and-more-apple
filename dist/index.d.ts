@@ -97,8 +97,17 @@ export type IconName =
 /** Inner SVG markup for every icon (24×24 grid). */
 export declare const icons: Record<IconName, string>;
 export declare const iconNames: IconName[];
-/** Returns a complete `<svg>` string. */
-export declare function icon(name: IconName, options?: { size?: number; strokeWidth?: number; label?: string; className?: string }): string;
+/** SF Symbols name → built-in icon name, e.g. "magnifyingglass" → "search". */
+export declare const sfAliases: Record<string, IconName>;
+/**
+ * Registers icons — e.g. SVGs you exported from Apple's SF Symbols app, keyed
+ * by their SF Symbols names — and re-renders `[data-lg-icon]` elements.
+ * Values are full SVG documents or inner SVG markup (24×24 viewBox).
+ */
+export declare function registerIcons(map: Record<string, string>): void;
+export declare function hasIcon(name: string): boolean;
+/** Returns a complete `<svg>` string. Accepts built-in and SF Symbols names. */
+export declare function icon(name: IconName | (string & {}), options?: { size?: number; strokeWidth?: number; label?: string; className?: string }): string;
 
 export interface LiquidGlassConfig {
   /** `'auto'` enables SVG refraction on Chromium engines (Chrome, Edge, Opera, Electron). Default `'auto'`. */

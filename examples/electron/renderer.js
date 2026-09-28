@@ -27,7 +27,7 @@ const play = document.getElementById('play');
 let playing = true;
 play.addEventListener('click', () => {
   playing = !playing;
-  play.firstElementChild.setAttribute('data-lg-icon', playing ? 'pause' : 'play');
+  play.firstElementChild.setAttribute('data-lg-icon', playing ? 'pause.fill' : 'play.fill');
   play.setAttribute('aria-label', playing ? 'Pause' : 'Play');
   window.LiquidGlass.init(play);
 });

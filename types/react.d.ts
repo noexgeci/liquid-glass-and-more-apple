@@ -17,6 +17,9 @@ export {
   icon,
   icons,
   iconNames,
+  registerIcons,
+  hasIcon,
+  sfAliases,
 } from './index';
 export type { IconName } from './index';
 export type { AlertOptions, AlertAction, ToastOptions, MenuItemSpec, SheetController, RefractionOptions, Theme } from './index';
@@ -28,7 +31,8 @@ export type Tint = SystemColor | (string & {});
 type DivProps = React.HTMLAttributes<HTMLDivElement>;
 
 export interface IconProps extends Omit<React.SVGProps<SVGSVGElement>, 'name'> {
-  name: import('./index').IconName;
+  /** Built-in name or SF Symbols name ("magnifyingglass", "chevron.left"). */
+  name: import('./index').IconName | (string & {});
   size?: number;
   strokeWidth?: number;
   /** Accessible label; without it the icon is decorative (aria-hidden). */

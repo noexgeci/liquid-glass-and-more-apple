@@ -31,9 +31,12 @@ import {
   icons,
   icon,
   iconNames,
+  registerIcons,
+  hasIcon,
+  sfAliases,
 } from './core.js';
 
-export { alert, actionSheet, toast, menu, refract, unrefract, supportsRefraction, configure, setTheme, version, start, stop, icon, icons, iconNames };
+export { alert, actionSheet, toast, menu, refract, unrefract, supportsRefraction, configure, setTheme, version, start, stop, icon, icons, iconNames, registerIcons, hasIcon, sfAliases };
 
 const { forwardRef, useEffect, useLayoutEffect, useRef, useState, useCallback, useImperativeHandle } = React;
 const useIsoLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
@@ -95,8 +98,13 @@ function tintStyle(tint, style, prop = '--lg-tint') {
 
 /** SF-inspired line icon from the kit's set: <Icon name="house" /> */
 export function Icon({ name, size = 24, strokeWidth = 1.9, label, className, style, ...rest }) {
-  const body = icons[name];
-  if (!body) return null;
+  const body = icons[name] || icons[sfAliases[name]];
+  // Registered icons (e.g. exported SF Symbols) render through icon().
+  const html = icon(name, { size, strokeWidth, label, className });
+  if (!html) return null;
+  if (!body || html.indexOf('stroke-linecap') < 0) {
+    return <span style={{ display: 'contents', ...style }} dangerouslySetInnerHTML={{ __html: html }} {...rest} />;
+  }
   return (
     <svg
       viewBox="0 0 24 24"

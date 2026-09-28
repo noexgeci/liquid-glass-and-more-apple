@@ -8,9 +8,9 @@
  * components, Remix loaders, Astro frontmatter, etc.
  */
 
-import { icon, icons, iconNames } from './icons.js';
+import { icon, icons, iconNames, addIcons, hasIcon, sfAliases } from './icons.js';
 
-export { icon, icons, iconNames };
+export { icon, icons, iconNames, hasIcon, sfAliases };
 export const version = '__VERSION__';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -1145,10 +1145,24 @@ function initPageControl(el) {
 }
 
 /* <span data-lg-icon="house"></span> → inline SVG from the kit's icon set */
+let iconGeneration = 0;
+
+/**
+ * Registers icons — typically SVGs exported from Apple's SF Symbols app,
+ * keyed by their SF Symbols names ("magnifyingglass", "chevron.left") — and
+ * re-renders every [data-lg-icon] already on the page. Registered icons
+ * replace the kit's built-in glyphs everywhere, including aliases.
+ */
+export function registerIcons(map) {
+  addIcons(map);
+  iconGeneration++;
+  if (isBrowser()) for (const el of $$('[data-lg-icon]')) initIcon(el);
+}
 function initIcon(el) {
   const name = el.getAttribute('data-lg-icon');
-  if (el.__lgIcon === name) return;
+  if (el.__lgIcon === name && el.__lgIconGen === iconGeneration) return;
   el.__lgIcon = name;
+  el.__lgIconGen = iconGeneration;
   el.innerHTML = icon(name, {
     size: numAttr(el, 'data-size', 24),
     strokeWidth: numAttr(el, 'data-stroke', 1.9),

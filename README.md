@@ -20,6 +20,7 @@ Egy sima `<link>` és `<script>`, vagy `npm install`, és kész.
 - [Vue, Svelte, Astro, Angular](#vue-svelte-astro-angular)
 - [Komponensek](#komponensek)
 - [JavaScript API](#javascript-api)
+- [Ikonok és az Apple SF Symbols](#ikonok-és-az-apple-sf-symbols)
 - [Témák és testreszabás](#témák-és-testreszabás)
 - [Böngészőtámogatás](#böngészőtámogatás)
 - [Teljesítmény](#teljesítmény)
@@ -35,6 +36,7 @@ Egy sima `<link>` és `<script>`, vagy `npm install`, és kész.
 - **30+ komponens:** gombok, gombcsoportok, kapcsoló, csúszka, szegmensvezérlő, léptető, szöveg- és keresőmező, navigációs sáv nagy címmel, eszköztár, lebegő tab bar (görgetéskor összecsukódik), oldalsáv, apple.com-stílusú globális navigáció, listák, alert, action sheet, sheet detentekkel, menü, popover, jobb klikkes menü, értesítés (toast), progress, spinner, gyűrű, lapozó pöttyök, badge, macOS ablak közlekedési lámpákkal.
 - **Sötét mód** automatikusan (`light-dark()`), vagy bármely részfára kényszerítve.
 - **SSR-biztos** mag (Next.js szerverkomponensek importálhatják), **`'use client'`** React build, **TypeScript** típusok.
+- **SF Symbols nevek** az ikonokhoz, és egy hívással bekötheted az eredeti Apple SF Symbols SVG-ket.
 - **Nulla függőség.** A mag ~36 KB minifikálva, a CSS ~55 KB.
 
 ## Telepítés
@@ -261,6 +263,7 @@ Nuxt: tedd egy `plugins/liquid-glass.client.ts` fájlba. SvelteKit: `onMount` a 
 | Spinner | `<span class="lg-spinner"></span>` | `<Spinner>` |
 | Lapozó | `<div class="lg-page-control" data-count="5">` | `<PageControl count={5}>` |
 | Badge | `<span class="lg-badge">3</span>` | `<Badge>3</Badge>` |
+| Ikon | `<span data-lg-icon="magnifyingglass"></span>` | `<Icon name="magnifyingglass" />` |
 | macOS ablak | `<div class="lg-window">` + `.lg-traffic-lights` | `<Window title sidebar toolbar>` |
 | Tipográfia | `.lg-large-title`, `.lg-title-1…3`, `.lg-headline`, `.lg-body`, `.lg-callout`, `.lg-subheadline`, `.lg-footnote`, `.lg-caption-1/2` | ugyanezek az osztályok |
 
@@ -273,6 +276,7 @@ import {
   start, stop, init, enhance, destroy, refresh, select,
   alert, actionSheet, toast, menu, sheet, openPopover, closePopover,
   refract, unrefract, supportsRefraction, setTheme, configure,
+  icon, registerIcons,
 } from 'liquid-glass-kit';
 ```
 
@@ -290,8 +294,35 @@ A script tag build ugyanezt adja a `window.LiquidGlass` objektumon.
 | `refract(el, { bezel, depth, magnify })` | Fénytörés bármely elemre. |
 | `select(el, index)` | Szegmens, tab bar vagy lapozó programból. |
 | `setTheme('light' \| 'dark' \| 'auto')` | Téma váltás. |
+| `registerIcons({ név: svg })` | Saját vagy SF Symbols SVG-k regisztrálása (SF nevekkel). |
+| `icon(név, { size })` | Ikon SVG szövegként. |
 
 Események: `lg-change` (szegmens gombokkal, tab bar, léptető, lapozó), `lg-select` (menü), `lg-open` / `lg-close` (menü, sheet), `lg-detent` (sheet).
+
+## Ikonok és az Apple SF Symbols
+
+A kit az Apple **SF Symbols neveit** használja: `magnifyingglass`, `chevron.left`, `square.and.arrow.up`, `gearshape`, `house.fill`, `play.fill` és így tovább.
+
+```html
+<span data-lg-icon="magnifyingglass"></span>
+```
+```tsx
+<Icon name="square.and.arrow.up" />
+```
+
+**Az eredeti SF Symbols ikonokat a kit nem tartalmazza, és nem is tartalmazhatja:** az Apple licence szerint az SF Symbols csak Apple-platformra készülő appokban használható, és nem terjeszthető tovább. Ha a te felhasználásodat a licenc lehetővé teszi (például macOS-re készülő Electron app), exportáld az SVG-ket az Apple [SF Symbols](https://developer.apple.com/sf-symbols/) appjából, és regisztráld őket egyetlen hívással. Onnantól mindenhol az eredeti Apple ikon jelenik meg:
+
+```js
+import { registerIcons } from 'liquid-glass-kit';
+
+registerIcons({
+  magnifyingglass: magnifyingglassSvg, // az SF Symbols appból exportált SVG szövege
+  'chevron.left': chevronLeftSvg,
+  'square.and.arrow.up': shareSvg,
+});
+```
+
+Amíg egy nevet nem regisztrálsz, a kit saját, SF-stílusú tartalék ikonja jelenik meg (86 darab, az SF nevekkel és rövid nevekkel is elérhető). A betűtípus Apple eszközökön az eredeti SF Pro, mert a rendszerből jön.
 
 ## Témák és testreszabás
 
@@ -409,6 +440,10 @@ Electron runs Chromium, so full refraction always works. For a native feel on ma
 Vue, Svelte, Astro, Angular, Solid: import the CSS, call `start()` once on the client (or `import 'liquid-glass-kit/auto'`). Components added later are enhanced automatically.
 
 The component table, API reference and theming guide above apply as-is; class names and function names are in English.
+
+### Icons and Apple SF Symbols
+
+Icons use **SF Symbols names** (`magnifyingglass`, `chevron.left`, `square.and.arrow.up`, …). Apple's SF Symbols themselves are not bundled: their license limits them to apps for Apple platforms and forbids redistribution. Where your use is covered, export the SVGs from Apple's [SF Symbols](https://developer.apple.com/sf-symbols/) app and call `registerIcons({ magnifyingglass: svg, … })`; every icon on the page switches to the original. Until then the kit's own SF-style fallback glyphs render.
 
 ### License
 
