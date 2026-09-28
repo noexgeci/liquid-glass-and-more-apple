@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kitchen sink</title>
+<link rel="stylesheet" href="../dist/liquid-glass.css">
+<style>
+  body { margin: 0; min-height: 1400px; }
+  .bg {
+    position: fixed; inset: 0; z-index: -1;
+    background:
+      radial-gradient(circle at 20% 25%, #ff375f 0 90px, transparent 91px),
+      radial-gradient(circle at 70% 30%, #0a84ff 0 120px, transparent 121px),
+      radial-gradient(circle at 45% 70%, #ffd60a 0 100px, transparent 101px),
+      repeating-linear-gradient(90deg, rgb(0 0 0 / .85) 0 14px, #fff 14px 28px);
+  }
+  .row { display: flex; gap: 16px; align-items: center; padding: 16px 24px; flex-wrap: wrap; }
+  .panel { width: 300px; height: 140px; padding: 20px; box-sizing: border-box; }
+</style>
+</head>
+<body class="lg">
+<div class="bg"></div>
+<div class="row">
+  <button class="lg-button">Glass</button>
+  <button class="lg-button lg-button--prominent">Prominent</button>
+  <button class="lg-button lg-button--clear">Clear</button>
+  <button class="lg-button lg-button--icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+  <button class="lg-button lg-button--bordered">Bordered</button>
+  <button class="lg-button lg-button--filled">Filled</button>
+  <div class="lg-group lg-glass"><button class="lg-button lg-button--icon">A</button><button class="lg-button lg-button--icon">B</button><button>Edit</button></div>
+</div>
+<div class="row">
+  <div class="lg-glass panel lg-headline">Regular glass panel</div>
+  <div class="lg-glass lg-glass--clear panel lg-headline">Clear glass</div>
+  <div class="lg-glass lg-glass--tinted panel lg-headline" style="--lg-tint: var(--lg-purple)">Tinted</div>
+</div>
+<div class="row lg-glass" style="margin: 0 24px; border-radius: 30px; width: fit-content">
+  <label class="lg-switch"><input type="checkbox" checked></label>
+  <label class="lg-switch"><input type="checkbox"></label>
+  <div class="lg-slider" style="width: 240px" data-lg-ticks="5"><input type="range" min="0" max="100" value="40"></div>
+  <div class="lg-segmented"><label><input type="radio" name="s" checked>Day</label><label><input type="radio" name="s">Week</label><label><input type="radio" name="s">Month</label></div>
+  <div class="lg-stepper" data-min="0" data-max="5" data-value="2"></div>
+  <span class="lg-spinner"></span>
+  <span class="lg-ring" style="--lg-value:.65"></span>
+</div>
+<div class="row">
+  <button class="lg-button" id="open-menu" data-lg-menu="#menu">Menu</button>
+  <button class="lg-button" id="open-sheet" data-lg-sheet="#sheet">Sheet</button>
+  <button class="lg-button" id="open-alert">Alert</button>
+  <button class="lg-button" id="open-toast">Toast</button>
+  <div class="lg-glass" id="ctx" data-lg-context-menu="#menu" style="padding:10px 16px;border-radius:14px">Right-click me</div>
+  <div class="lg-page-control lg-glass" data-count="5" data-index="1"></div>
+</div>
+<div class="lg-menu" id="menu" hidden>
+  <button class="lg-menu-item" data-value="copy">Copy</button>
+  <button class="lg-menu-item" data-value="share">Share</button>
+  <div class="lg-menu-separator"></div>
+  <button class="lg-menu-item lg-menu-item--destructive" data-value="delete">Delete</button>
+</div>
+<div class="lg-sheet" id="sheet" hidden>
+  <div class="lg-sheet-grabber"></div>
+  <div class="lg-sheet-header"><button class="lg-button lg-button--icon" data-lg-dismiss aria-label="Close">✕</button><h2 class="lg-sheet-title">Sheet</h2><span></span></div>
+  <div class="lg-sheet-content"><p>Sheet content</p></div>
+</div>
+<nav class="lg-tabbar">
+  <div class="lg-tabbar-tabs lg-glass">
+    <a class="lg-tab is-selected" href="#"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8"/></svg><span class="lg-tab-label">Home</span></a>
+    <a class="lg-tab" href="#"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="3"/></svg><span class="lg-tab-label">Browse</span></a>
+    <a class="lg-tab" href="#"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l8 16H4z"/></svg><span class="lg-tab-label">Radio</span></a>
+    <a class="lg-tab" href="#"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg><span class="lg-tab-label">Library</span></a>
+  </div>
+  <button class="lg-tabbar-search lg-glass"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l4.5 4.5"/></svg></button>
+</nav>
+<script src="../dist/liquid-glass.js"></script>
+<script>
+  document.getElementById('open-alert').onclick = async () => {
+    window.__alert = await LiquidGlass.alert({ title: 'Delete photo?', message: 'This cannot be undone.', actions: [{ label: 'Cancel', role: 'cancel' }, { label: 'Delete', role: 'destructive', prominent: true }] });
+  };
+  document.getElementById('open-toast').onclick = () => LiquidGlass.toast({ title: 'Messages', message: 'Hello from Liquid Glass', time: 'now' });
+  document.getElementById('menu').addEventListener('lg-select', (e) => (window.__menu = e.detail.value));
+</script>
+</body>
+</html>
