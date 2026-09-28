@@ -64,6 +64,13 @@ function nextFrame(fn) {
   requestAnimationFrame(() => requestAnimationFrame(fn));
 }
 
+/* Starts an enter transition right away: flush the initial style, then
+   switch state — no waiting for animation frames. */
+function reveal(el, fn) {
+  void el.offsetWidth;
+  fn();
+}
+
 function mq(query) {
   return !!(window.matchMedia && window.matchMedia(query).matches);
 }
@@ -140,7 +147,7 @@ const tracked = new Map(); // element -> refraction state
 let filterSeq = 0;
 let uid = 0;
 const MAX_UNUSED = 32;
-const MAP_MAX_SIDE = 320;
+const MAP_MAX_SIDE = 200; // displacement is smooth: large maps upscale cleanly
 
 function getDefs() {
   if (defs && defs.isConnected) return defs;
@@ -160,6 +167,7 @@ function getDefs() {
 /**
  * Builds the displacement map for a rounded rectangle.
  * R/G encode the x/y sample offset (0.5 = none), in units of `scale`.
+ * The shape is symmetric, so one quadrant is computed and mirrored.
  */
 export function createDisplacementMap(w, h, radius, bezel, depth, magnify) {
   const res = Math.min(1, MAP_MAX_SIDE / Math.max(w, h));
@@ -171,36 +179,47 @@ export function createDisplacementMap(w, h, radius, bezel, depth, magnify) {
   const B = Math.max(1, Math.min(bezel, hw, hh));
   const rn = Math.min(Math.max(r, B), hw, hh); // radius used for rim normals
   const lensK = magnify > 1 ? 1 - 1 / magnify : 0;
-  const maxD = depth * B + (lensK * Math.hypot(w, h)) / 2;
+  const maxD = depth * B + (lensK * Math.sqrt(w * w + h * h)) / 2;
   const scale = Math.max(1, Math.ceil(maxD * 2 + 2));
 
   const canvas = document.createElement('canvas');
   canvas.width = mw;
   canvas.height = mh;
-  const ctx = canvas.getContext('2d');
+  // A CPU-backed canvas: GPU canvases pay a costly readback in toDataURL().
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
   const img = ctx.createImageData(mw, mh);
-  const data = img.data;
+  const px32 = new Uint32Array(img.data.buffer);
+  px32.fill(0xff808080); // R=G=B=128 (no displacement), A=255
+  const k = 255 / scale;
+  const inv = 1 / res;
+  const qw = Math.ceil(mw / 2);
+  const qh = Math.ceil(mh / 2);
+  const innerX = hw - r;
+  const innerY = hh - r;
+  const normX = hw - rn;
+  const normY = hh - rn;
 
-  for (let j = 0; j < mh; j++) {
-    const py = (j + 0.5) / res - hh;
-    const ay = Math.abs(py);
-    for (let i = 0; i < mw; i++) {
-      const px = (i + 0.5) / res - hw;
-      const ax = Math.abs(px);
+  for (let j = 0; j < qh; j++) {
+    const ay = hh - (j + 0.5) * inv; // distance from the center, top half
+    const jm = mh - 1 - j;
+    for (let i = 0; i < qw; i++) {
+      const ax = hw - (i + 0.5) * inv; // left half
       // signed distance to the rounded rect, positive inside
-      const qx = ax - (hw - r);
-      const qy = ay - (hh - r);
-      let dist = -(Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - r);
+      const qx = ax - innerX;
+      const qy = ay - innerY;
+      const ox = qx > 0 ? qx : 0;
+      const oy = qy > 0 ? qy : 0;
+      let dist = r - Math.sqrt(ox * ox + oy * oy) - (qx > qy ? (qx < 0 ? qx : 0) : qy < 0 ? qy : 0);
       if (dist < 0) dist = 0;
       let dx = 0;
       let dy = 0;
       if (dist < B) {
-        const nx0 = ax - (hw - rn);
-        const ny0 = ay - (hh - rn);
+        const nx0 = ax - normX;
+        const ny0 = ay - normY;
         let nx;
         let ny;
         if (nx0 > 0 && ny0 > 0) {
-          const l = Math.hypot(nx0, ny0);
+          const l = Math.sqrt(nx0 * nx0 + ny0 * ny0);
           nx = nx0 / l;
           ny = ny0 / l;
         } else if (nx0 > ny0) {
@@ -210,23 +229,27 @@ export function createDisplacementMap(w, h, radius, bezel, depth, magnify) {
           nx = 0;
           ny = 1;
         }
-        if (px < 0) nx = -nx;
-        if (py < 0) ny = -ny;
         // convex rim: strongest bend at the edge, smooth join with the flat center
         const t = 1 - dist / B;
         const m = depth * B * t * t;
-        dx = -nx * m;
-        dy = -ny * m;
+        dx = nx * m; // magnitude toward the center (x > 0 means "inward")
+        dy = ny * m;
       }
       if (lensK) {
-        dx -= px * lensK;
-        dy -= py * lensK;
+        dx += ax * lensK;
+        dy += ay * lensK;
       }
-      const k = (j * mw + i) * 4;
-      data[k] = clamp(Math.round((dx / scale + 0.5) * 255), 0, 255);
-      data[k + 1] = clamp(Math.round((dy / scale + 0.5) * 255), 0, 255);
-      data[k + 2] = 128;
-      data[k + 3] = 255;
+      if (dx === 0 && dy === 0) continue;
+      // top-left pixel samples toward +x/+y (inward); mirrors flip the sign
+      const rp = clamp(Math.round(127.5 + dx * k), 0, 255);
+      const rn2 = clamp(Math.round(127.5 - dx * k), 0, 255);
+      const gp = clamp(Math.round(127.5 + dy * k), 0, 255);
+      const gn = clamp(Math.round(127.5 - dy * k), 0, 255);
+      const im = mw - 1 - i;
+      px32[j * mw + i] = 0xff800000 | (gp << 8) | rp;
+      px32[j * mw + im] = 0xff800000 | (gp << 8) | rn2;
+      px32[jm * mw + i] = 0xff800000 | (gn << 8) | rp;
+      px32[jm * mw + im] = 0xff800000 | (gn << 8) | rn2;
     }
   }
   ctx.putImageData(img, 0, 0);
@@ -325,10 +348,95 @@ function parseRadius(value, w, h) {
   return Math.min(v, w / 2, h / 2);
 }
 
+/*
+ * Maps are generated lazily: only for surfaces on (or near) screen, and
+ * within a per-frame time budget so a page with dozens of glass elements
+ * never blocks the main thread. Offscreen surfaces get theirs when they
+ * scroll into view.
+ */
+const FRAME_BUDGET = 8; // ms of map generation per frame
+const pendingMaps = new Set();
+let flushQueued = false;
+let budgetStart = 0;
+let budgetFrame = -1;
+
+function withinBudget() {
+  const now = performance.now();
+  if (budgetFrame !== frameCount) {
+    budgetFrame = frameCount;
+    budgetStart = now;
+  }
+  return now - budgetStart < FRAME_BUDGET;
+}
+
+let frameCount = 0;
+function queueMap(el) {
+  pendingMaps.add(el);
+  if (flushQueued) return;
+  flushQueued = true;
+  requestAnimationFrame(() => {
+    flushQueued = false;
+    frameCount++;
+    for (const target of pendingMaps) {
+      if (!withinBudget()) break;
+      pendingMaps.delete(target);
+      applyRefraction(target);
+    }
+    if (pendingMaps.size) queueMap(pendingMaps.values().next().value);
+  });
+}
+
+/* Offscreen surfaces are prepared in idle time, so their filters already
+   exist by the time they scroll into view. */
+const idleMaps = new Set();
+let idleQueued = false;
+function queueIdle(el) {
+  idleMaps.add(el);
+  if (idleQueued) return;
+  idleQueued = true;
+  const run = (deadline) => {
+    idleQueued = false;
+    for (const target of idleMaps) {
+      if (deadline && deadline.timeRemaining() < 3) break;
+      idleMaps.delete(target);
+      const st = tracked.get(target);
+      if (st && st.dirty && target.isConnected) applyRefraction(target);
+      if (!deadline) break;
+    }
+    if (idleMaps.size) queueIdle(idleMaps.values().next().value);
+  };
+  if (typeof requestIdleCallback === 'function') requestIdleCallback(run, { timeout: 2000 });
+  else setTimeout(run, 120);
+}
+
+function isNearViewport(el) {
+  const r = el.getBoundingClientRect();
+  const m = 250;
+  return r.bottom > -m && r.right > -m && r.top < window.innerHeight + m && r.left < window.innerWidth + m;
+}
+
+let intersectionObserver = null;
+function getIntersectionObserver() {
+  if (intersectionObserver || typeof IntersectionObserver === 'undefined') return intersectionObserver;
+  intersectionObserver = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        const st = tracked.get(e.target);
+        if (!st) continue;
+        st.visible = e.isIntersecting;
+        if (st.visible && st.dirty) queueMap(e.target);
+      }
+    },
+    { rootMargin: '250px' }
+  );
+  return intersectionObserver;
+}
+
 let resizeObserver = null;
 function getResizeObserver() {
   if (resizeObserver || typeof ResizeObserver === 'undefined') return resizeObserver;
   resizeObserver = new ResizeObserver((entries) => {
+    frameCount++;
     for (const e of entries) {
       const box = e.borderBoxSize && e.borderBoxSize[0];
       scheduleUpdate(e.target, box ? box.inlineSize : e.target.offsetWidth, box ? box.blockSize : e.target.offsetHeight);
@@ -342,6 +450,16 @@ function scheduleUpdate(el, w, h) {
   if (!st) return;
   st.w = w;
   st.h = h;
+  st.dirty = true;
+  if (st.visible === undefined) st.visible = isNearViewport(el);
+  if (!st.visible) {
+    queueIdle(el); // prepared in idle time, or when it scrolls into view
+    return;
+  }
+  if (!st.key && !withinBudget()) {
+    queueMap(el);
+    return;
+  }
   const now = performance.now();
   // While an element keeps resizing (animations) the current map stretches;
   // a fresh one is generated once things settle.
@@ -358,6 +476,7 @@ function scheduleUpdate(el, w, h) {
 function applyRefraction(el) {
   const st = tracked.get(el);
   if (!st || !st.w || !st.h || st.w < 4 || st.h < 4) return;
+  st.dirty = false;
   const w = Math.round(st.w);
   const h = Math.round(st.h);
   const r = parseRadius(getComputedStyle(el).borderTopLeftRadius, w, h);
@@ -398,8 +517,10 @@ export function refract(el, opts) {
     }
     return el;
   }
-  tracked.set(el, { opts: opts || {}, key: null, w: 0, h: 0, last: 0, timer: 0 });
+  tracked.set(el, { opts: opts || {}, key: null, w: 0, h: 0, last: 0, timer: 0, visible: undefined, dirty: false });
   getResizeObserver().observe(el);
+  const io = getIntersectionObserver();
+  if (io) io.observe(el);
   return el;
 }
 
@@ -410,6 +531,9 @@ export function unrefract(el) {
   if (!st) return;
   clearTimeout(st.timer);
   if (resizeObserver) resizeObserver.unobserve(el);
+  if (intersectionObserver) intersectionObserver.unobserve(el);
+  pendingMaps.delete(el);
+  idleMaps.delete(el);
   releaseFilter(st.key);
   tracked.delete(el);
   el.style.removeProperty('--lg-refract');
@@ -1124,8 +1248,7 @@ export function openPopover(panel, anchor, options = {}) {
   document.addEventListener('keydown', s.onKey);
   window.addEventListener('resize', s.onResize);
 
-  nextFrame(() => {
-    if (openPanel !== s) return;
+  reveal(panel, () => {
     panel.classList.add('is-open');
     if (panel.classList.contains('lg-menu') && options.focus !== false) {
       const first = panel.querySelector('.lg-menu-item:not(:disabled)');
@@ -1258,7 +1381,7 @@ function trapFocus(container, e) {
 function makeOverlay(parent, className) {
   const ov = create('div', 'lg-overlay' + (className ? ' ' + className : ''), { 'aria-hidden': 'true' });
   (parent || document.body).appendChild(ov);
-  nextFrame(() => ov.classList.add('is-open'));
+  reveal(ov, () => ov.classList.add('is-open'));
   return ov;
 }
 
@@ -1319,7 +1442,7 @@ function presentModal(box, overlay, cancelAction, resolve, getResult) {
   document.addEventListener('keydown', onKey);
   document.body.appendChild(box);
   refract(box);
-  nextFrame(() => {
+  reveal(box, () => {
     box.classList.add('is-open');
     const target =
       box.querySelector('input, textarea') || box.querySelector('.lg-alert-button--prominent') || box.querySelector('.lg-alert-button');
@@ -1515,7 +1638,7 @@ class Sheet {
       else trapFocus(el, e);
     };
     document.addEventListener('keydown', this._onKey);
-    nextFrame(() => {
+    reveal(el, () => {
       el.classList.add('is-open');
       const f = el.querySelector('[autofocus]') || el.querySelector('.lg-sheet-grabber');
       if (f) f.focus({ preventScroll: true });
@@ -1651,7 +1774,7 @@ export function toast(options) {
   t.appendChild(body);
   toastHost.insertBefore(t, toastHost.firstChild);
   refract(t);
-  nextFrame(() => t.classList.add('is-open'));
+  reveal(t, () => t.classList.add('is-open'));
 
   let timer = 0;
   let closed = false;
