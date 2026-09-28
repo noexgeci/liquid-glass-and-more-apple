@@ -255,6 +255,7 @@ Példa: [`examples/vue`](examples/vue) (`v-model` a kapcsolón, csúszkán és s
 | Léptető | `<div class="lg-stepper" data-min="0" data-max="10">` | `<Stepper min max value onValueChange>` |
 | Görgős választó | `<div class="lg-picker"><div class="lg-picker-column">` + `.lg-picker-item` sorok | `<Picker><PickerColumn items value onValueChange /></Picker>` |
 | Dátumválasztó (naptár) | `<div class="lg-calendar" data-value="2026-09-28">` · kompakt: `<div class="lg-date-picker">` | `<Calendar value onValueChange />` · `<DatePicker />` |
+| Időválasztó | `<div class="lg-time-picker" data-value="09:41">` | `<TimePicker value onValueChange step />` |
 | Szövegmező | `<input class="lg-textfield">` | `<TextField>` |
 | Kereső | `<div class="lg-search lg-glass"><svg/><input></div>` | `<SearchField>` |
 | Navigációs sáv | `<header class="lg-navbar lg-navbar--large">` | `<NavigationBar large title leading trailing>` |

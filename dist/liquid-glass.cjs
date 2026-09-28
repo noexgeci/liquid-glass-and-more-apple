@@ -1432,9 +1432,18 @@ function initPickerColumn(col) {
     paint();
     commit(false);
   };
-  place();
+  let pending = !col.clientHeight;
+  if (pending) {
+    list.forEach((it, i) => it.setAttribute("aria-selected", i === Math.max(0, start2) ? "true" : "false"));
+  } else place();
   if (getResizeObserver()) {
     const ro = new ResizeObserver(() => {
+      if (!col.clientHeight) return;
+      if (pending) {
+        pending = false;
+        place();
+        return;
+      }
       const idx = current < 0 ? Math.max(0, start2) : current;
       col.scrollTop = idx * rowH();
       paint();
@@ -1915,6 +1924,123 @@ function initDatePicker(el) {
   state(el).select = (v) => {
     const p = parseDay(v);
     if (p) el.setAttribute("data-value", isoOf(p));
+    else el.removeAttribute("data-value");
+  };
+}
+function parseTime(v) {
+  const m = /^(\d{1,2}):(\d{2})/.exec(String(v == null ? "" : v));
+  if (!m) return null;
+  return { h: clamp(+m[1], 0, 23), m: clamp(+m[2], 0, 59) };
+}
+var timeOf = (t) => pad2(t.h) + ":" + pad2(t.m);
+function initTimePicker(el) {
+  if (!claim(el, "timepicker")) return;
+  const loc = localeOf(el);
+  const own = el.getAttribute("data-hour-cycle");
+  let cycle = own === "h12" || own === "h11" ? "h12" : own === "h23" || own === "h24" ? "h23" : null;
+  if (!cycle) {
+    const hc = new Intl.DateTimeFormat(loc, { hour: "numeric" }).resolvedOptions().hourCycle;
+    cycle = hc === "h11" || hc === "h12" ? "h12" : "h23";
+  }
+  const h12 = cycle === "h12";
+  const fmt = new Intl.DateTimeFormat(loc, { hour: "numeric", minute: "2-digit", hourCycle: cycle });
+  const partsAt = (h, m) => fmt.formatToParts(new Date(2e3, 0, 1, h, m));
+  const sample = partsAt(9, 41).map((p) => p.type);
+  const periodFirst = h12 && sample.indexOf("dayPeriod") > -1 && sample.indexOf("dayPeriod") < sample.indexOf("hour");
+  const hourText = (h) => (partsAt(h, 0).find((p) => p.type === "hour") || { value: String(h) }).value;
+  const minuteText = (m) => (partsAt(0, m).find((p) => p.type === "minute") || { value: pad2(m) }).value;
+  const periodText = (pm) => (partsAt(pm ? 15 : 9, 0).find((p) => p.type === "dayPeriod") || { value: pm ? "PM" : "AM" }).value;
+  const step = clamp(parseInt(el.getAttribute("data-step"), 10) || 1, 1, 30);
+  const label = el.getAttribute("aria-label");
+  const btn = inject(el, create("button", "lg-time-picker-button", { type: "button", "aria-haspopup": "dialog", "aria-expanded": "false" }));
+  const pop = inject(el, create("div", "lg-popover lg-time-popover", { role: "dialog", "aria-label": label || "" }));
+  pop.hidden = true;
+  let hidden = null;
+  if (el.hasAttribute("data-name")) hidden = inject(el, create("input", null, { type: "hidden", name: el.getAttribute("data-name") }));
+  const sync = () => {
+    const t = parseTime(el.getAttribute("data-value"));
+    const text = t ? fmt.format(new Date(2e3, 0, 1, t.h, t.m)) : el.getAttribute("data-placeholder") || "\u2014";
+    btn.textContent = text;
+    if (label) btn.setAttribute("aria-label", label + ", " + text);
+    if (hidden) hidden.value = t ? timeOf(t) : "";
+  };
+  sync();
+  let wheels = null;
+  const closeWheels = () => {
+    if (!wheels) return;
+    destroy(wheels);
+    wheels.remove();
+    wheels = null;
+  };
+  const column = (name, items, value) => {
+    const col = create("div", "lg-picker-column", { "aria-label": name, "data-value": String(value) });
+    for (const [v, text] of items) {
+      const it = create("div", "lg-picker-item", { "data-value": String(v) });
+      it.textContent = text;
+      col.appendChild(it);
+    }
+    return col;
+  };
+  const build = () => {
+    closeWheels();
+    const t = parseTime(el.getAttribute("data-value")) || { h: (/* @__PURE__ */ new Date()).getHours(), m: 0 };
+    const mm = Math.round(t.m / step) * step;
+    const minute = mm > 59 ? 60 - step : mm;
+    wheels = create("div", "lg-picker lg-time-wheels");
+    const hours = [];
+    if (h12) for (let i = 0; i < 12; i++) hours.push([i, hourText(i === 0 ? 12 : i)]);
+    else for (let i = 0; i < 24; i++) hours.push([i, hourText(i)]);
+    const mins = [];
+    for (let i = 0; i < 60; i += step) mins.push([i, minuteText(i)]);
+    const hCol = column(el.getAttribute("data-hour-label") || "Hour", hours, h12 ? t.h % 12 : t.h);
+    const mCol = column(el.getAttribute("data-minute-label") || "Minute", mins, minute);
+    const pCol = h12 ? column(el.getAttribute("data-period-label") || "AM/PM", [[0, periodText(false)], [1, periodText(true)]], t.h >= 12 ? 1 : 0) : null;
+    if (pCol && periodFirst) wheels.appendChild(pCol);
+    wheels.appendChild(hCol);
+    wheels.appendChild(mCol);
+    if (pCol && !periodFirst) wheels.appendChild(pCol);
+    pop.appendChild(wheels);
+    wheels.addEventListener("lg-change", (e) => {
+      e.stopPropagation();
+      let h = +hCol.getAttribute("data-value");
+      if (pCol) h = h % 12 + (+pCol.getAttribute("data-value") === 1 ? 12 : 0);
+      const v = timeOf({ h, m: +mCol.getAttribute("data-value") });
+      if (v === el.getAttribute("data-value")) return;
+      el.setAttribute("data-value", v);
+      sync();
+      emit(el, "lg-change", { value: v, hours: h, minutes: +mCol.getAttribute("data-value") });
+    });
+    init(wheels);
+    return hCol;
+  };
+  listen(el, btn, "click", () => {
+    if (btn.disabled) return;
+    const wasOpen = !pop.hidden && pop.classList.contains("is-open");
+    if (!wasOpen) {
+      const first = build();
+      openPopover(pop, btn);
+      if (btn.matches(":focus-visible")) requestAnimationFrame(() => first.focus({ preventScroll: true }));
+    } else openPopover(pop, btn);
+  });
+  listen(el, pop, "lg-open", () => ownClass(el, "is-open", true));
+  listen(el, pop, "lg-close", () => {
+    ownClass(el, "is-open", false);
+    setTimeout(() => {
+      if (pop.hidden) closeWheels();
+    }, 260);
+  });
+  if (typeof MutationObserver !== "undefined") {
+    const mo = new MutationObserver(sync);
+    mo.observe(el, { attributes: true, attributeFilter: ["data-value", "data-placeholder"] });
+    onCleanup(el, () => mo.disconnect());
+  }
+  onCleanup(el, () => {
+    closePopover(true, pop);
+    closeWheels();
+  });
+  state(el).select = (v) => {
+    const t = parseTime(v);
+    if (t) el.setAttribute("data-value", timeOf(t));
     else el.removeAttribute("data-value");
   };
 }
@@ -2871,7 +2997,8 @@ var COMPONENTS = [
   ["[data-lg-adaptive]", initAdaptive],
   [".lg-picker-column", initPickerColumn],
   [".lg-calendar", initCalendar],
-  [".lg-date-picker", initDatePicker]
+  [".lg-date-picker", initDatePicker],
+  [".lg-time-picker", initTimePicker]
 ];
 function initGlass(el) {
   if (el.classList.contains("lg-button")) {

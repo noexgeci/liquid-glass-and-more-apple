@@ -569,10 +569,10 @@ function isoDay(v) {
   return String(v).slice(0, 10);
 }
 
-function useDateField(kind, props, ref) {
+function useDateField(kind, props, ref, toValue = isoDay) {
   const { value, defaultValue, onValueChange, min, max, locale, firstDayOfWeek, name, className, ...rest } = props;
   const [local, setRef] = useMergedRef(ref);
-  const [v, setV] = useControllable(value === null ? '' : isoDay(value), isoDay(defaultValue), onValueChange);
+  const [v, setV] = useControllable(value === null ? '' : toValue(value), toValue(defaultValue), onValueChange);
   useLiquidGlass(local);
   const setRefV = useRef(setV);
   setRefV.current = setV;
@@ -611,6 +611,21 @@ export const Calendar = forwardRef(function Calendar(props, ref) {
 /** Compact date picker: a capsule with the date that opens the calendar in a popover. */
 export const DatePicker = forwardRef(function DatePicker({ placeholder, ...props }, ref) {
   return <div {...useDateField('lg-date-picker', props, ref)} data-placeholder={placeholder} />;
+});
+
+function hhmm(v) {
+  if (v == null || v === '') return undefined;
+  if (v instanceof Date) {
+    if (isNaN(v)) return undefined;
+    const p = (n) => (n < 10 ? '0' : '') + n;
+    return p(v.getHours()) + ':' + p(v.getMinutes());
+  }
+  return String(v).slice(0, 5);
+}
+
+/** Compact time picker: a capsule with the time that opens hour/minute wheels. Values are `HH:MM`. */
+export const TimePicker = forwardRef(function TimePicker({ placeholder, step, hourCycle, ...props }, ref) {
+  return <div {...useDateField('lg-time-picker', props, ref, hhmm)} data-placeholder={placeholder} data-step={step} data-hour-cycle={hourCycle} />;
 });
 
 /* ==========================================================================

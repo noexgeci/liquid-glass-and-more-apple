@@ -1777,8 +1777,8 @@ button.lg-row:active,
 }
 
 /* Compact style: a capsule showing the date that opens the calendar */
-.lg-date-picker { position: relative; display: inline-block; vertical-align: middle; }
-.lg-date-picker-button {
+.lg-date-picker-button,
+.lg-time-picker-button {
   display: inline-flex;
   align-items: center;
   min-height: 34px;
@@ -1795,12 +1795,23 @@ button.lg-row:active,
   cursor: pointer;
   transition: color 200ms ease, background-color 150ms ease, transform var(--lg-dur-bouncy) var(--lg-ease-bouncy);
 }
-.lg-date-picker-button:active { transform: scale(0.97); background: var(--lg-fill-secondary); }
+.lg-date-picker-button:active,
+.lg-time-picker-button:active { transform: scale(0.97); background: var(--lg-fill-secondary); }
 .lg-date-picker.is-open .lg-date-picker-button { color: var(--lg-accent); }
-.lg-date-picker-button:focus-visible { outline: 3px solid var(--lg-focus-ring); outline-offset: 2px; }
-.lg-date-picker-button:disabled { color: var(--lg-label-tertiary); cursor: default; }
+.lg-date-picker-button:focus-visible,
+.lg-time-picker-button:focus-visible { outline: 3px solid var(--lg-focus-ring); outline-offset: 2px; }
+.lg-date-picker-button:disabled,
+.lg-time-picker-button:disabled { color: var(--lg-label-tertiary); cursor: default; }
 .lg-date-popover { width: 340px; max-width: calc(100vw - 16px); padding: 12px 16px 14px; }
 .lg-date-popover .lg-calendar { max-width: none; }
+
+/* Compact time picker: capsule + hour/minute(/AM-PM) wheels in a popover */
+.lg-date-picker,
+.lg-time-picker { position: relative; display: inline-block; vertical-align: middle; }
+.lg-time-popover { min-width: 0; width: auto; padding: 10px 8px; }
+.lg-time-wheels { --_rows: 5; min-width: 200px; padding: 0 6px; }
+.lg-time-wheels .lg-picker-column { min-width: 64px; }
+.lg-time-picker.is-open .lg-time-picker-button { color: var(--lg-accent); }
 
 /* --- Card (content layer) --------------------------------------------- */
 .lg-card {
@@ -2553,7 +2564,8 @@ dialog.lg-sheet::backdrop { background: transparent; }
   .lg-calendar-day[aria-selected="true"] { color: HighlightText; forced-color-adjust: none; }
   .lg-calendar-day[aria-current="date"]:not([aria-selected="true"]) { text-decoration: underline; }
   .lg-calendar-day[aria-disabled="true"] { color: GrayText; }
-  .lg-date-picker-button { outline: 1px solid ButtonText; outline-offset: -1px; }
+  .lg-date-picker-button,
+  .lg-time-picker-button { outline: 1px solid ButtonText; outline-offset: -1px; }
 
   .lg-overlay { background: rgb(0 0 0 / 0.4); forced-color-adjust: none; }
 }

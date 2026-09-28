@@ -202,6 +202,18 @@ check('compact date picker opens its calendar in the top layer', await until(() 
 await page.click('#dp .lg-calendar-day[data-date="2026-10-20"]');
 check('compact date picker takes the day and closes', await until(() => document.getElementById('dp').getAttribute('data-value') === '2026-10-20' && document.querySelector('#dp .lg-date-popover').hidden && /20/.test(document.querySelector('#dp .lg-date-picker-button').textContent)));
 
+// Time picker: locale 12-hour wheels placed at the value, picks update it
+check('time picker shows the locale format', (await page.textContent('#tp .lg-time-picker-button')) === '9:30 PM');
+await page.click('#tp .lg-time-picker-button');
+check('time picker wheels open at the value', await until(() => {
+  const cols = [...document.querySelectorAll('#tp .lg-picker-column')];
+  return cols.length === 3 && cols.every((c) => c.clientHeight > 0 && c.scrollTop > 0) && cols.map((c) => c.querySelector('[aria-selected="true"]').textContent).join(' ') === '9 30 PM';
+}));
+await page.locator('#tp .lg-picker-column').first().locator('.lg-picker-item', { hasText: /^10$/ }).click();
+check('time picker takes a wheel change', await until(() => document.getElementById('tp').getAttribute('data-value') === '22:30' && document.querySelector('#tp input[name="alarm"]').value === '22:30'));
+await page.keyboard.press('Escape');
+await until(() => document.querySelector('#tp .lg-time-popover').hidden);
+
 // Right-to-left: switch and slider mirror like iOS / the native range
 {
   const b = await page.locator('#rtlSwitch').boundingBox();

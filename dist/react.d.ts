@@ -141,6 +141,23 @@ export interface DatePickerProps extends CalendarProps {
   placeholder?: string;
 }
 export declare const DatePicker: React.ForwardRefExoticComponent<DatePickerProps & React.RefAttributes<HTMLDivElement>>;
+export interface TimePickerProps extends Omit<DivProps, 'defaultValue' | 'onChange'> {
+  /** 24-hour `HH:MM`; a Date is read as its local time. `null` or `''` for none. */
+  value?: string | Date | null;
+  defaultValue?: string | Date;
+  /** Called with the picked time as 24-hour `HH:MM`. */
+  onValueChange?: (value: string) => void;
+  /** Minute wheel interval (1–30). Default 1. */
+  step?: number;
+  /** `'h12'` shows an AM/PM wheel, `'h23'` a 24-hour one; defaults to the locale. */
+  hourCycle?: 'h12' | 'h23';
+  locale?: string;
+  /** Adds a hidden input with this name for form submission. */
+  name?: string;
+  /** Text on the capsule while no time is picked. */
+  placeholder?: string;
+}
+export declare const TimePicker: React.ForwardRefExoticComponent<TimePickerProps & React.RefAttributes<HTMLDivElement>>;
 
 export declare const ButtonGroup: React.ForwardRefExoticComponent<DivProps & { height?: number } & React.RefAttributes<HTMLDivElement>>;
 

@@ -167,6 +167,15 @@ Keyboard (grid pattern): arrows move by day and week, Home/End to the start/end 
 Events: `lg-change` `{ value, date }` on pick, `lg-month` `{ year, month }` when the calendar pages. `data-name` adds a hidden input for forms. Writing `data-value`, `data-min` or `data-max` later (from any framework) updates the calendar; `LiquidGlass.select(el, '2026-12-24')` does the same from JS.
 React: `<Calendar value={day} onValueChange={setDay} min="2026-01-01" locale="hu-HU" firstDayOfWeek={1} name="date" />`, `<DatePicker value onValueChange placeholder />` (values are `YYYY-MM-DD` strings; `min`/`max`/`defaultValue` also take `Date`).
 
+### Time picker
+
+```html
+<div class="lg-time-picker" data-value="09:41" data-step="5" data-name="alarm" aria-label="Alarm"></div>
+```
+
+iOS compact style: a capsule with the time that opens hour and minute wheels in a glass popover (plus an AM/PM wheel for 12-hour locales, placed first where the locale writes it first, e.g. Korean). Values are 24-hour `HH:MM`. The hour cycle follows the locale; `data-hour-cycle="h12"` / `"h23"` overrides it. `data-step` sets the minute interval. The value updates while the wheels settle (`lg-change` `{ value, hours, minutes }`); tap outside or press Escape to close. Wheel labels for screen readers: `data-hour-label`, `data-minute-label`, `data-period-label`.
+React: `<TimePicker value={t} onValueChange={setT} step={5} hourCycle="h23" name="alarm" />`.
+
 ### Text field, search field, select, checkbox
 
 ```html
