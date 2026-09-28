@@ -73,6 +73,7 @@ __export(react_exports, {
   Switch: () => Switch,
   TabBar: () => TabBar,
   TextField: () => TextField,
+  TimePicker: () => TimePicker,
   ToggleButton: () => ToggleButton,
   Toolbar: () => Toolbar,
   TrafficLights: () => TrafficLights,
@@ -507,10 +508,10 @@ function isoDay(v) {
   }
   return String(v).slice(0, 10);
 }
-function useDateField(kind, props, ref) {
+function useDateField(kind, props, ref, toValue = isoDay) {
   const { value, defaultValue, onValueChange, min, max, locale, firstDayOfWeek, name, className, ...rest } = props;
   const [local, setRef] = useMergedRef(ref);
-  const [v, setV] = useControllable(value === null ? "" : isoDay(value), isoDay(defaultValue), onValueChange);
+  const [v, setV] = useControllable(value === null ? "" : toValue(value), toValue(defaultValue), onValueChange);
   useLiquidGlass(local);
   const setRefV = useRef(setV);
   setRefV.current = setV;
@@ -544,6 +545,18 @@ var Calendar = forwardRef(function Calendar2(props, ref) {
 });
 var DatePicker = forwardRef(function DatePicker2({ placeholder, ...props }, ref) {
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { ...useDateField("lg-date-picker", props, ref), "data-placeholder": placeholder });
+});
+function hhmm(v) {
+  if (v == null || v === "") return void 0;
+  if (v instanceof Date) {
+    if (isNaN(v)) return void 0;
+    const p = (n) => (n < 10 ? "0" : "") + n;
+    return p(v.getHours()) + ":" + p(v.getMinutes());
+  }
+  return String(v).slice(0, 5);
+}
+var TimePicker = forwardRef(function TimePicker2({ placeholder, step, hourCycle, ...props }, ref) {
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { ...useDateField("lg-time-picker", props, ref, hhmm), "data-placeholder": placeholder, "data-step": step, "data-hour-cycle": hourCycle });
 });
 var NavigationBar = forwardRef(function NavigationBar2({ title, large, leading, trailing, scrollTarget, threshold, edge, adaptive, className, children, ...rest }, ref) {
   const [local, setRef] = useMergedRef(ref);

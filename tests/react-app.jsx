@@ -1,7 +1,7 @@
 // React test app for tests/react-smoke.mjs (bundled with esbuild, StrictMode on).
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
-import { LiquidGlassProvider, Glass, Menu, MenuItem, PickerColumn, Picker, Icon, registerIcons, Sheet, Button, SegmentedControl, Calendar, DatePicker } from '../dist/react.mjs';
+import { LiquidGlassProvider, Glass, Menu, MenuItem, PickerColumn, Picker, Icon, registerIcons, Sheet, Button, SegmentedControl, Calendar, DatePicker, TimePicker } from '../dist/react.mjs';
 
 registerIcons({ 'star.fill': '<svg viewBox="0 0 10 10"><path d="M0 0h10v10z"/></svg>' });
 
@@ -35,6 +35,7 @@ function App() {
       <Sheet open={open} onOpenChange={setOpen} title="S" id="sh"><p>hi</p></Sheet>
       <Calendar id="rcal" value={day} onValueChange={setDay} locale="en-US" min="2026-09-02" aria-label="Day" />
       <DatePicker id="rdp" defaultValue="2026-01-05" locale="en-US" aria-label="Start" />
+      <TimePicker id="rtp" defaultValue="07:05" hourCycle="h23" locale="hu-HU" aria-label="Alarm" />
     </LiquidGlassProvider>
   );
 }

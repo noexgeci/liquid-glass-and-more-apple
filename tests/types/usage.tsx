@@ -74,6 +74,7 @@ import {
   PickerColumn,
   Calendar,
   DatePicker,
+  TimePicker,
 } from 'liquid-glass-kit/react';
 
 async function vanilla() {
@@ -214,6 +215,7 @@ export function Dates() {
       <Calendar value={d} onValueChange={setD} min="2026-01-01" max={new Date(2027, 0, 1)} locale="hu-HU" firstDayOfWeek={1} name="date" aria-label="Date" />
       <DatePicker defaultValue={new Date()} placeholder="Pick a day" onValueChange={(v: string) => v.length} />
       <Calendar value={null} />
+      <TimePicker value="09:41" onValueChange={(v: string) => v} step={5} hourCycle="h12" name="alarm" aria-label="Alarm" />
     </>
   );
 }

@@ -91,6 +91,8 @@ await page.evaluate(() => window.__set.setDay('2026-12-24'));
 check('calendar follows state to another month', await until(() => document.querySelector('#rcal .lg-calendar-title-text').textContent === 'December 2026' && document.querySelector('#rcal [aria-selected="true"]')?.getAttribute('data-date') === '2026-12-24'));
 check('date picker shows its default value', /Jan 5, 2026/.test(await page.textContent('#rdp .lg-date-picker-button')));
 
+check('time picker renders a 24-hour default value', (await page.textContent('#rtp .lg-time-picker-button')) === '7:05');
+
 check('no errors or warnings', errors.length === 0, errors.join(' | '));
 await browser.close();
 if (failed) {
