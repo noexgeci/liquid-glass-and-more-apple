@@ -38,7 +38,7 @@
   .chapter-inner { max-width: 980px; margin-inline: auto; }
   .alt { background: var(--bg-alt); }
   .night { color-scheme: dark; background: var(--night); color: var(--night-text); }
-  .night a:not(.lg-button) { color: #2997ff; }
+  .store .night a:not(.lg-button):not(.lg-menu-item) { color: #2997ff; }
   .center { text-align: center; }
 
   .eyebrow { margin: 0 0 8px; font: 600 21px/1.19 var(--display); letter-spacing: 0.011em; color: var(--text-2); }
@@ -326,6 +326,7 @@
   .footer { padding: 30px 20px 60px; background: var(--bg-alt); color: var(--text-2); font-size: 12px; line-height: 1.34; }
   .footer-inner { display: grid; gap: 12px; max-width: 980px; margin-inline: auto; }
   .footer-inner p { margin: 0; }
+  .store .footer a { text-decoration: underline; text-underline-offset: 2px; }
   .footer hr { width: 100%; margin: 6px 0; border: 0; border-top: 1px solid var(--line); }
 
   /* ---------- Responsive ---------- */
@@ -677,15 +678,26 @@
     if (rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 2) best = cards.length - 1;
     return best;
   }
+  /* While a button, dot or key steers the rail, the dots show the target
+     instead of every card passed on the way. */
+  var steering = 0;
   function goTo(i) {
     i = Math.max(0, Math.min(cards.length - 1, i));
+    steering = Date.now();
     rail.scrollTo({ left: cards[i].offsetLeft - cards[0].offsetLeft, behavior: reduced ? 'auto' : 'smooth' });
     LG.select('#railDots', i);
   }
   var railTick = 0;
   rail.addEventListener('scroll', function () {
+    if (steering && Date.now() - steering < 1500) return;
+    steering = 0;
     if (!railTick) railTick = requestAnimationFrame(function () { railTick = 0; LG.select('#railDots', railIndex()); });
   }, { passive: true });
+  rail.addEventListener('scrollend', function () {
+    if (!steering) return;
+    steering = 0;
+    LG.select('#railDots', railIndex());
+  });
   $('#railPrev').addEventListener('click', function () { goTo(railIndex() - 1); });
   $('#railNext').addEventListener('click', function () { goTo(railIndex() + 1); });
   $('#railDots').addEventListener('lg-change', function (e) { goTo(e.detail.index); });
