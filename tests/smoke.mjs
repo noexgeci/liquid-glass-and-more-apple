@@ -109,12 +109,17 @@ await until(() => document.getElementById('menu').hidden);
 // Sheet
 await page.click('#open-sheet');
 check('sheet opens', await until(() => { const el = document.getElementById('sheet'); return el.classList.contains('is-open') && el.getBoundingClientRect().height > 100; }));
-await page.waitForTimeout(500);
-check('sheet escapes a transformed ancestor, stays in its form', await page.evaluate(() => {
+// The sheet springs into place, so wait for it to settle instead of a fixed delay.
+const sheetState = () => page.evaluate(() => {
   const el = document.getElementById('sheet');
   const r = el.getBoundingClientRect();
-  return el.parentNode.id === 'sheetForm' && el.matches(':popover-open') && Math.abs(r.bottom - innerHeight) < 24 && document.getElementById('sheetForm').elements.note.value === 'kept';
-}));
+  return { inForm: el.parentNode.id === 'sheetForm', topLayer: el.matches(':popover-open'), bottomGap: Math.round(innerHeight - r.bottom), value: document.getElementById('sheetForm').elements.note.value };
+});
+const settled = await until(() => {
+  const el = document.getElementById('sheet');
+  return el.parentNode.id === 'sheetForm' && el.matches(':popover-open') && Math.abs(el.getBoundingClientRect().bottom - innerHeight) < 24 && document.getElementById('sheetForm').elements.note.value === 'kept';
+});
+check('sheet escapes a transformed ancestor, stays in its form', settled, settled ? '' : JSON.stringify(await sheetState()));
 await page.click('#sheet-menu-btn');
 check('menu inside a sheet shows above it', await until(() => {
   const m = document.getElementById('sheetMenu');
