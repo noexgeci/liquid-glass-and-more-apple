@@ -223,7 +223,7 @@ A rendererben ugyanúgy használod, mint bármely weboldalon (`<link>` + `<scrip
 
 Példa: [`examples/electron`](examples/electron).
 
-**Teljes oldal példa:** [`examples/shop`](examples/shop), a *Derengés* kitalált fénybolt (palackozott napfelkelték). Csak a kit komponenseiből épül: terméklap sheetben méret-, dátum- és időválasztóval, kosár, értesítések, rendezőmenü, telefonon üveg tab bar.
+**Teljes oldal példa:** [`examples/shop`](examples/shop), a *Tábla* kitalált csokimárka apple.com-stílusú termékoldala: adaptív üveg navigáció, görgetésre lecsúszó csomagolás, nagyító lencse, színválasztó, összehasonlítás, Apple Store-szerű konfigurátor ingyenes gravírozással, szállítási nap és idő, kosár.
 
 ## Vue, Svelte, Astro, Angular
 

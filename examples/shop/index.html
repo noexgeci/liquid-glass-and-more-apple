@@ -1,572 +1,606 @@
 <!doctype html>
-<html lang="hu" data-lg-theme="dark">
+<html lang="hu">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Derengés fénybolt</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&display=swap">
+<title>Tábla csokoládé</title>
 <link rel="stylesheet" href="../../dist/liquid-glass.css">
-<script>document.documentElement.setAttribute('data-lg-theme', 'dark');</script>
 <style>
-  /* Layout: a dark gallery where the products are the light sources; every
-     vial throws its own color onto the room, and the glass bends it. */
+  /* Layout: an apple.com product page for a chocolate line. Light pages with
+     black "Pro" chapters, SF Pro throughout, warm cocoa and bronze against
+     Apple's action blue, so the buy path is the one cool color on the page. */
   :root {
-    color-scheme: dark;
-    --ink: #0b0c14;
-    --ink-raised: #141625;
-    --mist: #ece7dc;
-    --dusk: #a6a2b5;
-    --hairline: rgb(236 231 220 / 0.12);
-    --ember: #ffa45c;
-    --font-display: "Bodoni Moda", "Bodoni 72", Didot, "Times New Roman", serif;
-    --font-body: var(--lg-font);
-    --font-data: var(--lg-font-mono, ui-monospace, "SF Mono", Menlo, monospace);
-    --lg-accent: var(--ember);
-    --lg-on-accent: #1d1006;
-    --gutter: clamp(16px, 4vw, 48px);
+    color-scheme: light;
+    --text: #1d1d1f;
+    --text-2: #6e6e73;
+    --link: #0066cc;
+    --buy: #0071e3;
+    --bg: #ffffff;
+    --bg-alt: #f5f5f7;
+    --night: #000000;
+    --night-text: #f5f5f7;
+    --night-text-2: #86868b;
+    --bronze: linear-gradient(95deg, #f0c89a 0%, #c98c5a 45%, #8a5534 100%);
+    --line: #d2d2d7;
+    --display: var(--lg-font-display);
+    --body: var(--lg-font);
+    --lg-accent: var(--buy);
   }
 
-  html { scroll-behavior: smooth; scroll-padding-top: 96px; }
-  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
-  body { margin: 0; background: var(--ink); color: var(--mist); }
+  body { margin: 0; background: var(--bg); color: var(--text); }
   [hidden] { display: none !important; }
-  .shop {
-    min-height: 100%;
-    padding-inline: var(--gutter);
-    background: var(--ink);
-    color: var(--mist);
-    font: 400 17px/1.5 var(--font-body);
-    overflow-x: clip;
-  }
-  .shop a { color: inherit; }
-  .wrap { max-width: 1180px; margin-inline: auto; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .store { font: 400 17px/1.47 var(--body); letter-spacing: -0.022em; color: var(--text); background: var(--bg); overflow-x: clip; }
+  .store a { text-decoration: none; }
+  .store a:not(.lg-button):not(.lg-menu-item) { color: var(--link); }
+  .store a:not(.lg-button):not(.lg-menu-item):hover { text-decoration: underline; }
+  .chapter { padding: 100px 20px; }
+  .chapter-inner { max-width: 980px; margin-inline: auto; }
+  .alt { background: var(--bg-alt); }
+  .night { color-scheme: dark; background: var(--night); color: var(--night-text); }
+  .night a:not(.lg-button) { color: #2997ff; }
+  .center { text-align: center; }
 
-  .eyebrow {
-    margin: 0;
-    font: 500 12px/1.4 var(--font-data);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--dusk);
-    font-variant-numeric: tabular-nums;
-  }
-  .display, .display-2 {
-    margin: 0;
-    font-family: var(--font-display);
-    font-weight: 500;
-    font-optical-sizing: auto;
-    letter-spacing: -0.02em;
-    text-wrap: balance;
-  }
-  .display { font-size: clamp(58px, 10vw, 136px); line-height: 0.9; }
-  .display-2 { font-size: clamp(40px, 6vw, 76px); line-height: 0.96; }
-  .display em, .display-2 em { font-style: italic; color: var(--ember); }
-  .lede { max-width: 34em; margin: 0; font-size: 19px; line-height: 1.5; color: var(--dusk); text-wrap: pretty; }
+  .eyebrow { margin: 0 0 8px; font: 600 21px/1.19 var(--display); letter-spacing: 0.011em; color: var(--text-2); }
+  .night .eyebrow.eyebrow--new { color: #f56300; }
+  .night .eyebrow { color: var(--night-text-2); }
+  .h1, .h2, .h3 { margin: 0; font-family: var(--display); font-weight: 600; text-wrap: balance; }
+  .h1 { font-size: clamp(56px, 11vw, 112px); line-height: 1.04; letter-spacing: -0.015em; }
+  .h2 { font-size: clamp(36px, 5.6vw, 56px); line-height: 1.07; letter-spacing: -0.005em; }
+  .h3 { font-size: clamp(24px, 3vw, 32px); line-height: 1.125; letter-spacing: 0.004em; }
+  .lead { max-width: 640px; margin: 18px 0 0; font: 400 clamp(19px, 2.2vw, 21px)/1.38 var(--display); letter-spacing: 0.011em; color: var(--text-2); }
+  .center .lead { margin-inline: auto; }
+  .night .lead { color: var(--night-text-2); }
+  .lead b { color: var(--text); font-weight: 600; }
+  .night .lead b { color: var(--night-text); }
+  .bronze { background: var(--bronze); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .more { font-size: 17px; white-space: nowrap; }
+  .more::after { content: " ›"; }
 
   /* ---------- Navigation ---------- */
-  .shop .lg-globalnav { position: fixed; left: 0; right: 0; z-index: 50; }
-  .brand { font-family: var(--font-display); font-style: italic; font-size: 22px; font-weight: 500; letter-spacing: -0.01em; }
-  .brand .spark { width: 9px; height: 9px; margin-right: 8px; border-radius: 50%; background: var(--ember); box-shadow: 0 0 14px 3px color-mix(in srgb, var(--ember) 70%, transparent); }
-  .cart-btn { position: relative; }
-  .cart-btn .lg-badge { position: absolute; top: -4px; right: -6px; min-width: 18px; --lg-badge-color: var(--ember); color: var(--lg-on-accent); }
-  .cart-btn.is-bumped .lg-badge { animation: bump 420ms var(--lg-ease-bouncy); }
-  @keyframes bump { 40% { transform: scale(1.45); } }
+  .store .lg-globalnav { position: fixed; left: 0; right: 0; }
+  /* Both bars take the adaptive glass appearance: light over white pages,
+     dark over the black chapters. */
+  .store .lg-globalnav-bar, .store .localnav-bar { color: var(--lg-label); }
+  .store .logo { color: inherit !important; }
+  .logo { display: inline-flex; align-items: center; gap: 8px; }
+  .logo-mark { display: grid; grid-template-columns: repeat(2, 7px); gap: 2px; }
+  .logo-mark i { width: 7px; height: 7px; border-radius: 2px; background: #6b3f26; box-shadow: inset 1px 1px 0 rgb(255 255 255 / 0.25); }
+  .store .lg-globalnav-links a { color: inherit !important; opacity: 0.85; font-size: 12px; letter-spacing: -0.01em; }
+  .bag-btn { position: relative; }
+  .bag-btn .lg-badge { position: absolute; top: -3px; right: -5px; min-width: 17px; height: 17px; font-size: 11px; --lg-badge-color: var(--buy); }
+  .bag-btn.is-bumped { animation: bag-bump 520ms var(--lg-ease-bouncy); }
+  @keyframes bag-bump { 35% { transform: scale(1.22); } }
 
-  /* ---------- Vials: light inside refracting glass ---------- */
-  .vial {
-    --w: 180px;
-    --r: 36px;
-    --glow: 1;
-    position: relative;
-    width: min(var(--w), 100%);
-    aspect-ratio: 5 / 7;
-    margin-inline: auto;
+  .localnav { position: sticky; top: 64px; z-index: 40; height: 52px; margin-bottom: -52px; padding: 0 16px; pointer-events: none; }
+  .localnav-bar {
+    display: flex; align-items: center; gap: 18px;
+    max-width: 980px; height: 52px; margin: 0 auto; padding: 0 8px 0 20px; box-sizing: border-box;
+    border-radius: var(--lg-radius-full); pointer-events: auto;
   }
-  .vial-light {
+  .localnav-title { margin: 0 auto 0 0; font: 600 19px/1 var(--display); letter-spacing: 0.012em; white-space: nowrap; }
+  .localnav-links { display: flex; gap: 22px; }
+  .store .localnav-links a { color: inherit !important; opacity: 0.8; font-size: 12px; }
+  .store .localnav-links a:hover { opacity: 1; text-decoration: none; }
+  .localnav-menu { display: none; }
+
+  /* ---------- The bar (CSS chocolate) ---------- */
+  .bar {
+    --base: #3a2016; --hi: #62392a; --lo: #1a0c07;
+    --w: 260px;
+    position: relative;
+    flex: none;
+    width: var(--w);
+    max-width: 100%;
+    aspect-ratio: 4 / 6.3;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    gap: calc(var(--w) * 0.022);
+    padding: calc(var(--w) * 0.03);
+    border-radius: calc(var(--w) * 0.035);
+    background: linear-gradient(150deg, var(--hi), var(--base) 38%, var(--lo));
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.14), 0 calc(var(--w) * 0.12) calc(var(--w) * 0.2) calc(var(--w) * -0.08) rgb(0 0 0 / 0.5);
+  }
+  .bar > i {
+    position: relative;
+    border-radius: calc(var(--w) * 0.014);
+    background: linear-gradient(145deg, var(--hi) 0%, var(--base) 52%, var(--lo) 100%);
+    box-shadow: inset 2px 2px 2px rgb(255 255 255 / 0.17), inset -2px -3px 4px rgb(0 0 0 / 0.42);
+  }
+  .bar > i::after {
+    content: "T";
     position: absolute;
     inset: 0;
-    overflow: hidden;
-    isolation: isolate;
-    border-radius: var(--r);
-    background:
-      radial-gradient(120% 70% at 50% 108%, var(--c1), transparent 68%),
-      linear-gradient(180deg, color-mix(in oklab, var(--c3) 75%, #05060c), var(--c2) 62%, var(--c1));
-    filter: brightness(var(--glow)) saturate(calc(0.6 + var(--glow) * 0.4));
-    transition: filter 300ms ease;
-  }
-  .vial-light i {
-    position: absolute;
-    width: 78%;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: radial-gradient(circle, var(--c1) 0, transparent 66%);
-    mix-blend-mode: screen;
-    translate: calc(var(--mx, 0) * 16px) calc(var(--my, 0) * 16px);
-    transition: translate 600ms var(--lg-ease-smooth);
-  }
-  .vial-light i:nth-child(1) { left: -12%; top: 48%; }
-  .vial-light i:nth-child(2) { right: -18%; top: 20%; background: radial-gradient(circle, var(--c2) 0, transparent 66%); }
-  .vial-light i:nth-child(3) { left: 18%; top: -14%; width: 64%; background: radial-gradient(circle, color-mix(in oklab, var(--c1) 60%, white) 0, transparent 60%); }
-  .vial.is-live .vial-light i { animation: drift 11s ease-in-out infinite alternate; }
-  .vial.is-live .vial-light i:nth-child(2) { animation-duration: 14s; animation-delay: -5s; }
-  .vial.is-live .vial-light i:nth-child(3) { animation-duration: 9s; animation-delay: -2s; }
-  @keyframes drift {
-    from { transform: translate(-8%, 6%) scale(0.92); }
-    to { transform: translate(10%, -9%) scale(1.12); }
-  }
-  .vial-glass { position: absolute; inset: 0; border-radius: var(--r); }
-  .vial-cap {
-    position: absolute;
-    top: -16px;
-    left: 50%;
-    width: 36%;
-    height: 22px;
-    translate: -50% 0;
-    border-radius: 9px 9px 5px 5px;
-    background: linear-gradient(90deg, #2a2420, #6b5a4c 40%, #3a302a 70%, #1c1714);
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18), 0 2px 6px rgb(0 0 0 / 0.5);
-  }
-  .vial-tag {
-    position: absolute;
-    left: 50%;
-    bottom: 12px;
-    translate: -50% 0;
-    padding: 5px 11px;
-    border-radius: 999px;
-    font: 500 11px/1 var(--font-data);
-    letter-spacing: 0.04em;
-    white-space: nowrap;
-    color: #fff;
-    font-variant-numeric: tabular-nums;
-  }
-  .vial-shadow {
-    position: absolute;
-    left: 10%;
-    right: 10%;
-    bottom: -26px;
-    height: 30px;
-    border-radius: 50%;
-    background: radial-gradient(closest-side, color-mix(in srgb, var(--c1) 55%, transparent), transparent);
-    filter: blur(6px);
-    opacity: calc(0.35 + var(--glow) * 0.45);
-  }
-  @media (prefers-reduced-motion: reduce) { .vial.is-live .vial-light i { animation: none; } }
-
-  /* ---------- Hero ---------- */
-  .hero {
-    position: relative;
-    display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-    align-items: center;
-    gap: clamp(24px, 5vw, 72px);
-    max-width: 1180px;
-    margin-inline: auto;
-    padding-block: 140px 72px;
-  }
-  .hero-copy { display: grid; gap: 26px; min-width: 0; }
-  .hero-cta { display: flex; flex-wrap: wrap; gap: 12px; }
-  .hero-stage { position: relative; display: grid; place-items: center; min-height: 520px; touch-action: pan-y; }
-  .hero-stage .vial { --w: 300px; --r: 60px; }
-  .hero-stage .vial-cap { top: -24px; height: 30px; border-radius: 12px 12px 6px 6px; }
-  .halo {
-    position: absolute;
-    inset: -10% -30%;
-    background:
-      radial-gradient(38% 42% at 50% 55%, color-mix(in srgb, var(--c1) 38%, transparent), transparent 70%),
-      radial-gradient(30% 30% at 30% 30%, color-mix(in srgb, var(--c3) 30%, transparent), transparent 70%);
-    pointer-events: none;
-  }
-  .hero-note { display: flex; flex-wrap: wrap; gap: 8px 18px; }
-  .hero-note span { display: inline-flex; align-items: center; gap: 8px; }
-
-  /* Recent captures */
-  .ticker { max-width: 1180px; margin: 0 auto 24px; padding-block: 14px; border-block: 1px solid var(--hairline); overflow: hidden; }
-  .ticker-track { display: flex; gap: 40px; width: max-content; animation: tick 60s linear infinite; }
-  .ticker span { font: 500 13px/1 var(--font-data); color: var(--dusk); white-space: nowrap; font-variant-numeric: tabular-nums; }
-  .ticker b { color: var(--mist); font-weight: 500; }
-  @keyframes tick { to { transform: translateX(-50%); } }
-  @media (prefers-reduced-motion: reduce) { .ticker-track { animation: none; flex-wrap: wrap; width: auto; } }
-
-  /* ---------- Sections ---------- */
-  .section { max-width: 1180px; margin-inline: auto; padding-block: 88px; }
-  .section-head { display: grid; gap: 18px; margin-bottom: 40px; }
-  .controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 8px; }
-  .controls .lg-segmented { max-width: 100%; }
-
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-  .product {
-    position: relative;
-    display: grid;
-    grid-template-rows: auto 1fr;
-    min-width: 0;
-    border: 1px solid var(--hairline);
-    border-radius: 30px;
-    background:
-      radial-gradient(110% 70% at 50% 0%, color-mix(in srgb, var(--c1) 20%, transparent), transparent 72%),
-      var(--ink-raised);
-    transition: border-color 250ms ease, transform 400ms var(--lg-ease-bouncy);
-  }
-  .product:hover { border-color: color-mix(in srgb, var(--c1) 40%, var(--hairline)); }
-  .product-visual {
     display: grid;
     place-items: center;
-    padding: 44px 24px 36px;
-    border: 0;
-    border-radius: 30px 30px 0 0;
-    background: none;
-    color: inherit;
-    cursor: pointer;
+    font: 700 calc(var(--w) * 0.075)/1 var(--display);
+    color: var(--lo);
+    opacity: 0.34;
+    text-shadow: 0 1px 0 rgb(255 255 255 / 0.2);
   }
-  .product-visual:focus-visible { outline: 3px solid var(--lg-focus-ring); outline-offset: -3px; }
-  .product .vial { --w: 150px; --r: 32px; }
-  .product-meta { display: grid; align-content: start; gap: 6px; padding: 4px 22px 22px; }
-  .product-meta .eyebrow { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .product h3 { margin: 0; font: 500 26px/1.1 var(--font-display); letter-spacing: -0.01em; text-wrap: balance; }
-  .spec { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 2px 0 10px; font: 500 12px/1.4 var(--font-data); color: var(--dusk); font-variant-numeric: tabular-nums; }
-  .buy { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; }
-  .price { font: 600 19px/1 var(--font-body); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
-  .empty-note { grid-column: 1 / -1; margin: 0; padding: 40px 0; color: var(--dusk); text-align: center; }
+  .bar--air > i { background-image: radial-gradient(circle at 30% 35%, rgb(0 0 0 / 0.16) 0 1.5px, transparent 2.5px), radial-gradient(circle at 68% 62%, rgb(0 0 0 / 0.14) 0 2px, transparent 3px), radial-gradient(circle at 52% 20%, rgb(0 0 0 / 0.12) 0 1px, transparent 2px), linear-gradient(145deg, var(--hi) 0%, var(--base) 52%, var(--lo) 100%); }
+  .bar--mini { aspect-ratio: 1; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); }
+  .bar[data-finish="milk"] { --base: #7b4a2e; --hi: #a06a48; --lo: #4a2a17; }
+  .bar[data-finish="white"] { --base: #eadbc0; --hi: #fbf3e4; --lo: #c2ab86; }
+  .bar[data-finish="ruby"] { --base: #c56b7c; --hi: #e694a1; --lo: #8a4150; }
 
-  /* ---------- Process (a real sequence) ---------- */
-  .process { position: relative; }
-  .horizon {
+  .sleeve {
+    --paper: #121212; --ink: #d9aa7b; --ink-2: #8e8e93;
     position: absolute;
-    inset: 38% calc(var(--gutter) * -1) 6%;
-    background: linear-gradient(90deg, #2b1b5e, #b0457a 30%, #ff9d5c 55%, #ffd89b 70%, #3a6ea8);
-    opacity: 0.85;
-    mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent);
-    pointer-events: none;
-  }
-  .steps { position: relative; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin: 0; padding: 0; list-style: none; }
-  .step { display: grid; align-content: start; gap: 10px; min-width: 0; padding: 26px 26px 30px; border-radius: 32px; }
-  .step-no { font: italic 500 56px/0.9 var(--font-display); color: var(--ember); }
-  .step h3 { margin: 0; font: 600 20px/1.25 var(--font-body); letter-spacing: -0.02em; }
-  .step p { margin: 0; color: color-mix(in srgb, var(--mist) 82%, transparent); }
-  .step .eyebrow { color: color-mix(in srgb, var(--mist) 70%, transparent); }
-
-  /* ---------- Subscription ---------- */
-  .plan {
+    left: -3%;
+    right: -3%;
+    bottom: -2%;
+    height: 56%;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: clamp(24px, 5vw, 64px);
-    align-items: center;
-    padding: clamp(24px, 4vw, 48px);
-    border: 1px solid var(--hairline);
-    border-radius: 40px;
-    background:
-      radial-gradient(60% 90% at 90% 20%, rgb(124 58 237 / 0.28), transparent 70%),
-      radial-gradient(50% 80% at 10% 100%, rgb(255 164 92 / 0.22), transparent 70%),
-      var(--ink-raised);
+    align-content: center;
+    justify-items: center;
+    gap: calc(var(--w) * 0.02);
+    border-radius: calc(var(--w) * 0.03);
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.06), transparent 30%), var(--paper);
+    box-shadow: 0 -1px 0 rgb(255 255 255 / 0.1), 0 10px 30px rgb(0 0 0 / 0.35);
+    color: var(--ink);
+    text-align: center;
+    translate: 0 calc(var(--unwrap, 0) * 78%);
+    opacity: calc(1 - var(--unwrap, 0) * 0.9);
   }
-  .plan-copy { display: grid; gap: 18px; min-width: 0; }
-  .plan-card { display: grid; gap: 16px; min-width: 0; padding: 28px; border-radius: 30px; }
-  .plan-price { display: flex; align-items: baseline; gap: 8px; }
-  .plan-price b { font: 500 52px/1 var(--font-display); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
-  .plan-price span { color: var(--dusk); }
-  .perks { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
-  .perks li { display: flex; gap: 10px; align-items: flex-start; }
-  .perks svg { flex: none; margin-top: 3px; color: var(--ember); }
+  .sleeve::before {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; top: calc(var(--w) * -0.03);
+    height: calc(var(--w) * 0.035);
+    border-radius: 3px 3px 0 0;
+    background: repeating-linear-gradient(90deg, #d9d9de 0 3px, #b7b7bd 3px 5px, #eeeef2 5px 8px);
+    opacity: 0.9;
+  }
+  .sleeve[data-model="air"] { --paper: #e6edf6; --ink: #1d3557; --ink-2: #5b6b80; }
+  .sleeve[data-model="mini"] { --paper: #f4dfcc; --ink: #5a2f1a; --ink-2: #8d6a55; }
+  .sleeve-name { font: 600 calc(var(--w) * 0.1)/1 var(--display); letter-spacing: -0.01em; }
+  .sleeve-meta { font: 500 calc(var(--w) * 0.045)/1.2 var(--body); letter-spacing: 0.02em; color: var(--ink-2); text-transform: uppercase; }
+  .sleeve-engrave { min-height: 1.2em; max-width: 90%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: italic 500 calc(var(--w) * 0.055)/1.2 var(--lg-font-serif); color: var(--ink); }
+  .bar--mini .sleeve { height: 52%; }
+  .bar--mini .sleeve-name { font-size: calc(var(--w) * 0.12); }
 
-  /* ---------- FAQ + newsletter ---------- */
-  .faq { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: clamp(24px, 5vw, 72px); }
-  .faq-list { display: grid; gap: 10px; }
-  .faq .lg-disclosure { border-radius: 22px; background: var(--ink-raised); border: 1px solid var(--hairline); }
-  .letter { display: grid; gap: 14px; margin-top: 28px; }
-  .letter form { display: flex; flex-wrap: wrap; gap: 10px; }
-  .letter .lg-textfield { flex: 1 1 220px; min-width: 0; }
-  .form-hint { margin: 0; font-size: 14px; color: var(--dusk); }
+  /* ---------- Hero ---------- */
+  .hero { position: relative; padding: 150px 20px 110px; text-align: center; overflow: hidden; }
+  .hero-sub { margin: 6px 0 0; font: 600 clamp(24px, 3.4vw, 34px)/1.15 var(--display); letter-spacing: 0.004em; }
+  .hero-stage { position: relative; display: grid; place-items: center; height: min(58vh, 540px); min-height: 360px; margin: 26px auto 0; }
+  .hero-stage .bar { --w: clamp(190px, 26vw, 290px); rotate: -9deg; }
+  .hero-glow { position: absolute; inset: 8% 18%; border-radius: 50%; background: radial-gradient(closest-side, rgb(201 140 90 / 0.45), transparent); filter: blur(10px); }
+  .hero-actions { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 14px 26px; }
+  .hero-actions { margin-top: 26px; }
+  .price-from { margin: 14px 0 0; color: var(--night-text-2); font-size: 17px; }
 
-  .footer { max-width: 1180px; margin: 40px auto 0; padding-block: 36px 60px; border-top: 1px solid var(--hairline); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; color: var(--dusk); font-size: 14px; }
-  .footer p { margin: 0; max-width: 46em; }
+  /* ---------- Highlights ---------- */
+  .rail { display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: max(20px, calc((100vw - 980px) / 2)); padding: 40px max(20px, calc((100vw - 980px) / 2)) 30px; scrollbar-width: none; outline: none; }
+  .rail::-webkit-scrollbar { display: none; }
+  .rail:focus-visible { box-shadow: inset 0 0 0 3px var(--lg-focus-ring); }
+  .card {
+    position: relative;
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    width: min(82vw, 372px);
+    height: 520px;
+    padding: 30px;
+    box-sizing: border-box;
+    border-radius: 28px;
+    overflow: hidden;
+    scroll-snap-align: start;
+    background: #000;
+    color: #f5f5f7;
+  }
+  .card p { position: relative; z-index: 1; margin: 0; font: 600 28px/1.14 var(--display); letter-spacing: 0.007em; }
+  .card p span { color: #86868b; }
+  .card-art { position: absolute; inset: auto 0 0; height: 62%; display: grid; place-items: center; }
+  .card--conch .card-art { background: radial-gradient(60% 60% at 50% 70%, #6b3f26, transparent 70%); }
+  .card--origin { background: #0b1f14; }
+  .card--origin .card-art { background: radial-gradient(70% 70% at 50% 80%, #2f6b3f, transparent 70%); }
+  .card--snap { background: #1a0f0a; }
+  .card--three { background: #fff; color: #1d1d1f; }
+  .card--three p span { color: #6e6e73; }
+  .bean { position: relative; width: 120px; height: 170px; border-radius: 50%; background: linear-gradient(135deg, #8a5534, #3a2016); box-shadow: inset -12px -18px 30px rgb(0 0 0 / 0.5), inset 10px 10px 20px rgb(255 255 255 / 0.15); rotate: 20deg; }
+  .bean::after { content: ""; position: absolute; left: 50%; top: 10%; bottom: 10%; width: 4px; margin-left: -2px; border-radius: 2px; background: rgb(0 0 0 / 0.35); }
+  .dial { font: 700 120px/1 var(--display); letter-spacing: -0.04em; }
+  .snap-art { display: flex; gap: 10px; rotate: -12deg; }
+  .snap-art .bar { --w: 112px; }
+  .snap-art .bar:last-child { translate: 14px 18px; rotate: 9deg; }
+  .three-list { display: grid; gap: 14px; margin-top: auto; font: 600 22px/1.2 var(--display); }
+  .three-list span { display: flex; align-items: center; gap: 12px; }
+  .three-list i { width: 14px; height: 14px; border-radius: 4px; box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.12); }
+  .rail-controls { display: flex; justify-content: center; align-items: center; gap: 12px; }
 
-  /* ---------- Sheets ---------- */
-  .ps-layout { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 28px; align-items: start; }
-  .ps-visual { position: sticky; top: 0; display: grid; place-items: center; padding: 40px 0 44px; border-radius: 30px; background: radial-gradient(70% 60% at 50% 55%, color-mix(in srgb, var(--c1) 26%, transparent), transparent 75%); }
-  .ps-visual .vial { --w: 210px; --r: 44px; }
-  .ps-form { display: grid; gap: 18px; min-width: 0; }
-  .ps-story { margin: 0; font: italic 400 20px/1.4 var(--font-display); color: var(--mist); text-wrap: pretty; }
-  .spec-list { margin: 0; }
-  .spec-list .lg-row-detail { font-family: var(--font-data); font-size: 14px; font-variant-numeric: tabular-nums; }
-  .field { display: grid; gap: 8px; }
-  .field > span, .kv > span:first-child { font-size: 15px; color: var(--dusk); }
-  .kv { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px 16px; min-height: 44px; }
-  .kv small { color: var(--dusk); font-size: 13px; }
+  /* ---------- Finishes ---------- */
+  .finish-stage { position: relative; display: grid; place-items: center; height: 520px; margin-top: 40px; border-radius: 30px; background: radial-gradient(60% 60% at 50% 55%, #fff, var(--bg-alt)); touch-action: pan-y; overflow: hidden; }
+  .finish-stage .bar { --w: 250px; }
+  .lens {
+    position: absolute; left: 0; top: 0;
+    width: 150px; height: 150px; box-sizing: border-box;
+    display: grid; place-items: end center; padding-bottom: 14px;
+    border-radius: 50%;
+    translate: var(--x, 58%) var(--y, 40px);
+    cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none;
+    font: 600 11px/1 var(--body); letter-spacing: 0.06em; text-transform: uppercase;
+    color: rgb(255 255 255 / 0.92); text-shadow: 0 1px 2px rgb(0 0 0 / 0.55);
+  }
+  .lens:active { cursor: grabbing; }
+  .lens:focus-visible { outline: 3px solid var(--lg-focus-ring); outline-offset: 3px; }
+  .swatches { display: flex; flex-wrap: wrap; justify-content: center; gap: 22px; margin-top: 28px; }
+  .swatch { position: relative; display: grid; justify-items: center; gap: 8px; cursor: pointer; font-size: 12px; color: var(--text-2); }
+  .swatch input { position: absolute; opacity: 0; pointer-events: none; }
+  .swatch .dot { width: 30px; height: 30px; border-radius: 50%; background: var(--sw); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.14); transition: box-shadow 200ms ease; }
+  .swatch input:checked + .dot { box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.14), 0 0 0 3px var(--bg), 0 0 0 5px var(--text); }
+  .alt .swatch input:checked + .dot { box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.14), 0 0 0 3px var(--bg-alt), 0 0 0 5px var(--text); }
+  .swatch input:checked ~ .swatch-name { color: var(--text); font-weight: 600; }
+  .swatch input:focus-visible + .dot { outline: 3px solid var(--lg-focus-ring); outline-offset: 5px; }
+  .finish-caption { margin: 22px auto 0; max-width: 560px; min-height: 3em; text-align: center; color: var(--text-2); }
+  .finish-caption b { color: var(--text); }
+
+  /* ---------- Inside (numbers) ---------- */
+  .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 44px 32px; margin-top: 64px; }
+  .stat { display: grid; align-content: start; gap: 6px; }
+  .stat b { font: 600 clamp(40px, 5.6vw, 64px)/1 var(--display); letter-spacing: -0.015em; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .stat > span { color: var(--night-text-2); font-size: 17px; }
+  .stat strong { color: var(--night-text); font-weight: 600; }
+  .info { display: inline-flex; vertical-align: -2px; margin-left: 6px; color: var(--night-text-2); cursor: help; border-radius: 50%; }
+  .info:focus-visible { outline: 3px solid var(--lg-focus-ring); outline-offset: 2px; }
+
+  /* ---------- Engraving ---------- */
+  .engrave { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: center; margin-top: 50px; }
+  .engrave-stage { display: grid; place-items: center; height: 460px; border-radius: 30px; background: #fff; }
+  .engrave-stage .bar { --w: 230px; }
+  .engrave-form { display: grid; gap: 12px; min-width: 0; }
+  .engrave-form .lg-textfield { font-size: 19px; }
+  .counter { margin: 0; font-size: 14px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+  .fine { margin: 10px 0 0; font-size: 14px; color: var(--text-2); }
+
+  /* ---------- Compare ---------- */
+  .lineup { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-top: 60px; text-align: center; }
+  .model { display: grid; justify-items: center; align-content: start; gap: 10px; min-width: 0; }
+  .model-art { display: grid; place-items: end center; height: 260px; }
+  .model-art .bar { --w: 130px; }
+  .model-art .bar--mini { --w: 120px; }
+  .model .dots { display: flex; gap: 6px; margin: 6px 0 4px; }
+  .model .dots i { width: 10px; height: 10px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.15); }
+  .model h3 { margin: 0; font: 600 28px/1.1 var(--display); }
+  .model .tag { margin: 0; min-height: 2.9em; color: var(--text-2); }
+  .model .from { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .model .actions { display: grid; justify-items: center; gap: 12px; margin-top: 8px; }
+  .compare-wrap { overflow-x: auto; }
+  .compare { width: 100%; margin-top: 40px; border-collapse: collapse; font-size: 15px; }
+  .compare th, .compare td { width: 25%; padding: 18px 8px; font-variant-numeric: tabular-nums; }
+  .compare tbody th { text-align: left; font-weight: 400; color: var(--text-2); }
+  .compare td, .compare thead th { text-align: center; }
+  .compare thead th { font-weight: 600; }
+  .compare tbody tr { border-top: 1px solid var(--line); }
+  .compare caption { caption-side: bottom; padding-top: 16px; text-align: center; font-size: 14px; color: var(--text-2); }
+
+  /* ---------- Buy (configurator) ---------- */
+  .buy { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: 56px; margin-top: 48px; align-items: start; }
+  .buy-preview { position: sticky; top: 132px; display: grid; place-items: center; height: 560px; border-radius: 30px; background: #fff; }
+  .buy-preview .bar { --w: 240px; }
+  .buy-preview .bar--mini { --w: 220px; }
+  .buy-form { display: grid; gap: 38px; min-width: 0; }
+  .step { min-width: 0; margin: 0; padding: 0; border: 0; }
+  .step-title { display: block; margin: 0 0 14px; padding: 0; font: 600 24px/1.16 var(--display); letter-spacing: 0.009em; color: var(--text); }
+  .step-title span { color: var(--text-2); }
+  .options { display: grid; gap: 14px; }
+  .option { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; padding: 16px 18px; box-sizing: border-box; border: 1px solid #86868b; border-radius: 14px; background: #fff; cursor: pointer; transition: border-color 150ms ease, box-shadow 150ms ease; }
+  .option input { position: absolute; opacity: 0; pointer-events: none; }
+  .option:has(input:checked) { border-color: var(--buy); box-shadow: inset 0 0 0 1px var(--buy); }
+  .option:has(input:focus-visible) { outline: 3px solid var(--lg-focus-ring); outline-offset: 2px; }
+  .option-name { display: grid; gap: 2px; font-weight: 600; }
+  .option-name small { font-weight: 400; font-size: 14px; color: var(--text-2); }
+  .option-price { text-align: right; font-size: 14px; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .option-price small { display: block; color: var(--text-2); }
+  .flag { position: absolute; top: -10px; left: 16px; padding: 2px 8px; border-radius: 6px; background: #bf4800; color: #fff; font-size: 11px; font-weight: 600; letter-spacing: 0.02em; }
+  .flag--save { background: var(--buy); }
+  .buy .swatches { justify-content: flex-start; margin-top: 0; }
+  .kv { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px 16px; }
   .pickers { display: inline-flex; flex-wrap: wrap; gap: 8px; }
-  .ps-size.lg-segmented { width: 100%; }
+  .summary { display: grid; gap: 14px; padding: 26px; border-radius: 22px; background: #fff; }
+  .summary-total { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; font: 600 28px/1.1 var(--display); font-variant-numeric: tabular-nums; }
+  .summary-total small { font: 400 14px/1.3 var(--body); color: var(--text-2); }
+  .summary-line { margin: 0; font-size: 14px; color: var(--text-2); }
 
-  .cart-row .mini { flex: none; width: 34px; height: 46px; border-radius: 10px; background: linear-gradient(180deg, color-mix(in oklab, var(--c3) 70%, #05060c), var(--c2) 60%, var(--c1)); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.18); }
-  .cart-row .lg-row-content { display: grid; gap: 2px; }
-  .cart-row .lg-row-subtitle { font-variant-numeric: tabular-nums; }
-  .cart-row .price { font-size: 16px; min-width: 76px; text-align: right; }
-  .cart-empty { display: grid; justify-items: center; gap: 14px; padding: 36px 12px; text-align: center; color: var(--dusk); }
-  .cart-empty .display-2 { font-size: 34px; color: var(--mist); }
-  .totals { display: grid; gap: 6px; margin: 18px 4px 16px; font-variant-numeric: tabular-nums; }
-  .totals div { display: flex; justify-content: space-between; color: var(--dusk); }
-  .totals .grand { margin-top: 6px; color: var(--mist); font-size: 20px; font-weight: 600; }
-  .ship-hint { margin: 0 4px 16px; font-size: 14px; color: var(--dusk); }
-  .ship-meter { height: 4px; margin-top: 8px; border-radius: 4px; background: var(--hairline); overflow: hidden; }
-  .ship-meter i { display: block; height: 100%; width: var(--p, 0%); border-radius: inherit; background: var(--ember); transition: width 400ms var(--lg-ease-smooth); }
+  /* ---------- Bag ---------- */
+  .bag-row .thumb { flex: none; width: 36px; height: 50px; border-radius: 6px; background: linear-gradient(180deg, var(--c-bar) 0 44%, var(--c-sleeve) 44%); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.12); }
+  .bag-row .lg-row-content { display: grid; gap: 2px; }
+  .bag-row .lg-row-subtitle { font-variant-numeric: tabular-nums; white-space: normal; }
+  .bag-row .price { min-width: 84px; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .bag-empty { display: grid; justify-items: center; gap: 12px; padding: 40px 12px; text-align: center; color: var(--lg-label-secondary); }
+  .bag-empty p { margin: 0; }
+  .bag-empty .h3 { color: var(--lg-label); }
+  .totals { display: grid; gap: 8px; margin: 20px 4px; font-variant-numeric: tabular-nums; }
+  .totals div { display: flex; justify-content: space-between; color: var(--lg-label-secondary); }
+  .totals .grand { color: var(--lg-label); font-size: 21px; font-weight: 600; }
+  .meter { margin: 0 4px 18px; font-size: 14px; color: var(--lg-label-secondary); }
+  .meter-track { height: 4px; margin-top: 8px; border-radius: 4px; background: var(--lg-fill-secondary); overflow: hidden; }
+  .meter-track i { display: block; width: var(--p, 0%); height: 100%; border-radius: inherit; background: var(--buy); transition: width 450ms var(--lg-ease-smooth); }
+  .fly { position: fixed; z-index: 2000; left: 0; top: 0; width: 40px; height: 56px; border-radius: 7px; pointer-events: none; box-shadow: 0 8px 24px rgb(0 0 0 / 0.3); }
 
-  /* ---------- Phone ---------- */
-  .shop-tabbar { display: none; }
-  @media (max-width: 860px) {
-    .hero { grid-template-columns: minmax(0, 1fr); padding-block: 112px 40px; text-align: left; }
-    .hero-stage { min-height: 380px; order: -1; margin-top: 8px; }
-    .hero-stage .vial { --w: 210px; --r: 44px; }
-    .plan, .faq, .ps-layout { grid-template-columns: minmax(0, 1fr); }
-    .ps-visual { position: static; padding: 28px 0 34px; }
-    .ps-visual .vial { --w: 150px; --r: 32px; }
+  /* ---------- FAQ + footer ---------- */
+  .faq { display: grid; gap: 10px; max-width: 760px; margin: 40px auto 0; text-align: left; }
+  .faq .lg-disclosure { background: #fff; border-radius: 18px; }
+  .footer { padding: 30px 20px 60px; background: var(--bg-alt); color: var(--text-2); font-size: 12px; line-height: 1.34; }
+  .footer-inner { display: grid; gap: 12px; max-width: 980px; margin-inline: auto; }
+  .footer-inner p { margin: 0; }
+  .footer hr { width: 100%; margin: 6px 0; border: 0; border-top: 1px solid var(--line); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1068px) {
+    .buy { grid-template-columns: minmax(0, 1fr); }
+    .buy-preview { position: relative; top: 0; height: 420px; }
   }
-  @media (max-width: 720px) {
-    .shop .lg-globalnav-links { display: none; }
-    .shop-tabbar { display: flex; }
-    .shop { padding-bottom: 110px; }
-    .section { padding-block: 64px; }
-    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-    .product .vial { --w: 110px; --r: 26px; }
-    .product-visual { padding: 34px 12px 26px; }
-    .product-meta { padding: 2px 14px 16px; }
-    .product h3 { font-size: 20px; }
-    .buy { flex-wrap: wrap; }
+  @media (max-width: 834px) {
+    .localnav-links { display: none; }
+    .localnav-menu { display: inline-flex; }
+    .engrave { grid-template-columns: minmax(0, 1fr); }
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .lineup { gap: 10px; }
+    .model-art { height: 190px; }
+    .model-art .bar { --w: 92px; }
+    .model-art .bar--mini { --w: 88px; }
+    .model h3 { font-size: 21px; }
+    .model .tag { font-size: 14px; }
   }
-  @media (max-width: 440px) {
-    .cart-row { flex-wrap: wrap; row-gap: 10px; }
-    .cart-row .lg-row-content { flex: 1 1 60%; }
-    .cart-row .lg-stepper { margin-inline-start: 46px; }
-    .cart-row .price { margin-inline-start: auto; }
-    .product .vial { --w: 92px; --r: 22px; }
-    .product-visual { padding: 30px 8px 22px; }
-    .product-meta { padding: 0 12px 14px; gap: 4px; }
-    .product h3 { font-size: 18px; }
-    .spec { font-size: 11px; gap: 2px 10px; margin-bottom: 8px; }
-    .buy { flex-direction: column; align-items: stretch; gap: 8px; }
-    .price { font-size: 17px; }
+  @media (max-width: 640px) {
+    .store .lg-globalnav-links { display: none; }
+    .chapter { padding-block: 72px; }
+    .hero { padding-top: 136px; }
+    .finish-stage { height: 420px; }
+    .finish-stage .bar { --w: 200px; }
+    .lens { width: 118px; height: 118px; }
+    .engrave-stage { height: 380px; }
+    .engrave-stage .bar { --w: 190px; }
+    .lineup { grid-template-columns: minmax(0, 1fr); gap: 56px; }
+    .model-art { height: 230px; }
+    .model-art .bar { --w: 120px; }
+    .model-art .bar--mini { --w: 110px; }
+    .compare th, .compare td { padding: 14px 4px; font-size: 13px; }
+    .buy-preview { height: 360px; }
+    .buy-preview .bar { --w: 180px; }
+    .buy-preview .bar--mini { --w: 170px; }
+    .stats { gap: 36px 20px; }
+  }
+  @media (max-width: 480px) {
+    .bag-row { flex-wrap: wrap; row-gap: 10px; }
+    .bag-row .lg-row-content { flex: 1 1 calc(100% - 60px); }
+    .bag-row .lg-stepper { margin-inline-start: 50px; }
+    .bag-row .price { margin-inline-start: auto; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bag-btn.is-bumped { animation: none; }
   }
 </style>
 </head>
 <body>
-<div class="lg shop" id="top">
+<div class="lg store">
 
   <div class="lg-globalnav">
-    <nav class="lg-globalnav-bar lg-glass" aria-label="Fő navigáció">
-      <a class="lg-globalnav-brand brand" href="#top"><span class="spark" aria-hidden="true"></span>Derengés</a>
+    <nav class="lg-globalnav-bar lg-glass" data-lg-adaptive aria-label="Fő navigáció">
+      <a class="lg-globalnav-brand logo" href="#top" aria-label="Tábla, kezdőlap"><span class="logo-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Tábla</a>
       <div class="lg-globalnav-links">
-        <a href="#fenytar">Fénytár</a>
-        <a href="#gyujtes">Gyűjtés</a>
-        <a href="#elofizetes">Előfizetés</a>
-        <a href="#gyik">Kérdések</a>
+        <a href="#vasarlas" data-pick-model="pro">Tábla Pro</a>
+        <a href="#vasarlas" data-pick-model="air">Tábla Air</a>
+        <a href="#vasarlas" data-pick-model="mini">Tábla mini</a>
+        <a href="#gravir">Ajándék</a>
+        <a href="#kerdesek">Támogatás</a>
       </div>
-      <button class="lg-button lg-button--icon lg-button--small cart-btn" id="cartBtn" type="button" aria-label="Kosár, üres"><span data-lg-icon="bag" data-size="18"></span><span class="lg-badge" id="cartCount" hidden>0</span></button>
+      <button class="lg-button lg-button--icon lg-button--small bag-btn" id="bagBtn" type="button" aria-label="Kosár, üres"><span data-lg-icon="bag" data-size="18"></span><span class="lg-badge" id="bagCount" hidden>0</span></button>
     </nav>
   </div>
 
-  <main>
-    <header class="hero" id="hero">
-      <div class="hero-copy">
-        <p class="eyebrow">Tétel № 0714 · Tihany · 05:12 · 3100 K</p>
-        <h1 class="display">Fényt<br><em>palackozunk.</em></h1>
-        <p class="lede">Valódi napfelkelték, kék órák és északi fények. Egyenként gyűjtjük és argonnal zárjuk le őket. Kinyitod a palackot, és a szobád egy percre Tihanyban ébred.</p>
-        <div class="hero-cta">
-          <a class="lg-button lg-button--prominent lg-button--large" href="#fenytar">Fények böngészése</a>
-          <a class="lg-button lg-button--large" href="#gyujtes">Hogyan gyűjtjük?</a>
+  <main id="top">
+    <nav class="localnav" aria-label="Tábla Pro fejezetei">
+      <div class="localnav-bar lg-glass" data-lg-adaptive>
+        <p class="localnav-title">Tábla Pro</p>
+        <div class="localnav-links">
+          <a href="#kiemelt">Áttekintés</a>
+          <a href="#izek">Ízek</a>
+          <a href="#belul">Belül</a>
+          <a href="#osszehasonlitas">Összehasonlítás</a>
         </div>
-        <p class="hero-note eyebrow"><span><span data-lg-icon="clock" data-size="14"></span>Kiszállítás napnyugtakor</span><span><span data-lg-icon="sparkles" data-size="14"></span>20 000 Ft felett ingyen</span></p>
-      </div>
-      <div class="hero-stage" id="heroStage" style="--c1:#ffb36b;--c2:#ff6f91;--c3:#5b4bc4">
-        <div class="halo" aria-hidden="true"></div>
-        <div class="vial" id="heroVial" role="img" aria-label="Balatoni napfelkelte egy üvegfiolában">
-          <div class="vial-shadow"></div>
-          <div class="vial-light"><i></i><i></i><i></i></div>
-          <div class="vial-glass lg-glass lg-glass--clear" data-lg-magnify="1.16" data-lg-bezel="38" data-lg-depth="0.6"></div>
-          <div class="vial-cap"></div>
-          <span class="vial-tag lg-glass lg-glass--clear">№ 0714 · 3100 K</span>
+        <button class="lg-button lg-button--icon lg-button--small localnav-menu" type="button" data-lg-menu="#sectionMenu" aria-label="Fejezetek"><span data-lg-icon="chevron.down" data-size="14"></span></button>
+        <div class="lg-menu" id="sectionMenu" role="menu" hidden>
+          <a class="lg-menu-item" role="menuitem" href="#kiemelt">Áttekintés</a>
+          <a class="lg-menu-item" role="menuitem" href="#izek">Ízek</a>
+          <a class="lg-menu-item" role="menuitem" href="#belul">Belül</a>
+          <a class="lg-menu-item" role="menuitem" href="#osszehasonlitas">Összehasonlítás</a>
         </div>
+        <a class="lg-button lg-button--prominent lg-button--small" href="#vasarlas" data-pick-model="pro">Vásárlás</a>
       </div>
-    </header>
+    </nav>
 
-    <div class="ticker" aria-label="Legutóbbi gyűjtések">
-      <div class="ticker-track" id="ticker"></div>
-    </div>
-
-    <section class="section" id="fenytar" aria-labelledby="fenytarTitle">
-      <div class="section-head">
-        <p class="eyebrow" id="stockNote">A fénytár · 8 fény raktáron</p>
-        <h2 class="display-2" id="fenytarTitle">Válassz <em>napszakot.</em></h2>
-        <div class="controls">
-          <div class="lg-segmented" id="filter" aria-label="Napszak">
-            <label><input type="radio" name="napszak" value="all" checked>Mind</label>
-            <label><input type="radio" name="napszak" value="hajnal">Hajnal</label>
-            <label><input type="radio" name="napszak" value="nappal">Nappal</label>
-            <label><input type="radio" name="napszak" value="alkony">Alkony</label>
-            <label><input type="radio" name="napszak" value="ej">Éj</label>
-          </div>
-          <button class="lg-button" id="sortBtn" type="button" data-lg-menu="#sortMenu" aria-haspopup="menu"><span id="sortLabel">Ajánlott</span><span data-lg-icon="chevron.down" data-size="14"></span></button>
-          <div class="lg-menu" id="sortMenu" role="menu" hidden>
-            <div class="lg-menu-title">Rendezés</div>
-            <button class="lg-menu-item" role="menuitemcheckbox" aria-checked="true" data-value="featured">Ajánlott</button>
-            <button class="lg-menu-item" role="menuitemcheckbox" aria-checked="false" data-value="price-asc">Ár szerint növekvő</button>
-            <button class="lg-menu-item" role="menuitemcheckbox" aria-checked="false" data-value="price-desc">Ár szerint csökkenő</button>
-            <button class="lg-menu-item" role="menuitemcheckbox" aria-checked="false" data-value="kelvin">Melegtől a hidegig</button>
-          </div>
-        </div>
+    <section class="hero night" aria-labelledby="heroTitle">
+      <p class="eyebrow eyebrow--new">Új</p>
+      <h1 class="h1"><span class="bronze" id="heroTitle">Tábla Pro</span></h1>
+      <p class="hero-sub">85%. Hihetetlenül sötét.</p>
+      <div class="hero-actions">
+        <a class="lg-button lg-button--prominent lg-button--large" href="#vasarlas" data-pick-model="pro">Vásárlás</a>
+        <a class="more" href="#izek">Nézd meg közelebbről</a>
       </div>
-      <div class="grid" id="grid"></div>
+      <p class="price-from">2490 Ft-tól, a 12 táblás dobozban táblánként 1990 Ft.</p>
+      <div class="hero-stage" aria-hidden="true">
+        <div class="hero-glow"></div>
+        <div class="bar" id="heroBar" data-finish="dark"></div>
+      </div>
     </section>
 
-    <section class="section process" id="gyujtes" aria-labelledby="gyujtesTitle">
-      <div class="section-head">
-        <p class="eyebrow">Gyűjtés · átlagosan 90 másodperc fényenként</p>
-        <h2 class="display-2" id="gyujtesTitle">Így kerül a fény <em>üvegbe.</em></h2>
+    <section class="chapter alt" id="kiemelt" aria-labelledby="kiemeltTitle" style="padding-inline: 0">
+      <div class="chapter-inner" style="padding-inline: 20px">
+        <h2 class="h2" id="kiemeltTitle">A legfontosabbak.</h2>
       </div>
-      <div class="horizon" aria-hidden="true"></div>
-      <ol class="steps">
-        <li class="step lg-glass">
-          <span class="step-no" aria-hidden="true">1</span>
-          <p class="eyebrow">Hajnal előtt 40 perccel</p>
-          <h3>Kiállunk és mérünk</h3>
-          <p>Színhőmérséklet-mérővel várjuk, amíg a fény eléri a tétel színét. Ha felhős az ég, hazamegyünk, és másnap újra próbáljuk.</p>
-        </li>
-        <li class="step lg-glass">
-          <span class="step-no" aria-hidden="true">2</span>
-          <p class="eyebrow">90 másodperc expozíció</p>
-          <h3>Nyitott palack, csendben</h3>
-          <p>A fiolát a fény felé fordítjuk, és addig tartjuk nyitva, amíg a tű meg nem áll. Egy napfelkeltéből legfeljebb 40 palack telik meg.</p>
-        </li>
-        <li class="step lg-glass">
-          <span class="step-no" aria-hidden="true">3</span>
-          <p class="eyebrow">Argon, viasz, tételszám</p>
-          <h3>Lezárjuk és felcímkézzük</h3>
-          <p>Argonnal zárjuk, hogy a fény ne fakuljon. A címkén a hely, a perc és a kelvin, hogy tudd, mit nyitsz ki.</p>
-        </li>
-      </ol>
+      <div class="rail" id="rail" tabindex="0" aria-label="Kiemelt tulajdonságok, a nyilakkal lapozható">
+        <article class="card card--conch">
+          <p>72 óra conchálás. <span>Háromszor annyi, mint egy átlagos táblánál. Ettől selymes.</span></p>
+          <div class="card-art" aria-hidden="true"><span class="dial bronze">72</span></div>
+        </article>
+        <article class="card card--origin">
+          <p>Egyetlen ültetvény. <span>Tumaco, Kolumbia. Minden tábla hátoldalán ott a tétel száma.</span></p>
+          <div class="card-art" aria-hidden="true"><span class="bean"></span></div>
+        </article>
+        <article class="card card--snap">
+          <p>Hallod, ahogy törik. <span>31,5 °C-on temperáljuk, ezért roppan tisztán.</span></p>
+          <div class="card-art" aria-hidden="true"><div class="snap-art"><div class="bar" data-finish="dark"></div><div class="bar" data-finish="dark"></div></div></div>
+        </article>
+        <article class="card card--three">
+          <p>Három összetevő. <span>Nincs pálmaolaj, aroma és lecitin.</span></p>
+          <div class="three-list">
+            <span><i style="background:#3a2016"></i>Kakaómassza</span>
+            <span><i style="background:#e9d6b4"></i>Kakaóvaj</span>
+            <span><i style="background:#c9955b"></i>Nádcukor</span>
+          </div>
+        </article>
+      </div>
+      <div class="rail-controls">
+        <button class="lg-button lg-button--icon lg-button--small" id="railPrev" type="button" aria-label="Előző kártya"><span data-lg-icon="chevron.backward" data-size="16"></span></button>
+        <div class="lg-page-control lg-glass" id="railDots" data-count="4" data-index="0" aria-label="Kiemelt kártyák"></div>
+        <button class="lg-button lg-button--icon lg-button--small" id="railNext" type="button" aria-label="Következő kártya"><span data-lg-icon="chevron.forward" data-size="16"></span></button>
+      </div>
     </section>
 
-    <section class="section" id="elofizetes" aria-labelledby="elofizetesTitle">
-      <div class="plan">
-        <div class="plan-copy">
-          <p class="eyebrow">Fénynaptár</p>
-          <h2 class="display-2" id="elofizetesTitle">Minden hónapban <em>egy új hajnal.</em></h2>
-          <p class="lede">A hónap legszebb reggeléből küldünk egy palackot, a gyűjtés napján lezárva. Bármikor szüneteltetheted.</p>
+    <section class="chapter" id="izek" aria-labelledby="izekTitle">
+      <div class="chapter-inner center">
+        <p class="eyebrow">Ízek</p>
+        <h2 class="h2" id="izekTitle">Négy íz. Egyik sem kompromisszum.</h2>
+        <div class="finish-stage" id="finishStage">
+          <div class="bar" id="finishBar" data-finish="dark" role="img" aria-label="Tábla Pro, étcsoki"></div>
+          <div class="lens lg-glass lg-glass--clear" id="lens" data-lg-magnify="1.55" data-lg-bezel="40" data-lg-depth="0.55" tabindex="0" role="img" aria-label="Nagyító a táblán. Húzd, vagy mozgasd a nyilakkal.">Húzd</div>
         </div>
-        <div class="plan-card lg-glass">
-          <div class="lg-segmented" id="billing" aria-label="Számlázás">
-            <label><input type="radio" name="szamlazas" value="month" checked>Havonta</label>
-            <label><input type="radio" name="szamlazas" value="year">Évente</label>
-          </div>
-          <div class="plan-price"><b id="planPrice">9 900 Ft</b><span id="planPer">/ hónap</span></div>
-          <ul class="perks">
-            <li><span data-lg-icon="checkmark" data-size="16"></span>Egy 100 ml-es palack havonta, sorszámozva</li>
-            <li><span data-lg-icon="checkmark" data-size="16"></span>Ingyenes kiszállítás napnyugtakor</li>
-            <li><span data-lg-icon="checkmark" data-size="16"></span>Évesnél két hónap ajándék</li>
-          </ul>
-          <button class="lg-button lg-button--prominent lg-button--large lg-button--block" id="planBtn" type="button">Feliratkozom</button>
+        <div class="swatches" role="radiogroup" aria-label="Íz" id="showSwatches"></div>
+        <p class="finish-caption" id="finishCaption" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="chapter night" id="belul" aria-labelledby="belulTitle">
+      <div class="chapter-inner">
+        <p class="eyebrow">Belül</p>
+        <h2 class="h2" id="belulTitle">Belül is <span class="bronze">Pro.</span></h2>
+        <p class="lead">A kakaóbabot a szüret után hat nappal pörköljük, <b>alacsony hőfokon és lassan</b>, hogy a gyümölcsös jegyek megmaradjanak.</p>
+        <div class="stats">
+          <div class="stat"><b class="bronze">85%</b><span><strong>kakaótartalom</strong> a Pro étcsokiban</span></div>
+          <div class="stat"><b class="bronze">72 óra</b><span><strong>conchálás</strong><span class="info" tabindex="0" role="img" aria-label="Mi a conchálás?" data-lg-tooltip="A csokimassza lassú keverése és levegőztetése. Minél tovább tart, annál selymesebb."><span data-lg-icon="info.circle" data-size="15"></span></span></span></div>
+          <div class="stat"><b class="bronze">0 g</b><span><strong>pálmaolaj</strong> és hozzáadott aroma</span></div>
+          <div class="stat"><b class="bronze">6 nap</b><span>a <strong>szüret és a pörkölés</strong> között</span></div>
+          <div class="stat"><b class="bronze">31,5 °C</b><span><strong>temperálás</strong> a tiszta roppanásért</span></div>
+          <div class="stat"><b class="bronze">1</b><span><strong>ültetvény</strong>: Tumaco, Kolumbia</span></div>
         </div>
       </div>
     </section>
 
-    <section class="section faq" id="gyik" aria-labelledby="gyikTitle">
-      <div>
-        <p class="eyebrow">Kérdések</p>
-        <h2 class="display-2" id="gyikTitle">Amit a fényről <em>kérdezni szoktak.</em></h2>
-        <div class="letter">
-          <p class="form-hint" id="letterHint">Szólunk, ha új fény érkezik. Havonta legfeljebb egy levél.</p>
-          <form id="letterForm" novalidate>
-            <input class="lg-textfield" id="letterEmail" name="email" type="email" placeholder="nev@pelda.hu" aria-label="E-mail-cím" aria-describedby="letterHint" autocomplete="email" required>
-            <button class="lg-button lg-button--prominent" type="submit">Feliratkozás</button>
+    <section class="chapter alt" id="gravir" aria-labelledby="gravirTitle">
+      <div class="chapter-inner">
+        <p class="eyebrow">Ajándék</p>
+        <h2 class="h2" id="gravirTitle">Írd rá a nevét. Ingyen.</h2>
+        <div class="engrave">
+          <div class="engrave-stage"><div class="bar" id="engraveBar" data-finish="dark" role="img" aria-label="Előnézet a gravírozott csomagolásról"></div></div>
+          <div class="engrave-form">
+            <p class="lead" style="margin: 0">Bármelyik Tábla csomagolására ráírjuk, amit szeretnél: egy nevet vagy egy rövid üzenetet. Ettől lesz az övé.</p>
+            <label class="fine" for="engraveInput" style="margin-top: 10px">Szöveg a csomagoláson</label>
+            <input class="lg-textfield" id="engraveInput" type="text" maxlength="18" placeholder="Annának, szeretettel" autocomplete="off" aria-describedby="engraveCount">
+            <p class="counter" id="engraveCount">0/18 karakter</p>
+            <div><button class="lg-button lg-button--prominent" id="engraveAdd" type="button">Gravírozással vásárolok</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="osszehasonlitas" aria-labelledby="osszTitle">
+      <div class="chapter-inner center">
+        <h2 class="h2" id="osszTitle">Melyik Tábla a tiéd?</h2>
+        <div class="lineup" id="lineup"></div>
+        <div class="compare-wrap">
+          <table class="compare" id="compare">
+            <caption>Az energiaérték 100 g-ra vetítve.</caption>
+            <thead><tr><th scope="col"><span class="sr-only">Tulajdonság</span></th><th scope="col">Pro</th><th scope="col">Air</th><th scope="col">mini</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter alt" id="vasarlas" aria-labelledby="buyTitle">
+      <div class="chapter-inner">
+        <h2 class="h2" id="buyTitle">Tábla Pro vásárlása.</h2>
+        <div class="buy">
+          <div class="buy-preview" aria-hidden="true"><div class="bar" id="buyBar" data-finish="dark"></div></div>
+          <form class="buy-form" id="buyForm">
+            <fieldset class="step">
+              <legend class="step-title">Modell. <span>Melyik legyen?</span></legend>
+              <div class="options" id="modelOptions"></div>
+            </fieldset>
+            <fieldset class="step">
+              <legend class="step-title">Íz. <span id="finishName">Étcsoki</span></legend>
+              <div class="swatches" id="buySwatches"></div>
+            </fieldset>
+            <fieldset class="step">
+              <legend class="step-title">Kiszerelés. <span>Mennyi legyen?</span></legend>
+              <div class="options" id="packOptions"></div>
+            </fieldset>
+            <div class="step">
+              <p class="step-title">Gravírozás. <span>Ingyenes.</span></p>
+              <div class="kv"><span>Név vagy üzenet a csomagoláson</span><label class="lg-switch"><input type="checkbox" id="engraveOn" aria-label="Gravírozás a csomagoláson"></label></div>
+              <input class="lg-textfield" id="engraveBuy" type="text" maxlength="18" placeholder="Annának, szeretettel" aria-label="Gravírozás szövege" autocomplete="off" hidden style="margin-top: 12px; width: 100%; box-sizing: border-box">
+            </div>
+            <div class="step">
+              <p class="step-title">Szállítás. <span>Hűtött futárral.</span></p>
+              <div class="kv"><span>Mikor érkezzen?</span><span class="pickers"><span class="lg-date-picker" id="shipDate" aria-label="Szállítás napja"></span><span class="lg-time-picker" id="shipTime" data-value="17:00" data-step="30" aria-label="Érkezés ideje" data-hour-label="Óra" data-minute-label="Perc"></span></span></div>
+              <p class="fine">16–18 °C-on szállítjuk, nyáron is. 10 000 Ft felett ingyen.</p>
+            </div>
+            <div class="summary">
+              <div class="summary-total"><span id="totalPrice">0 Ft</span><small id="unitPrice"></small></div>
+              <p class="summary-line" id="summaryLine"></p>
+              <button class="lg-button lg-button--prominent lg-button--large lg-button--block" id="addToBag" type="submit">Kosárba</button>
+            </div>
           </form>
         </div>
       </div>
-      <div class="faq-list">
-        <details class="lg-disclosure"><summary>Meddig tart ki egy palack?</summary><div class="lg-disclosure-content">Lezárva évekig. Kinyitva körülbelül egy percig világít, ezért érdemes sötét szobában, egy csendes pillanatra tartogatni.</div></details>
-        <details class="lg-disclosure"><summary>Mi történik, ha felhős az ég?</summary><div class="lg-disclosure-content">Akkor nem gyűjtünk. A kiszállítás napja emiatt legfeljebb három nappal csúszhat, erről SMS-ben szólunk.</div></details>
-        <details class="lg-disclosure"><summary>Miért napnyugtakor szállítotok?</summary><div class="lg-disclosure-content">Mert akkor a legsötétebb a lépcsőház, és a futárunk szerint így a legszebb átadni. A pontos időt a kosárban választhatod ki.</div></details>
-        <details class="lg-disclosure"><summary>Lehet ajándékba küldeni?</summary><div class="lg-disclosure-content">Igen. Kapcsold be az ajándékcsomagolást, és a palack fekete dobozban, kézzel írt tételkártyával érkezik.</div></details>
+    </section>
+
+    <section class="chapter alt" id="kerdesek" aria-labelledby="faqTitle" style="padding-top: 0">
+      <div class="chapter-inner center">
+        <h2 class="h3" id="faqTitle">Kérdések.</h2>
+        <div class="faq">
+          <details class="lg-disclosure"><summary>Meddig áll el egy tábla?</summary><div class="lg-disclosure-content">Bontatlanul 14 hónapig, 16–18 °C-on, fénytől védve. A hűtőt kerüld: ott a felülete kifehéredik.</div></details>
+          <details class="lg-disclosure"><summary>Késlelteti a gravírozás a szállítást?</summary><div class="lg-disclosure-content">Nem. Egy csomagolásra legfeljebb 18 karakter fér, ékezetekkel együtt.</div></details>
+          <details class="lg-disclosure"><summary>Vegán a Tábla?</summary><div class="lg-disclosure-content">Az étcsoki és a ruby igen. A tejcsoki és a fehér csoki tejet tartalmaz.</div></details>
+        </div>
       </div>
     </section>
   </main>
 
   <footer class="footer">
-    <p><b>Derengés</b> · Tihany és Budapest. Kitalált bolt: a termékek, árak és időpontok a <a href="https://github.com/noexgeci/liquid-glass-and-more-apple">Liquid Glass Kit</a> bemutatására készültek, fizetés és kiszállítás nem történik.</p>
-    <p class="eyebrow">Minden fény 2026-ban gyűjtve</p>
+    <div class="footer-inner">
+      <p>Kitalált bolt. A Tábla termékei, árai és adatai a <a href="https://github.com/noexgeci/liquid-glass-and-more-apple">Liquid Glass Kit</a> bemutatására készültek: fizetés, rendelés és szállítás nem történik.</p>
+      <hr>
+      <p>Tábla Csokoládé (kitalált márka) · Budapest</p>
+    </div>
   </footer>
 
-  <nav class="lg-tabbar shop-tabbar" aria-label="Gyors navigáció">
-    <div class="lg-tabbar-tabs lg-glass">
-      <a class="lg-tab is-selected" href="#top"><span data-lg-icon="house"></span><span class="lg-tab-label">Kezdő</span></a>
-      <a class="lg-tab" href="#fenytar"><span data-lg-icon="sparkles"></span><span class="lg-tab-label">Fények</span></a>
-      <a class="lg-tab" href="#elofizetes"><span data-lg-icon="calendar"></span><span class="lg-tab-label">Előfizetés</span></a>
-      <a class="lg-tab" href="#gyik"><span data-lg-icon="info.circle"></span><span class="lg-tab-label">Kérdések</span></a>
-    </div>
-    <button class="lg-tabbar-search lg-glass" id="tabCart" type="button" aria-label="Kosár"><span data-lg-icon="bag"></span></button>
-  </nav>
-
-  <!-- Product sheet -->
-  <div class="lg-sheet" id="productSheet" data-lg-detents="large" aria-labelledby="psTitle" hidden>
+  <div class="lg-sheet" id="bagSheet" data-lg-detents="large" aria-labelledby="bagTitle" hidden>
     <div class="lg-sheet-grabber"></div>
     <div class="lg-sheet-header">
       <button class="lg-button lg-button--icon" type="button" data-lg-dismiss aria-label="Bezárás"><span data-lg-icon="xmark"></span></button>
-      <h2 class="lg-sheet-title" id="psTitle">Fény</h2>
-      <span></span>
+      <h2 class="lg-sheet-title" id="bagTitle">Kosár</h2>
+      <button class="lg-button lg-button--plain lg-button--small" id="bagClear" type="button">Ürítés</button>
     </div>
     <div class="lg-sheet-content">
-      <div class="ps-layout" id="psLayout">
-        <div class="ps-visual">
-          <div class="vial is-live" id="psVial" role="img" aria-label="">
-            <div class="vial-shadow"></div>
-            <div class="vial-light"><i></i><i></i><i></i></div>
-            <div class="vial-glass lg-glass lg-glass--clear" data-lg-magnify="1.14" data-lg-bezel="30" data-lg-depth="0.55"></div>
-            <div class="vial-cap"></div>
-            <span class="vial-tag lg-glass lg-glass--clear" id="psTag"></span>
-          </div>
-        </div>
-        <div class="ps-form">
-          <p class="ps-story" id="psStory"></p>
-          <ul class="lg-list spec-list" id="psSpecs"></ul>
-          <div class="field">
-            <span id="psSizeLabel">Palack</span>
-            <div class="lg-segmented ps-size" id="psSize" aria-labelledby="psSizeLabel">
-              <label><input type="radio" name="palack" value="0">50 ml</label>
-              <label><input type="radio" name="palack" value="1" checked>100 ml</label>
-              <label><input type="radio" name="palack" value="2">250 ml</label>
-            </div>
-          </div>
-          <div class="field">
-            <span id="psBrightLabel">Fényerő az előnézetben</span>
-            <div class="lg-slider" id="psBright"><span data-lg-icon="moon" data-size="18"></span><input type="range" min="30" max="100" value="85" aria-labelledby="psBrightLabel"><span data-lg-icon="sun.max" data-size="20"></span></div>
-          </div>
-          <div class="kv"><span>Ajándékcsomagolás <small>+1 500 Ft</small></span><label class="lg-switch"><input type="checkbox" id="psGift" aria-label="Ajándékcsomagolás"></label></div>
-          <div class="kv"><span>Kiszállítás</span><span class="pickers"><span class="lg-date-picker" id="psDate" aria-label="Kiszállítás napja"></span><span class="lg-time-picker" id="psTime" data-value="19:30" data-step="15" aria-label="Érkezés" data-hour-label="Óra" data-minute-label="Perc"></span></span></div>
-          <div class="kv"><span>Mennyiség</span><div class="lg-stepper" id="psQty" data-min="1" data-max="9" data-value="1" data-decrement-label="Eggyel kevesebb" data-increment-label="Eggyel több"></div></div>
-          <button class="lg-button lg-button--prominent lg-button--large lg-button--block" id="psAdd" type="button">Kosárba</button>
-        </div>
+      <div class="bag-empty" id="bagEmpty">
+        <p class="h3">A kosarad üres.</p>
+        <p>Egy tábla 1490 Ft-tól. A 12 táblás dobozban táblánként 20% a kedvezmény.</p>
+        <a class="lg-button" href="#vasarlas" data-lg-dismiss>Vásárlás</a>
       </div>
-    </div>
-  </div>
-
-  <!-- Cart sheet -->
-  <div class="lg-sheet" id="cartSheet" data-lg-detents="large" aria-labelledby="cartTitle" hidden>
-    <div class="lg-sheet-grabber"></div>
-    <div class="lg-sheet-header">
-      <button class="lg-button lg-button--icon" type="button" data-lg-dismiss aria-label="Bezárás"><span data-lg-icon="xmark"></span></button>
-      <h2 class="lg-sheet-title" id="cartTitle">Kosár</h2>
-      <button class="lg-button lg-button--plain lg-button--small" id="cartClear" type="button">Ürítés</button>
-    </div>
-    <div class="lg-sheet-content">
-      <div class="cart-empty" id="cartEmpty">
-        <p class="display-2">Még sötét van.</p>
-        <p>A kosár üres. Válassz egy fényt a fénytárból.</p>
-        <a class="lg-button" href="#fenytar" data-lg-dismiss>Fénytár</a>
-      </div>
-      <section class="lg-list-section" id="cartFull" hidden style="margin-inline: 0">
-        <ul class="lg-list" id="cartList"></ul>
+      <section class="lg-list-section" id="bagFull" hidden style="margin-inline: 0">
+        <ul class="lg-list" id="bagList"></ul>
         <div class="totals">
           <div><span>Részösszeg</span><span id="subTotal">0 Ft</span></div>
-          <div><span>Kiszállítás napnyugtakor</span><span id="shipTotal">0 Ft</span></div>
+          <div><span>Hűtött szállítás</span><span id="shipTotal">0 Ft</span></div>
           <div class="grand"><span>Összesen</span><span id="grandTotal">0 Ft</span></div>
         </div>
-        <p class="ship-hint"><span id="shipHint"></span><span class="ship-meter" aria-hidden="true"><i id="shipMeter"></i></span></p>
-        <button class="lg-button lg-button--prominent lg-button--large lg-button--block" id="checkout" type="button">Tovább a pénztárhoz</button>
+        <div class="meter"><span id="meterText"></span><div class="meter-track" aria-hidden="true"><i id="meterBar"></i></div></div>
+        <button class="lg-button lg-button--prominent lg-button--large lg-button--block" id="checkout" type="button">Tovább a fizetéshez</button>
       </section>
     </div>
   </div>
@@ -578,245 +612,324 @@
   'use strict';
   var LG = window.LiquidGlass;
   var $ = function (s, r) { return (r || document).querySelector(s); };
-  var ft = new Intl.NumberFormat('hu-HU');
-  var money = function (n) { return ft.format(Math.round(n)) + ' Ft'; };
-  var kelvin = function (k) { return ft.format(k) + ' K'; };
-  var lux = function (l) { return ft.format(l) + ' lx'; };
-  var coord = function (lat, lon) {
-    var f = function (v) { return Math.abs(v).toFixed(2).replace('.', ','); };
-    return f(lat) + '° ' + (lat >= 0 ? 'É' : 'D') + ' · ' + f(lon) + '° ' + (lon >= 0 ? 'K' : 'Ny');
-  };
-
-  var LIGHTS = [
-    { id: 'balaton', name: 'Balatoni napfelkelte', place: 'Tihany, rév', date: '2026. júl. 14.', time: '05:12', k: 3100, lx: 340, batch: '0714', part: 'hajnal', price: 12900, lat: 46.914, lon: 17.889, c: ['#ffb36b', '#ff6f91', '#5b4bc4'], story: 'Július közepén, a tihanyi révnél, amikor a nap átbújik a somogyi part fölött. Rózsaszínnel indul, aranyban ér véget.' },
-    { id: 'kekora', name: 'Budapesti kék óra', place: 'Lánchíd, pesti hídfő', date: '2026. szept. 22.', time: '19:48', k: 9500, lx: 12, batch: '0922', part: 'alkony', price: 14500, lat: 47.499, lon: 19.043, c: ['#6ea8ff', '#2f5bd3', '#101a4a'], story: 'A lámpák felgyulladása előtti négy perc, amikor a Duna sötétebb kék, mint az ég fölötte.' },
-    { id: 'delibab', name: 'Hortobágyi délibáb', place: 'Nagyiván, puszta', date: '2026. aug. 8.', time: '13:26', k: 5800, lx: 98000, batch: '0808', part: 'nappal', price: 11900, lat: 47.48, lon: 20.93, c: ['#ffe58a', '#f6b73c', '#79a9e8'], story: 'Déli hőségben, a pusztán remegő levegőből. Aki kinyitja, egy pillanatra vizet lát a láthatáron.' },
-    { id: 'aurora', name: 'Északi fény', place: 'Tromsø, Ersfjordbotn', date: '2026. febr. 17.', time: '23:41', k: 4100, lx: 0.2, batch: '0217', part: 'ej', price: 24900, lat: 69.65, lon: 18.96, c: ['#5dffb0', '#16a37f', '#3b1d7a'], story: 'Negyven kilométerre a várostól, mínusz tizennyolc fokban. A zöld hullám kilencven másodpercig táncolt.' },
-    { id: 'tokaj', name: 'Tokaji aranyóra', place: 'Tokaj, Kopasz-hegy', date: '2026. szept. 30.', time: '18:56', k: 2800, lx: 1800, batch: '0930', part: 'alkony', price: 13900, lat: 48.12, lon: 21.41, c: ['#ffc24a', '#d9711e', '#6b1f2a'], story: 'Szüret idején, a szőlősorok fölött. Mézszínű, és kicsit tovább marad, mint gondolnád.' },
-    { id: 'gyertya', name: 'Gyertyafény', place: 'Pannonhalma, könyvtárterem', date: '2026. nov. 1.', time: '21:15', k: 1850, lx: 14, batch: '1101', part: 'ej', price: 8900, lat: 47.55, lon: 17.76, c: ['#ffae4f', '#c2410c', '#2a1208'], story: 'Egyetlen gyertya a könyvtárterem ablakában. A legmelegebb fényünk, olvasáshoz.' },
-    { id: 'levendula', name: 'Levendulás alkony', place: 'Tihany, Levendulás', date: '2026. jún. 21.', time: '20:31', k: 6900, lx: 180, batch: '0621', part: 'alkony', price: 12500, lat: 46.91, lon: 17.87, c: ['#e2b8ff', '#9b7bf2', '#3d2a7a'], story: 'Júniusi este a levendulamező szélén, fél órával napnyugta után, amikor a lila színt vált.' },
-    { id: 'matra', name: 'Mátrai téli hajnal', place: 'Kékestető', date: '2026. jan. 15.', time: '07:18', k: 7200, lx: 260, batch: '0115', part: 'hajnal', price: 13500, lat: 47.87, lon: 20.01, c: ['#ffd6e0', '#9ec5ff', '#2b3f7a'], story: 'Januári reggel a hegytetőn. Az első fény, ahogy megtörik a zúzmarán.' },
-  ];
-  var byId = {};
-  LIGHTS.forEach(function (l) { byId[l.id] = l; });
-  var SIZES = [{ label: '50 ml', k: 0.62 }, { label: '100 ml', k: 1 }, { label: '250 ml', k: 2.1 }];
-  var GIFT = 1500, SHIP = 1490, FREE_SHIP = 20000;
-
-  var colors = function (l) { return '--c1:' + l.c[0] + ';--c2:' + l.c[1] + ';--c3:' + l.c[2]; };
+  var $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)); };
+  var nf = new Intl.NumberFormat('hu-HU');
+  var money = function (n) { return nf.format(Math.round(n)) + ' Ft'; };
   var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
-  var iso = function (d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); };
+  var reduced = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  var MODELS = {
+    pro: { name: 'Tábla Pro', tag: 'Vastag, roppanós, egyetlen ültetvényről.', weight: '100 g', price: 2490, texture: 'Roppanós', kcal: '598 kcal', squares: 24, cls: 'bar' },
+    air: { name: 'Tábla Air', tag: 'Levegős. Elolvad, mielőtt észrevennéd.', weight: '80 g', price: 1990, texture: 'Levegős, olvadó', kcal: '574 kcal', squares: 24, cls: 'bar bar--air' },
+    mini: { name: 'Tábla mini', tag: 'Négy falat. Mindig kéznél.', weight: '4 × 12 g', price: 1490, texture: 'Falatnyi', kcal: '598 kcal', squares: 4, cls: 'bar bar--mini' },
+  };
+  var FINISHES = {
+    dark: { name: 'Étcsoki', cocoa: 85, sw: '#3a2016', bar: '#3a2016', note: 'Mély, pörkölt, a végén meggyes. A Pro alapíze.' },
+    milk: { name: 'Tejcsoki', cocoa: 42, sw: '#8a5534', bar: '#7b4a2e', note: 'Karamellás és krémes, 42% kakaóval. Nem édesebb a kelleténél.' },
+    white: { name: 'Fehér', cocoa: 34, sw: '#efe2c9', bar: '#eadbc0', note: 'Tiszta kakaóvaj és tej. Tejszínes, nem émelyítő.' },
+    ruby: { name: 'Ruby', cocoa: 47, sw: '#d97a8e', bar: '#c56b7c', note: 'Természetes rózsaszín, bogyós savassággal, festék nélkül.' },
+  };
+  /* Unit prices are rounded first, so "per bar" and totals always agree. */
+  var PACKS = [
+    { n: 1, name: 'Egy tábla', k: 1 },
+    { n: 3, name: 'Három tábla', k: 0.9, flag: 'Legnépszerűbb' },
+    { n: 12, name: '12 táblás doboz', k: 0.8, flag: 'Táblánként −20%', save: true },
+  ];
+  var SHIP = 990, FREE = 10000;
+  var SLEEVE = { pro: '#121212', air: '#e6edf6', mini: '#f4dfcc' };
+  var DEFAULT_TEXT = 'Annának, szeretettel';
+
+  var state = { model: 'pro', finish: 'dark', pack: 1, engrave: false, text: '' };
+  var unit = function (model, pack) { return Math.round((MODELS[model].price * PACKS[pack].k) / 10) * 10; };
+  var packPrice = function (model, pack) { return unit(model, pack) * PACKS[pack].n; };
+
+  /* ---------- Bars ---------- */
+  function fillBar(el, model, finish, text) {
+    var m = MODELS[model];
+    el.className = m.cls;
+    el.setAttribute('data-finish', finish);
+    var html = '';
+    for (var i = 0; i < m.squares; i++) html += '<i></i>';
+    el.innerHTML = html +
+      '<div class="sleeve" data-model="' + model + '"><span class="sleeve-name">' + esc(m.name) + '</span>' +
+      '<span class="sleeve-meta">' + esc(FINISHES[finish].name) + ' · ' + FINISHES[finish].cocoa + '%</span>' +
+      '<span class="sleeve-engrave">' + esc(text || '') + '</span></div>';
+  }
+  fillBar($('#heroBar'), 'pro', 'dark', '');
+  $$('.snap-art .bar').forEach(function (b) { b.innerHTML = new Array(25).join('<i></i>'); });
+
+  /* Hero: the sleeve slides off as the page scrolls. */
+  var heroBar = $('#heroBar'), hero = $('.hero'), heroTick = 0;
+  function unwrap() {
+    heroTick = 0;
+    var r = hero.getBoundingClientRect();
+    var p = Math.min(1, Math.max(0, -r.top / (r.height * 0.45)));
+    heroBar.style.setProperty('--unwrap', reduced ? '0' : p.toFixed(3));
+  }
+  window.addEventListener('scroll', function () { if (!heroTick) heroTick = requestAnimationFrame(unwrap); }, { passive: true });
+  unwrap();
+
+  /* ---------- Highlights rail ---------- */
+  var rail = $('#rail'), cards = $$('.card', rail);
+  function railIndex() {
+    var x = rail.scrollLeft, best = 0, d = Infinity;
+    cards.forEach(function (c, i) { var dd = Math.abs(c.offsetLeft - cards[0].offsetLeft - x); if (dd < d) { d = dd; best = i; } });
+    if (rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 2) best = cards.length - 1;
+    return best;
+  }
+  function goTo(i) {
+    i = Math.max(0, Math.min(cards.length - 1, i));
+    rail.scrollTo({ left: cards[i].offsetLeft - cards[0].offsetLeft, behavior: reduced ? 'auto' : 'smooth' });
+    LG.select('#railDots', i);
+  }
+  var railTick = 0;
+  rail.addEventListener('scroll', function () {
+    if (!railTick) railTick = requestAnimationFrame(function () { railTick = 0; LG.select('#railDots', railIndex()); });
+  }, { passive: true });
+  $('#railPrev').addEventListener('click', function () { goTo(railIndex() - 1); });
+  $('#railNext').addEventListener('click', function () { goTo(railIndex() + 1); });
+  $('#railDots').addEventListener('lg-change', function (e) { goTo(e.detail.index); });
+  rail.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight') { e.preventDefault(); goTo(railIndex() + 1); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(railIndex() - 1); }
+  });
+
+  /* ---------- Finishes: showcase and configurator share the choice ---------- */
+  function swatchesHTML(name) {
+    return Object.keys(FINISHES).map(function (k) {
+      var f = FINISHES[k];
+      return '<label class="swatch" style="--sw:' + f.sw + '"><input type="radio" name="' + name + '" value="' + k + '"' + (k === state.finish ? ' checked' : '') + '>' +
+        '<span class="dot" aria-hidden="true"></span><span class="swatch-name">' + f.name + '</span></label>';
+    }).join('');
+  }
+  $('#showSwatches').innerHTML = swatchesHTML('finishShow');
+  $('#buySwatches').innerHTML = swatchesHTML('finishBuy');
+  function setFinish(k) {
+    state.finish = k;
+    $$('input[name="finishShow"], input[name="finishBuy"]').forEach(function (i) { i.checked = i.value === k; });
+    var f = FINISHES[k];
+    fillBar($('#finishBar'), 'pro', k, '');
+    $('#finishBar').setAttribute('aria-label', 'Tábla Pro, ' + f.name.toLowerCase());
+    $('#finishCaption').innerHTML = '<b>' + f.name + ', ' + f.cocoa + '% kakaó.</b> ' + esc(f.note);
+    fillBar($('#engraveBar'), 'pro', k, state.text || DEFAULT_TEXT);
+    renderBuy();
+  }
+  $('#showSwatches').addEventListener('change', function (e) { setFinish(e.target.value); });
+  $('#buySwatches').addEventListener('change', function (e) { setFinish(e.target.value); });
+
+  /* Draggable lens over the bar (pointer or arrow keys). */
+  var lens = $('#lens'), stage = $('#finishStage'), lensPos = [0, 0];
+  function placeLens(x, y) {
+    var r = stage.getBoundingClientRect(), s = lens.offsetWidth;
+    lensPos = [Math.max(0, Math.min(r.width - s, x)), Math.max(0, Math.min(r.height - s, y))];
+    lens.style.setProperty('--x', lensPos[0] + 'px');
+    lens.style.setProperty('--y', lensPos[1] + 'px');
+  }
+  function resetLens() { var r = stage.getBoundingClientRect(); placeLens(r.width / 2 + 6, r.height * 0.14); }
+  resetLens();
+  window.addEventListener('resize', resetLens);
+  lens.addEventListener('pointerdown', function (e) {
+    var sx = e.clientX, sy = e.clientY, start = lensPos.slice();
+    try { lens.setPointerCapture(e.pointerId); } catch (_) {}
+    function move(ev) { placeLens(start[0] + ev.clientX - sx, start[1] + ev.clientY - sy); }
+    function up() { lens.removeEventListener('pointermove', move); lens.removeEventListener('pointerup', up); lens.removeEventListener('pointercancel', up); }
+    lens.addEventListener('pointermove', move);
+    lens.addEventListener('pointerup', up);
+    lens.addEventListener('pointercancel', up);
+  });
+  lens.addEventListener('keydown', function (e) {
+    var step = e.shiftKey ? 40 : 12, d = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] }[e.key];
+    if (!d) return;
+    e.preventDefault();
+    placeLens(lensPos[0] + d[0], lensPos[1] + d[1]);
+  });
+
+  /* ---------- Engraving ---------- */
+  var engraveInput = $('#engraveInput'), engraveBuy = $('#engraveBuy');
+  function setText(t, from) {
+    state.text = String(t).slice(0, 18);
+    if (from !== engraveInput) engraveInput.value = state.text;
+    if (from !== engraveBuy) engraveBuy.value = state.text;
+    $('#engraveCount').textContent = state.text.length + '/18 karakter';
+    var line = $('#engraveBar .sleeve-engrave');
+    if (line) line.textContent = state.text || DEFAULT_TEXT;
+    renderBuy();
+  }
+  engraveInput.addEventListener('input', function () { setText(engraveInput.value, engraveInput); });
+  engraveBuy.addEventListener('input', function () { setText(engraveBuy.value, engraveBuy); });
+  $('#engraveOn').addEventListener('change', function () {
+    state.engrave = this.checked;
+    engraveBuy.hidden = !this.checked;
+    renderBuy();
+  });
+  $('#engraveAdd').addEventListener('click', function () {
+    state.engrave = true;
+    $('#engraveOn').checked = true;
+    engraveBuy.hidden = false;
+    setText(engraveInput.value.trim() || DEFAULT_TEXT);
+    $('#vasarlas').scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' });
+  });
+
+  /* ---------- Lineup + compare ---------- */
+  $('#lineup').innerHTML = Object.keys(MODELS).map(function (k) {
+    var m = MODELS[k];
+    return '<div class="model"><div class="model-art" aria-hidden="true"><div class="bar" data-lineup="' + k + '"></div></div>' +
+      '<div class="dots" aria-hidden="true">' + Object.keys(FINISHES).map(function (f) { return '<i style="background:' + FINISHES[f].sw + '"></i>'; }).join('') + '</div>' +
+      '<h3>' + m.name + '</h3><p class="tag">' + m.tag + '</p><p class="from">' + money(m.price) + '-tól</p>' +
+      '<div class="actions"><a class="lg-button lg-button--prominent lg-button--small" href="#vasarlas" data-pick-model="' + k + '" aria-label="' + m.name + ' vásárlása">Vásárlás</a></div></div>';
+  }).join('');
+  $$('[data-lineup]').forEach(function (b) { fillBar(b, b.getAttribute('data-lineup'), 'dark', ''); });
+  var ROWS = [
+    ['Tömeg', MODELS.pro.weight, MODELS.air.weight, MODELS.mini.weight],
+    ['Textúra', MODELS.pro.texture, MODELS.air.texture, MODELS.mini.texture],
+    ['Ízek', 'Mind a négy', 'Mind a négy', 'Mind a négy'],
+    ['Étcsoki kakaótartalma', '85%', '85%', '85%'],
+    ['Energia', MODELS.pro.kcal, MODELS.air.kcal, MODELS.mini.kcal],
+    ['Gravírozás', 'Ingyenes', 'Ingyenes', 'Ingyenes'],
+  ];
+  $('#compare tbody').innerHTML = ROWS.map(function (r) { return '<tr><th scope="row">' + r[0] + '</th><td>' + r[1] + '</td><td>' + r[2] + '</td><td>' + r[3] + '</td></tr>'; }).join('');
+
+  /* ---------- Configurator ---------- */
+  function renderOptions() {
+    $('#modelOptions').innerHTML = Object.keys(MODELS).map(function (k) {
+      var m = MODELS[k];
+      return '<label class="option"><input type="radio" name="model" value="' + k + '"' + (k === state.model ? ' checked' : '') + '>' +
+        '<span class="option-name">' + m.name + '<small>' + m.weight + ' · ' + m.texture.toLowerCase() + '</small></span>' +
+        '<span class="option-price">' + money(m.price) + '-tól</span></label>';
+    }).join('');
+    $('#packOptions').innerHTML = PACKS.map(function (p, i) {
+      var total = packPrice(state.model, i), full = MODELS[state.model].price * p.n;
+      return '<label class="option">' + (p.flag ? '<span class="flag' + (p.save ? ' flag--save' : '') + '">' + p.flag + '</span>' : '') +
+        '<input type="radio" name="pack" value="' + i + '"' + (i === state.pack ? ' checked' : '') + '>' +
+        '<span class="option-name">' + p.name + '<small>' + (p.n > 1 ? 'táblánként ' + money(unit(state.model, i)) : 'kipróbálásra') + '</small></span>' +
+        '<span class="option-price">' + money(total) + (total < full ? '<small><s aria-label="eredeti ár ' + money(full) + '">' + money(full) + '</s></small>' : '') + '</span></label>';
+    }).join('');
+  }
+  function renderBuy() {
+    var m = MODELS[state.model], f = FINISHES[state.finish], p = PACKS[state.pack];
+    var total = packPrice(state.model, state.pack);
+    var text = state.engrave ? state.text.trim() : '';
+    $('#buyTitle').textContent = m.name + ' vásárlása.';
+    $('#finishName').textContent = f.name;
+    fillBar($('#buyBar'), state.model, state.finish, text);
+    $('#totalPrice').textContent = money(total);
+    $('#unitPrice').textContent = p.n > 1 ? 'táblánként ' + money(unit(state.model, state.pack)) : '';
+    $('#summaryLine').textContent = m.name + ', ' + f.name.toLowerCase() + ', ' + p.name.toLowerCase() + (text ? ', „' + text + '” felirattal' : '') + '. ' + (total >= FREE ? 'A hűtött szállítás ingyenes.' : 'Szállítás 990 Ft, 10 000 Ft felett ingyen.');
+    $('#addToBag').textContent = 'Kosárba · ' + money(total);
+  }
+  function setModel(k) {
+    if (!MODELS[k]) return;
+    state.model = k;
+    renderOptions();
+    renderBuy();
+  }
+  $('#modelOptions').addEventListener('change', function (e) { setModel(e.target.value); });
+  $('#packOptions').addEventListener('change', function (e) { state.pack = +e.target.value; renderBuy(); });
+  document.addEventListener('click', function (e) {
+    var pick = e.target.closest && e.target.closest('[data-pick-model]');
+    if (pick) setModel(pick.getAttribute('data-pick-model'));
+  });
+  function iso(d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+  var tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  $('#shipDate').setAttribute('data-min', iso(tomorrow));
+  $('#shipDate').setAttribute('data-value', iso(tomorrow));
+
+  /* ---------- Bag ---------- */
+  var bag = [];
+  try { bag = JSON.parse(localStorage.getItem('tabla-bag') || '[]').filter(function (i) { return i && MODELS[i.model] && FINISHES[i.finish] && PACKS[i.pack] && i.qty > 0; }); } catch (_) { bag = []; }
+  var save = function () { try { localStorage.setItem('tabla-bag', JSON.stringify(bag)); } catch (_) {} };
+  var bagSheet = LG.sheet('#bagSheet');
   var dayFmt = new Intl.DateTimeFormat('hu-HU', { month: 'short', day: 'numeric' });
-  var dayText = function (v) { var p = v.split('-'); return dayFmt.format(new Date(+p[0], +p[1] - 1, +p[2])); };
-  var earliest = function () { var d = new Date(); d.setDate(d.getDate() + 2); return iso(d); };
+  var dayText = function (v) { var p = String(v).split('-'); return p.length === 3 ? dayFmt.format(new Date(+p[0], +p[1] - 1, +p[2])) : ''; };
+  var keyOf = function (i) { return [i.model, i.finish, i.pack, i.text, i.date, i.time].join('|'); };
 
-  /* ---------- Ticker ---------- */
-  var tick = LIGHTS.map(function (l) { return '<span><b>' + l.time + '</b> ' + esc(l.place) + ' · ' + kelvin(l.k) + '</span>'; }).join('');
-  $('#ticker').innerHTML = tick + tick.replace(/<span>/g, '<span aria-hidden="true">');
-
-  /* ---------- Product grid ---------- */
-  var filter = 'all', sort = 'featured';
-  function vialHTML(l) {
-    return '<div class="vial" role="img" aria-label="' + esc(l.name) + ' egy üvegfiolában">' +
-      '<div class="vial-shadow"></div><div class="vial-light"><i></i><i></i><i></i></div>' +
-      '<div class="vial-glass lg-glass lg-glass--clear" data-lg-magnify="1.14" data-lg-bezel="26" data-lg-depth="0.55"></div>' +
-      '<div class="vial-cap"></div><span class="vial-tag lg-glass lg-glass--clear">№ ' + l.batch + '</span></div>';
-  }
-  function renderGrid() {
-    var list = LIGHTS.filter(function (l) { return filter === 'all' || l.part === filter; });
-    if (sort === 'price-asc') list.sort(function (a, b) { return a.price - b.price; });
-    if (sort === 'price-desc') list.sort(function (a, b) { return b.price - a.price; });
-    if (sort === 'kelvin') list.sort(function (a, b) { return a.k - b.k; });
-    $('#grid').innerHTML = list.map(function (l) {
-      return '<article class="product" style="' + colors(l) + '" data-id="' + l.id + '">' +
-        '<button class="product-visual" type="button" data-open="' + l.id + '" aria-label="' + esc(l.name) + ', részletek">' + vialHTML(l) + '</button>' +
-        '<div class="product-meta"><p class="eyebrow">' + esc(l.place.split(',')[0]) + ' · ' + l.time + '</p>' +
-        '<h3>' + esc(l.name) + '</h3>' +
-        '<p class="spec"><span>' + kelvin(l.k) + '</span><span>' + lux(l.lx) + '</span><span>№ ' + l.batch + '</span></p>' +
-        '<div class="buy"><span class="price">' + money(l.price) + '</span>' +
-        '<button class="lg-button lg-button--small" type="button" data-add="' + l.id + '" aria-label="' + esc(l.name) + ' kosárba">Kosárba</button></div></div></article>';
-    }).join('') || '<p class="empty-note">Ebben a napszakban most nincs raktáron fény.</p>';
-    $('#stockNote').textContent = 'A fénytár · ' + list.length + ' fény raktáron';
-    watchVials($('#grid'));
-  }
-  $('#filter').addEventListener('change', function (e) { filter = e.target.value; renderGrid(); });
-  $('#sortMenu').addEventListener('lg-select', function (e) {
-    sort = e.detail.item.getAttribute('data-value');
-    [].forEach.call(this.querySelectorAll('.lg-menu-item'), function (b) { b.setAttribute('aria-checked', String(b === e.detail.item)); });
-    $('#sortLabel').textContent = e.detail.item.textContent;
-    renderGrid();
-  });
-  $('#grid').addEventListener('click', function (e) {
-    var open = e.target.closest('[data-open]');
-    if (open) openProduct(open.getAttribute('data-open'));
-    var add = e.target.closest('[data-add]');
-    if (add) addToCart({ id: add.getAttribute('data-add'), size: 1, gift: false, date: earliest(), time: '19:30', qty: 1 });
-  });
-
-  /* Animate only the vials on screen; the glass above them re-renders each frame. */
-  var io = 'IntersectionObserver' in window ? new IntersectionObserver(function (entries) {
-    entries.forEach(function (en) { en.target.classList.toggle('is-live', en.isIntersecting); });
-  }, { rootMargin: '80px' }) : null;
-  function watchVials(root) { if (io) [].forEach.call(root.querySelectorAll('.vial'), function (v) { io.observe(v); }); }
-  watchVials($('.hero'));
-
-  /* Hero: the light follows the pointer behind the glass. */
-  var stage = $('#heroStage');
-  var raf = 0, mx = 0, my = 0;
-  stage.addEventListener('pointermove', function (e) {
-    var r = stage.getBoundingClientRect();
-    mx = ((e.clientX - r.left) / r.width - 0.5) * 2;
-    my = ((e.clientY - r.top) / r.height - 0.5) * 2;
-    if (!raf) raf = requestAnimationFrame(function () { raf = 0; $('#heroVial').style.setProperty('--mx', mx.toFixed(3)); $('#heroVial').style.setProperty('--my', my.toFixed(3)); });
-  });
-  stage.addEventListener('pointerleave', function () { $('#heroVial').style.setProperty('--mx', 0); $('#heroVial').style.setProperty('--my', 0); });
-
-  /* ---------- Product sheet ---------- */
-  var current = null;
-  var psSheet = LG.sheet('#productSheet');
-  function selectedSize() { var c = $('#psSize input:checked'); return c ? +c.value : 1; }
-  function unitPrice(l, size, gift) { return Math.round((l.price * SIZES[size].k) / 100) * 100 + (gift ? GIFT : 0); }
-  function updateAdd() {
-    if (!current) return;
-    var qty = +$('#psQty').getAttribute('data-value') || 1;
-    $('#psAdd').textContent = 'Kosárba · ' + money(unitPrice(current, selectedSize(), $('#psGift').checked) * qty);
-  }
-  function openProduct(id) {
-    var l = byId[id];
-    if (!l) return;
-    current = l;
-    var sheetEl = $('#productSheet');
-    sheetEl.setAttribute('style', colors(l));
-    $('#psTitle').textContent = l.name;
-    $('#psVial').setAttribute('aria-label', l.name + ' egy üvegfiolában');
-    $('#psTag').textContent = '№ ' + l.batch + ' · ' + kelvin(l.k);
-    $('#psStory').textContent = l.story;
-    var rows = [['mappin.and.ellipse', 'Gyűjtés helye', l.place], ['clock', 'Időpont', l.date + ' ' + l.time], ['sun.max', 'Színhőmérséklet', kelvin(l.k)], ['eye', 'Megvilágítás', lux(l.lx)], ['location', 'Koordináta', coord(l.lat, l.lon)]];
-    $('#psSpecs').innerHTML = rows.map(function (r) {
-      return '<li class="lg-row"><span class="lg-row-title">' + r[1] + '</span><span class="lg-row-detail">' + esc(r[2]) + '</span></li>';
+  function renderBag() {
+    var count = bag.reduce(function (s, i) { return s + i.qty; }, 0);
+    $('#bagCount').hidden = !count;
+    $('#bagCount').textContent = count;
+    $('#bagBtn').setAttribute('aria-label', count ? 'Kosár, ' + count + ' tétel' : 'Kosár, üres');
+    $('#bagEmpty').hidden = count > 0;
+    $('#bagFull').hidden = !count;
+    $('#bagClear').hidden = !count;
+    $('#bagList').innerHTML = bag.map(function (i, n) {
+      var m = MODELS[i.model], f = FINISHES[i.finish], p = PACKS[i.pack];
+      return '<li class="lg-row bag-row"><span class="thumb" style="--c-bar:' + f.bar + ';--c-sleeve:' + SLEEVE[i.model] + '" aria-hidden="true"></span>' +
+        '<span class="lg-row-content"><span class="lg-row-title">' + m.name + ' · ' + f.name + '</span>' +
+        '<span class="lg-row-subtitle">' + p.name + (i.text ? ' · „' + esc(i.text) + '”' : '') + ' · ' + dayText(i.date) + ', ' + esc(i.time) + '</span></span>' +
+        '<div class="lg-stepper" data-line="' + n + '" data-min="0" data-max="9" data-value="' + i.qty + '" data-decrement-label="Eggyel kevesebb: ' + m.name + '" data-increment-label="Eggyel több: ' + m.name + '"></div>' +
+        '<span class="price">' + money(packPrice(i.model, i.pack) * i.qty) + '</span></li>';
     }).join('');
-    LG.select('#psSize', 1);
-    $('#psSize input[value="1"]').checked = true;
-    $('#psBright input').value = 85;
-    $('#psVial').style.setProperty('--glow', 0.85);
-    $('#psGift').checked = false;
-    var date = $('#psDate');
-    date.setAttribute('data-min', earliest());
-    date.setAttribute('data-value', earliest());
-    LG.select('#psTime', '19:30');
-    LG.select('#psQty', 1);
-    updateAdd();
-    psSheet.open('large');
-  }
-  $('#psSize').addEventListener('change', updateAdd);
-  $('#psGift').addEventListener('change', updateAdd);
-  $('#psQty').addEventListener('lg-change', updateAdd);
-  $('#psBright input').addEventListener('input', function () { $('#psVial').style.setProperty('--glow', this.value / 100); });
-  $('#psAdd').addEventListener('click', function () {
-    if (!current) return;
-    addToCart({ id: current.id, size: selectedSize(), gift: $('#psGift').checked, date: $('#psDate').getAttribute('data-value') || earliest(), time: $('#psTime').getAttribute('data-value') || '19:30', qty: +$('#psQty').getAttribute('data-value') || 1 });
-    psSheet.close();
-  });
-
-  /* ---------- Cart ---------- */
-  var cart = [];
-  try { cart = JSON.parse(localStorage.getItem('derenges-cart') || '[]').filter(function (i) { return byId[i.id]; }); } catch (_) { cart = []; }
-  var save = function () { try { localStorage.setItem('derenges-cart', JSON.stringify(cart)); } catch (_) {} };
-  var keyOf = function (i) { return [i.id, i.size, i.gift ? 1 : 0, i.date, i.time].join('|'); };
-  var cartSheet = LG.sheet('#cartSheet');
-
-  function addToCart(item) {
-    var k = keyOf(item);
-    var same = cart.filter(function (i) { return keyOf(i) === k; })[0];
-    if (same) same.qty = Math.min(9, same.qty + item.qty);
-    else cart.push(item);
-    save();
-    renderCart();
-    var btn = $('#cartBtn');
-    btn.classList.remove('is-bumped');
-    void btn.offsetWidth;
-    btn.classList.add('is-bumped');
-    var l = byId[item.id];
-    LG.toast({ title: 'Kosárba tettük', message: l.name + ' · ' + SIZES[item.size].label + (item.qty > 1 ? ' · ' + item.qty + ' db' : ''), icon: LG.icon('bag', { size: 20 }), iconBackground: l.c[1], time: 'most', duration: 3200, onClick: function () { cartSheet.open(); } });
-  }
-
-  function renderCart() {
-    var count = cart.reduce(function (s, i) { return s + i.qty; }, 0);
-    var badge = $('#cartCount');
-    badge.hidden = count === 0;
-    badge.textContent = count;
-    $('#cartBtn').setAttribute('aria-label', count ? 'Kosár, ' + count + ' tétel' : 'Kosár, üres');
-    $('#cartEmpty').hidden = count > 0;
-    $('#cartFull').hidden = count === 0;
-    $('#cartClear').hidden = count === 0;
-    $('#cartList').innerHTML = cart.map(function (i, n) {
-      var l = byId[i.id];
-      return '<li class="lg-row cart-row" style="' + colors(l) + '"><span class="mini" aria-hidden="true"></span>' +
-        '<span class="lg-row-content"><span class="lg-row-title">' + esc(l.name) + '</span>' +
-        '<span class="lg-row-subtitle">' + SIZES[i.size].label + (i.gift ? ' · ajándék' : '') + ' · ' + dayText(i.date) + ', ' + i.time + '</span></span>' +
-        '<div class="lg-stepper lg-stepper--small" data-line="' + n + '" data-min="0" data-max="9" data-value="' + i.qty + '" data-decrement-label="Eggyel kevesebb: ' + esc(l.name) + '" data-increment-label="Eggyel több: ' + esc(l.name) + '"></div>' +
-        '<span class="price">' + money(unitPrice(l, i.size, i.gift) * i.qty) + '</span></li>';
-    }).join('');
-    var sub = cart.reduce(function (s, i) { return s + unitPrice(byId[i.id], i.size, i.gift) * i.qty; }, 0);
-    var ship = sub >= FREE_SHIP || sub === 0 ? 0 : SHIP;
+    var sub = bag.reduce(function (s, i) { return s + packPrice(i.model, i.pack) * i.qty; }, 0);
+    var ship = !sub || sub >= FREE ? 0 : SHIP;
     $('#subTotal').textContent = money(sub);
     $('#shipTotal').textContent = ship ? money(ship) : 'Ingyenes';
     $('#grandTotal').textContent = money(sub + ship);
-    $('#shipHint').textContent = sub >= FREE_SHIP ? 'Ingyenes kiszállítás jár a rendelésedhez.' : 'Még ' + money(FREE_SHIP - sub) + ' az ingyenes kiszállításig.';
-    $('#shipMeter').style.setProperty('--p', Math.min(100, (sub / FREE_SHIP) * 100) + '%');
+    $('#meterText').textContent = sub >= FREE ? 'A hűtött szállítás ingyenes.' : 'Még ' + money(FREE - sub) + ', és ingyen szállítjuk.';
+    $('#meterBar').style.setProperty('--p', Math.min(100, (sub / FREE) * 100) + '%');
   }
-  $('#cartList').addEventListener('lg-change', function (e) {
-    var n = +e.target.getAttribute('data-line');
-    if (!cart[n]) return;
-    cart[n].qty = e.detail.value;
-    if (!cart[n].qty) cart.splice(n, 1);
+  function bump() {
+    var b = $('#bagBtn');
+    b.classList.remove('is-bumped');
+    void b.offsetWidth;
+    b.classList.add('is-bumped');
+  }
+  function flyToBag() {
+    var from = $('#buyBar').getBoundingClientRect(), to = $('#bagBtn').getBoundingClientRect();
+    if (reduced || !from.width || !to.width || !document.body.animate) { bump(); return; }
+    var fly = document.createElement('div');
+    fly.className = 'fly';
+    fly.setAttribute('aria-hidden', 'true');
+    fly.style.background = 'linear-gradient(180deg,' + FINISHES[state.finish].bar + ' 0 44%,' + SLEEVE[state.model] + ' 44%)';
+    document.body.appendChild(fly);
+    var x0 = from.left + from.width / 2 - 20, y0 = from.top + from.height / 2 - 28;
+    var x1 = to.left + to.width / 2 - 20, y1 = to.top + to.height / 2 - 28;
+    var a = fly.animate([
+      { transform: 'translate(' + x0 + 'px,' + y0 + 'px) scale(2.2) rotate(-8deg)', opacity: 0.95 },
+      { transform: 'translate(' + (x0 + x1) / 2 + 'px,' + (Math.min(y0, y1) - 120) + 'px) scale(1.2) rotate(8deg)', opacity: 1, offset: 0.55 },
+      { transform: 'translate(' + x1 + 'px,' + y1 + 'px) scale(0.3) rotate(0deg)', opacity: 0.2 },
+    ], { duration: 820, easing: 'cubic-bezier(0.5, 0, 0.25, 1)' });
+    a.onfinish = function () { fly.remove(); bump(); };
+  }
+  $('#buyForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var item = {
+      model: state.model, finish: state.finish, pack: state.pack,
+      text: state.engrave ? state.text.trim() : '',
+      date: $('#shipDate').getAttribute('data-value') || iso(tomorrow),
+      time: $('#shipTime').getAttribute('data-value') || '17:00',
+      qty: 1,
+    };
+    var same = bag.filter(function (i) { return keyOf(i) === keyOf(item); })[0];
+    if (same) same.qty = Math.min(9, same.qty + 1);
+    else bag.push(item);
     save();
-    renderCart();
+    renderBag();
+    flyToBag();
+    LG.toast({ title: 'Kosárba tettük', message: MODELS[item.model].name + ' · ' + FINISHES[item.finish].name + ' · ' + PACKS[item.pack].name.toLowerCase(), icon: LG.icon('bag', { size: 20 }), iconBackground: '#0071e3', time: 'most', duration: 3500, onClick: function () { bagSheet.open(); } });
   });
-  $('#cartBtn').addEventListener('click', function () { cartSheet.open(); });
-  $('#tabCart').addEventListener('click', function () { cartSheet.open(); });
-  $('#cartClear').addEventListener('click', function () { cart = []; save(); renderCart(); });
+  $('#bagList').addEventListener('lg-change', function (e) {
+    var n = +e.target.getAttribute('data-line');
+    if (!bag[n]) return;
+    bag[n].qty = e.detail.value;
+    if (!bag[n].qty) bag.splice(n, 1);
+    save();
+    renderBag();
+  });
+  $('#bagBtn').addEventListener('click', function () { bagSheet.open(); });
+  $('#bagClear').addEventListener('click', function () { bag = []; save(); renderBag(); });
   $('#checkout').addEventListener('click', function () {
     LG.alert({
       title: 'Ez egy bemutató bolt',
-      message: 'A Derengés kitalált üzlet a Liquid Glass Kit bemutatására. Nem történt fizetés, és semmit sem szállítunk ki.',
+      message: 'A Tábla kitalált márka a Liquid Glass Kit bemutatására. Nem történt fizetés, és nem szállítunk ki semmit.',
       actions: [{ label: 'Kosár ürítése', role: 'destructive', value: 'clear' }, { label: 'Rendben', prominent: true, value: 'ok' }],
-    }).then(function (v) { if (v === 'clear') { cart = []; save(); renderCart(); cartSheet.close(); } });
+    }).then(function (v) { if (v === 'clear') { bag = []; save(); renderBag(); bagSheet.close(); } });
   });
 
-  /* ---------- Subscription ---------- */
-  $('#billing').addEventListener('change', function (e) {
-    var yearly = e.target.value === 'year';
-    $('#planPrice').textContent = yearly ? money(99000) : money(9900);
-    $('#planPer').textContent = yearly ? '/ év' : '/ hónap';
-  });
-  $('#planBtn').addEventListener('click', function () {
-    var yearly = $('#billing input:checked').value === 'year';
-    LG.toast({ title: 'Fénynaptár (bemutató)', message: (yearly ? 'Éves' : 'Havi') + ' előfizetést választottál. Ebben a demóban nem jön létre valódi előfizetés.', icon: LG.icon('calendar', { size: 20 }), iconBackground: '#7c3aed', time: 'most' });
-  });
-
-  /* ---------- Newsletter ---------- */
-  $('#letterForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    var field = $('#letterEmail');
-    var ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(field.value.trim());
-    field.setAttribute('aria-invalid', String(!ok));
-    $('#letterHint').textContent = ok ? 'Köszönjük! Ez egy bemutató, levelet nem küldünk.' : 'Ez nem tűnik e-mail-címnek. Így nézzen ki: nev@pelda.hu';
-    if (ok) { field.value = ''; LG.toast({ title: 'Feliratkoztál', message: 'Szólunk, ha új fény érkezik (bemutató).', icon: LG.icon('envelope', { size: 20 }), iconBackground: '#2f5bd3', time: 'most' }); }
-  });
-
-  /* Phone tab bar follows the section on screen. */
-  if ('IntersectionObserver' in window) {
-    var tabFor = { top: 0, fenytar: 1, gyujtes: 1, elofizetes: 2, gyik: 3 };
-    var spy = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        if (en.isIntersecting) LG.select('.shop-tabbar', tabFor[en.target.id === 'hero' ? 'top' : en.target.id]);
-      });
-    }, { rootMargin: '-45% 0px -50% 0px' });
-    ['#hero', '#fenytar', '#gyujtes', '#elofizetes', '#gyik'].forEach(function (s) { var el = $(s); if (el) spy.observe(el); });
-  }
-
-  renderGrid();
-  renderCart();
+  setFinish('dark');
+  renderOptions();
+  renderBuy();
+  renderBag();
 })();
 </script>
 </body>
