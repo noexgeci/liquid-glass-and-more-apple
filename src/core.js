@@ -2102,10 +2102,11 @@ function initStepper(el) {
   let value = numAttr(el, 'data-value', 0);
   const output = $(el.getAttribute('data-lg-output'));
   if (!el.querySelector('button')) {
-    el.innerHTML =
-      '<button type="button" aria-label="Decrement" data-lg-step="-1">' + MINUS + '</button>' +
-      '<span class="lg-stepper-divider" aria-hidden="true"></span>' +
-      '<button type="button" aria-label="Increment" data-lg-step="1">' + PLUS + '</button>';
+    const dec = create('button', null, { type: 'button', 'aria-label': el.getAttribute('data-decrement-label') || 'Decrement', 'data-lg-step': '-1' });
+    const inc = create('button', null, { type: 'button', 'aria-label': el.getAttribute('data-increment-label') || 'Increment', 'data-lg-step': '1' });
+    dec.innerHTML = MINUS;
+    inc.innerHTML = PLUS;
+    el.replaceChildren(dec, create('span', 'lg-stepper-divider', { 'aria-hidden': 'true' }), inc);
   }
   const buttons = $$('button', el);
   const render = () => {
@@ -2124,6 +2125,12 @@ function initStepper(el) {
     render();
     emit(el, 'lg-change', { value });
   });
+  state(el).select = (v) => {
+    const n = parseFloat(v);
+    if (isNaN(n)) return;
+    value = clamp(n, min, max);
+    render();
+  };
   render();
 }
 
@@ -2204,6 +2211,8 @@ function lift(el) {
     try {
       el.showPopover();
       s.lifted = 'popover';
+      // Notification banners stay above whatever is presented after them.
+      if (el !== toastHost && toastHost && toastHost.childElementCount && state(toastHost).lifted) lift(toastHost);
       return;
     } catch (_) {
       if (s.ownPopover) el.removeAttribute('popover');
@@ -3157,7 +3166,8 @@ export function destroy(root) {
 
 /**
  * Selects an item of a segmented control, tab bar, page control or wheel
- * column by index, or a day of a calendar / date picker by ISO date.
+ * column by index, a day of a calendar / date picker by ISO date, a time
+ * picker's `HH:MM`, or a stepper's value.
  */
 export function select(el, index) {
   el = $(el);

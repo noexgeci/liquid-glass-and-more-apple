@@ -223,6 +223,8 @@ A rendererben ugyanúgy használod, mint bármely weboldalon (`<link>` + `<scrip
 
 Példa: [`examples/electron`](examples/electron).
 
+**Teljes oldal példa:** [`examples/shop`](examples/shop), a *Derengés* kitalált fénybolt (palackozott napfelkelték). Csak a kit komponenseiből épül: terméklap sheetben méret-, dátum- és időválasztóval, kosár, értesítések, rendezőmenü, telefonon üveg tab bar.
+
 ## Vue, Svelte, Astro, Angular
 
 A CSS osztályok keretrendszer-függetlenek. A kliens oldalon egyszer indítsd el a magot, és az új elemeket magától felismeri:

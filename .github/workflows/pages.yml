@@ -31,6 +31,8 @@ jobs:
           cp -r dist _site/dist
           cp -r examples/html _site/example
           sed -i 's#\.\./\.\./dist/#../dist/#g' _site/example/index.html
+          mkdir -p _site/shop
+          sed 's#\.\./\.\./dist/#../dist/#g' examples/shop/index.html > _site/shop/index.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

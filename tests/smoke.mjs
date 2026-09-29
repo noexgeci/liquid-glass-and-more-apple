@@ -264,6 +264,27 @@ await legacy.keyboard.press('Escape');
 check('fallback: menu returns home', await luntil(() => { const el = document.getElementById('menu'); return el.hidden && el.parentNode.id === 'menuHome'; }));
 await legacy.close();
 
+// Example shop (examples/shop): the kit inside a real page
+const shop = await browser.newPage({ viewport: { width: 1200, height: 860 } });
+shop.on('pageerror', (e) => errors.push('shop: ' + e.message));
+await shop.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
+await shop.goto(pathToFileURL(path.join(root, 'examples/shop/index.html')).href);
+const suntil = (fn) => shop.waitForFunction(fn, null, { timeout: 4000 }).then(() => true, () => false);
+check('shop: grid renders all lights, empty cart badge hidden', await suntil(() => document.querySelectorAll('#grid .product').length === 8 && getComputedStyle(document.getElementById('cartCount')).display === 'none'));
+await shop.click('#filter label:has(input[value="alkony"])');
+check('shop: filter by time of day', await suntil(() => document.querySelectorAll('#grid .product').length === 3));
+await shop.click('#filter label:has(input[value="all"])');
+await shop.click('[data-open="aurora"]');
+check('shop: product sheet opens with its price', await suntil(() => document.getElementById('productSheet').classList.contains('is-open') && /24\s900\sFt/.test(document.getElementById('psAdd').textContent)));
+await shop.click('#psSize label:has(input[value="2"])');
+await shop.click('#psQty button[data-lg-step="1"]');
+check('shop: size and quantity update the price', await suntil(() => /104\s600\sFt/.test(document.getElementById('psAdd').textContent)));
+await shop.click('#psAdd');
+await shop.waitForTimeout(500);
+await shop.click('#cartBtn');
+check('shop: cart shows the line and total, not the empty state', await suntil(() => document.querySelectorAll('#cartList .cart-row').length === 1 && /^104\s600\sFt$/.test(document.getElementById('grandTotal').textContent) && getComputedStyle(document.getElementById('cartEmpty')).display === 'none'));
+await shop.close();
+
 check('no page errors', errors.length === 0, errors.join(' | '));
 await browser.close();
 console.log(failed ? `\n${failed} check(s) failed` : '\nall checks passed');

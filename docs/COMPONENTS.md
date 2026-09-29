@@ -132,7 +132,7 @@ Button variant: `<button aria-pressed="true">` children, emits `lg-change` `{ in
 <div class="lg-stepper" data-min="0" data-max="10" data-step="1" data-value="2" data-lg-output="#count"></div>
 ```
 
-Emits `lg-change` `{ value }`. `<Stepper value={n} onValueChange={setN} min={0} max={10} />`.
+Emits `lg-change` `{ value }`. Button labels for screen readers: `data-decrement-label`, `data-increment-label` (default "Decrement" / "Increment"). `<Stepper value={n} onValueChange={setN} min={0} max={10} decrementLabel incrementLabel />`.
 
 ### Wheel picker
 
