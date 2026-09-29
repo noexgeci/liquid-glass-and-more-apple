@@ -152,7 +152,8 @@ export declare function enhance(el: Element | string): () => void;
 export declare function destroy(root: Element | string): void;
 /**
  * Selects an item of a segmented control, tab bar, page control or wheel
- * column by index, or a day of a calendar / date picker by `YYYY-MM-DD`.
+ * column by index, a day of a calendar / date picker by `YYYY-MM-DD`, a
+ * time picker's `HH:MM`, or a stepper's value.
  */
 export declare function select(el: Element | string, index: number | string): void;
 /** Re-measures an enhanced component after external layout changes. */

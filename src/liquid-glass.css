@@ -1843,6 +1843,10 @@ button.lg-row:active,
 }
 .lg-tooltip.is-open { opacity: 1; transform: none; }
 
+/* `hidden` always wins over a component's own display value (badges, rows,
+   cards and friends set display: grid/flex, which would otherwise show them). */
+:where([class^="lg-"], [class*=" lg-"])[hidden] { display: none !important; }
+
 /* ==========================================================================
    9. Presentations — alert, action sheet, sheet, menu/popover, toast
    ========================================================================== */
