@@ -1,4 +1,26 @@
+<p align="center"><img src="docs/assets/demo.jpg" alt="Liquid Glass Kit demo page: the hero with a refracting glass lens over the title" width="100%"></p>
+
 # Liquid Glass Kit
+
+**Apple's Liquid Glass for the web: real refraction, iOS 26 / macOS 26 components, React and Next.js support.** One `<link>` and one `<script>`, or `npm install`, and you are done.
+
+**[Live demo](https://noexgeci.github.io/liquid-glass-and-more-apple/)** · **[Example landing page](https://noexgeci.github.io/liquid-glass-and-more-apple/detailing/)** · [Component reference](docs/COMPONENTS.md) · [English docs ↓](#english) · [Magyar ↓](#tartalom)
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/assets/materials.jpg" alt="Regular, clear and tinted glass refracting the content behind them, plus adaptive glass switching between dark and light"><br><sub><b>Materials</b> · regular, clear, tinted and adaptive glass with a per-element refraction map</sub></td>
+    <td width="50%"><img src="docs/assets/controls.jpg" alt="Buttons, switches, sliders, segmented control, stepper, wheel picker and calendar"><br><sub><b>Controls</b> · buttons, switches, sliders, segmented control, wheel picker, calendar</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/assets/detailing-packages.jpg" alt="Dark detailing studio landing page with three package cards and add-on switches"><br><sub><b>Example page</b> · a dark, monochrome landing page built only from the kit</sub></td>
+    <td width="50%"><img src="docs/assets/detailing-booking.jpg" alt="Booking card with a calendar, time picker and a live price summary"><br><sub><b>Booking</b> · calendar, time picker and live pricing on the same page</sub></td>
+  </tr>
+  <tr>
+    <td colspan="2"><img src="docs/assets/presentations.jpg" alt="Alert, action sheet, sheet, menu, popover and notification triggers"><br><sub><b>Presentations</b> · alerts, sheets, menus, popovers and notifications open from where you tap, in the top layer</sub></td>
+  </tr>
+</table>
+
+## Magyarul
 
 **Apple Liquid Glass UI a webre: valódi fénytöréssel, iOS 26 / macOS 26 komponensekkel, React és Next.js támogatással.**
 Egy sima `<link>` és `<script>`, vagy `npm install`, és kész.
@@ -6,8 +28,6 @@ Egy sima `<link>` és `<script>`, vagy `npm install`, és kész.
 > Mivel még nincs olyan UI, amit bárki letölthet és egyből használhat weboldalhoz vagy webfejlesztéshez, mi készítjük el az 1:1 Liquid Glasst az apple.com-os stílusban. Minden érték (színek, betűméretek, betűközök, vezérlőméretek) az Apple [Human Interface Guidelines](https://developer.apple.com/design/) oldaláról származik.
 
 **Élő demó:** [noexgeci.github.io/liquid-glass-and-more-apple](https://noexgeci.github.io/liquid-glass-and-more-apple/) (a GitHub Pages egyszeri bekapcsolása után: Settings → Pages → Source: *GitHub Actions*). Helyben: `npm run serve`, majd [localhost:3000](http://localhost:3000).
-
-[English below ↓](#english)
 
 ---
 
