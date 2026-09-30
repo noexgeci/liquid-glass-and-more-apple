@@ -257,12 +257,17 @@ await legacy.addInitScript(() => {
   delete HTMLElement.prototype.hidePopover;
 });
 await legacy.goto(url);
-const luntil = (fn) => legacy.waitForFunction(fn, null, { timeout: 4000 }).then(() => true, () => false);
+// A busy CI runner can stall this page for seconds (software GL), so wait on
+// conditions with a generous timeout rather than on fixed delays.
+const luntil = (fn) => legacy.waitForFunction(fn, null, { timeout: 10000 }).then(() => true, () => false);
 await legacy.click('#open-sheet');
 check('fallback: sheet opens from <body>', await luntil(() => { const el = document.getElementById('sheet'); return el.classList.contains('is-open') && el.parentNode === document.body; }));
-await legacy.waitForTimeout(400);
+// The open has settled once focus has moved into the sheet.
+await luntil(() => document.getElementById('sheet').contains(document.activeElement));
 await legacy.keyboard.press('Escape');
-check('fallback: sheet returns to its form', await luntil(() => { const el = document.getElementById('sheet'); return el.hidden && el.parentNode.id === 'sheetForm'; }));
+const sheetHome = await luntil(() => { const el = document.getElementById('sheet'); return el.hidden && el.parentNode.id === 'sheetForm'; });
+check('fallback: sheet returns to its form', sheetHome);
+if (!sheetHome) console.log('  sheet state:', await legacy.evaluate(() => { const el = document.getElementById('sheet'); return JSON.stringify({ open: el.classList.contains('is-open'), hidden: el.hidden, parent: el.parentNode.id || el.parentNode.nodeName, focus: document.activeElement && (document.activeElement.id || document.activeElement.className) }); }));
 await legacy.click('#open-menu');
 check('fallback: menu opens from <body>', await luntil(() => { const el = document.getElementById('menu'); return el.classList.contains('is-open') && el.parentNode === document.body; }));
 await legacy.keyboard.press('Escape');
