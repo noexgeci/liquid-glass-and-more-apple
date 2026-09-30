@@ -6,9 +6,8 @@
 <title>Lustre Detailing Studio</title>
 <link rel="stylesheet" href="../../dist/liquid-glass.css">
 <style>
-  /* Layout: a light-tuned detailing studio at night. Graphite walls, one
-     hero panel of paint under hexagon lights; warm ember marks defects,
-     cool ceramic cyan marks the finish and every action. */
+  /* A studio at night: black walls, white light, nothing else competing
+     with the paint. Ember is the only colour, and it only marks defects. */
   :root {
     color-scheme: dark;
     --ink: #0a0b0e;
@@ -17,48 +16,47 @@
     --mist: #f3f4f6;
     --steel: #9ba1ab;
     --line: rgb(255 255 255 / 0.09);
-    --ceramic: #7fe0ff;
+    --ceramic: #f5f5f7;
     --ember: #ff7a45;
     --display: var(--lg-font-display);
     --body: var(--lg-font);
     --mono: var(--lg-font-mono);
     --lg-accent: var(--ceramic);
-    --lg-on-accent: #03141c;
+    --lg-on-accent: #0a0b0e;
   }
   body { margin: 0; background: var(--ink); color: var(--mist); }
   [hidden] { display: none !important; }
   .studio { min-height: 100%; background: var(--ink); color: var(--mist); font: 400 17px/1.5 var(--body); letter-spacing: -0.015em; overflow-x: clip; }
-  .studio a:not(.lg-button) { color: var(--ceramic); }
+  .studio a:not(.lg-button) { color: inherit; text-underline-offset: 3px; }
   .wrap { max-width: 1120px; margin-inline: auto; padding-inline: 20px; }
   .section { padding-block: 104px; }
-  .kicker { margin: 0 0 12px; font: 600 13px/1.3 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ceramic); }
-  .h1, .h2 { margin: 0; font-family: var(--display); font-weight: 700; letter-spacing: -0.03em; text-wrap: balance; }
+  .kicker { margin: 0 0 10px; font: 500 15px/1.3 var(--body); letter-spacing: -0.01em; color: var(--steel); }
+  .h1, .h2 { margin: 0; font-family: var(--display); font-weight: 600; letter-spacing: -0.028em; text-wrap: balance; }
   .h1 { font-size: clamp(40px, 6.4vw, 80px); line-height: 1; }
   .h2 { font-size: clamp(34px, 5vw, 56px); line-height: 1.04; }
-  .h1 em, .h2 em { font-style: normal; background: linear-gradient(100deg, #fff 10%, var(--ceramic) 55%, #b9f1ff 90%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .h1 em, .h2 em { font-style: normal; color: var(--steel); }
   .lede { max-width: 36em; margin: 20px 0 0; font-size: clamp(18px, 2vw, 21px); line-height: 1.45; color: var(--steel); text-wrap: pretty; }
-  .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .num { font-variant-numeric: tabular-nums; }
 
   /* ---------- Navigation ---------- */
   .studio .lg-globalnav { position: fixed; left: 0; right: 0; }
   .studio .lg-globalnav-bar { color: var(--lg-label); }
-  .brand { display: inline-flex; align-items: center; gap: 10px; color: inherit !important; text-decoration: none; font: 700 18px/1 var(--display); letter-spacing: 0.14em; text-transform: uppercase; }
-  .brand-mark { width: 18px; height: 18px; clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0 50%); background: linear-gradient(135deg, #fff, var(--ceramic) 60%, #2b6f86); }
+  .brand { display: inline-flex; align-items: center; gap: 10px; color: inherit !important; text-decoration: none; font: 600 19px/1 var(--display); letter-spacing: -0.01em; }
+  .brand-mark { width: 18px; height: 18px; clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0 50%); background: var(--mist); }
   .studio .lg-globalnav-links a { color: inherit !important; opacity: 0.8; font-size: 13px; text-decoration: none; }
   .studio .lg-globalnav-links a:hover { opacity: 1; }
 
   /* ---------- Hero ---------- */
   .hero { position: relative; padding-top: 124px; padding-bottom: 72px; }
-  .hero::before { content: ""; position: absolute; inset: 0 0 auto; height: 720px; background: radial-gradient(60% 55% at 70% 20%, rgb(127 224 255 / 0.10), transparent 70%), radial-gradient(40% 40% at 10% 0%, rgb(255 122 69 / 0.08), transparent 70%); pointer-events: none; }
   .hero-head { position: relative; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr); gap: 20px 48px; align-items: end; }
   .hero-title { grid-column: 1 / -1; }
   .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
   .hero-side { display: grid; gap: 14px; padding-bottom: 6px; }
   .reading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
   .reading span { color: var(--steel); font-size: 15px; }
-  .reading b { font: 600 17px/1 var(--mono); font-variant-numeric: tabular-nums; }
+  .reading b { font: 600 17px/1 var(--display); font-variant-numeric: tabular-nums; }
   .reading b i { font-style: normal; color: var(--ember); }
-  .reading b s { text-decoration: none; color: var(--ceramic); }
+  .reading b s { text-decoration: none; color: var(--mist); }
 
   /* ---------- Before / after ---------- */
   .ba-wrap { position: relative; margin-top: 44px; }
@@ -85,12 +83,12 @@
     border-radius: 50%; color: #fff; cursor: grab; outline: none;
   }
   .ba-handle:active { cursor: grabbing; }
-  .ba-handle:focus-visible { box-shadow: 0 0 0 3px var(--ceramic); }
-  .ba-tag { position: absolute; top: 18px; padding: 8px 14px; border-radius: 999px; font: 600 13px/1 var(--mono); letter-spacing: 0.02em; font-variant-numeric: tabular-nums; color: #fff; pointer-events: none; }
+  .ba-handle:focus-visible { box-shadow: 0 0 0 3px #fff; }
+  .ba-tag { position: absolute; top: 18px; padding: 8px 14px; border-radius: 999px; font: 600 13px/1 var(--body); font-variant-numeric: tabular-nums; color: #fff; pointer-events: none; }
   .ba-tag--before { left: 18px; }
   .ba-tag--before::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 50%; background: var(--ember); vertical-align: 1px; }
   .ba-tag--after { right: 18px; }
-  .ba-tag--after::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 50%; background: var(--ceramic); vertical-align: 1px; }
+  .ba-tag--after::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 50%; background: #fff; vertical-align: 1px; }
   .ba-hint { position: absolute; left: 50%; bottom: 18px; translate: -50% 0; padding: 8px 14px; border-radius: 999px; font-size: 13px; color: #fff; white-space: nowrap; pointer-events: none; transition: opacity 400ms ease; }
   .ba.is-touched .ba-hint { opacity: 0; }
   /* Close-ups: the same pair, zoomed on one area. The layers carry the clip so
@@ -107,12 +105,6 @@
   .caption p { margin: 0; }
   .caption b { color: var(--mist); font-weight: 600; }
 
-  /* ---------- Proof strip ---------- */
-  .proof { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-block: 1px solid var(--line); }
-  .proof div { display: grid; gap: 6px; padding: 28px 20px; border-left: 1px solid var(--line); }
-  .proof div:first-child { border-left: 0; padding-left: 0; }
-  .proof b { font: 700 clamp(30px, 3.6vw, 44px)/1 var(--display); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
-  .proof span { color: var(--steel); font-size: 15px; }
 
   /* ---------- Packages ---------- */
   .pkg-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 20px; }
@@ -120,9 +112,9 @@
   .tier { position: relative; display: grid; align-content: start; gap: 14px; min-width: 0; padding: 26px 24px 24px; border: 1px solid var(--line); border-radius: 28px; background: var(--panel); cursor: pointer; transition: border-color 200ms ease, transform 300ms var(--lg-ease-bouncy), background-color 200ms ease; }
   .tier input { position: absolute; opacity: 0; pointer-events: none; }
   .tier:hover { border-color: rgb(255 255 255 / 0.2); }
-  .tier:has(input:checked) { border-color: var(--ceramic); background: linear-gradient(180deg, rgb(127 224 255 / 0.08), transparent 45%), var(--panel); box-shadow: inset 0 0 0 1px var(--ceramic); }
+  .tier:has(input:checked) { border-color: var(--mist); background: var(--panel-2); box-shadow: inset 0 0 0 1px var(--mist); }
   .tier:has(input:focus-visible) { outline: 3px solid var(--lg-focus-ring); outline-offset: 3px; }
-  .tier-flag { position: absolute; top: -12px; left: 22px; padding: 4px 10px; border-radius: 999px; background: var(--ceramic); color: var(--lg-on-accent); font: 700 11px/1.2 var(--body); letter-spacing: 0.04em; text-transform: uppercase; }
+  .tier-flag { position: absolute; top: 30px; right: 24px; color: var(--steel); font: 500 13px/1.2 var(--body); }
   .tier h3 { margin: 0; font: 700 24px/1.1 var(--display); letter-spacing: -0.02em; }
   .tier-price { display: flex; align-items: baseline; gap: 8px; }
   .tier-price b { font: 700 40px/1 var(--display); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
@@ -130,21 +122,20 @@
   .tier p { margin: 0; color: var(--steel); font-size: 15px; }
   .tier ul { display: grid; gap: 8px; margin: 4px 0 0; padding: 0; list-style: none; font-size: 15px; }
   .tier li { display: flex; gap: 10px; align-items: flex-start; }
-  .tier li svg { flex: none; margin-top: 3px; color: var(--ceramic); }
-  .tier .time { font: 500 13px/1 var(--mono); color: var(--steel); }
+  .tier li svg { flex: none; margin-top: 3px; color: var(--steel); }
+  .tier .time { font: 500 13px/1 var(--body); color: var(--steel); }
   .addons { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
   .addon { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; border-radius: 20px; background: var(--panel); border: 1px solid var(--line); }
   .addon span { display: grid; gap: 2px; font-weight: 600; font-size: 15px; }
   .addon small { font-weight: 400; color: var(--steel); font-size: 13px; }
 
   /* ---------- Process (a real sequence) ---------- */
-  .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin: 44px 0 0; padding: 0; list-style: none; counter-reset: step; }
-  .step { position: relative; display: grid; align-content: start; gap: 10px; min-width: 0; padding: 24px; border-radius: 26px; background: var(--panel); border: 1px solid var(--line); }
-  .step-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; color: var(--ceramic); }
-  .step h3 { margin: 6px 0 0; font: 700 20px/1.2 var(--display); letter-spacing: -0.02em; }
-  .step h3::before { counter-increment: step; content: "0" counter(step) "  "; font: 600 13px/1 var(--mono); color: var(--steel); letter-spacing: 0.04em; }
+  .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px; margin: 44px 0 0; padding: 0; list-style: none; counter-reset: step; }
+  .step { position: relative; display: grid; align-content: start; gap: 10px; min-width: 0; padding-top: 20px; border-top: 1px solid rgb(255 255 255 / 0.22); }
+  .step h3 { margin: 0; font: 600 21px/1.2 var(--display); letter-spacing: -0.02em; }
+  .step h3::before { counter-increment: step; content: counter(step); display: block; margin-bottom: 14px; font: 500 15px/1 var(--body); color: var(--steel); }
   .step p { margin: 0; color: var(--steel); font-size: 15px; }
-  .step .spec { font: 500 13px/1.4 var(--mono); color: var(--mist); opacity: 0.8; }
+  .step .spec { font: 500 13px/1.4 var(--body); color: var(--mist); }
 
   /* ---------- Booking ---------- */
   .book { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; margin-top: 40px; }
@@ -173,9 +164,6 @@
     .hero-head, .faq, .book { grid-template-columns: minmax(0, 1fr); }
     .tiers, .addons { grid-template-columns: minmax(0, 1fr); }
     .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .proof { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .proof div:nth-child(3) { border-left: 0; padding-left: 0; }
-    .proof div:nth-child(n + 3) { border-top: 1px solid var(--line); }
   }
   @media (max-width: 640px) {
     .studio .lg-globalnav-links { display: none; }
@@ -209,7 +197,7 @@
     <section class="hero wrap" id="results" aria-labelledby="heroTitle">
       <div class="hero-head">
         <div class="hero-title">
-          <p class="kicker">Paint correction · Ceramic coating</p>
+          <p class="kicker">Paint correction and ceramic coating · Portland, Oregon</p>
           <h1 class="h1" id="heroTitle">Paint that looks wet.<br><em>For nine years.</em></h1>
         </div>
         <div>
@@ -238,23 +226,15 @@
         </div>
         <div class="caption">
           <p><b>Audi RS Q8</b> · Mythos Black · Signature package · 3 days in the studio</p>
-          <p class="num">Same camera, same lights, 72 hours apart</p>
+          <p>Same camera, same lights, 72 hours apart</p>
         </div>
       </div>
     </section>
 
-    <div class="wrap">
-      <div class="proof" aria-label="Studio record">
-        <div><b class="num">4,812</b><span>cars corrected since 2017</span></div>
-        <div><b class="num">9 yr</b><span>ceramic warranty, transferable</span></div>
-        <div><b class="num">3 µm</b><span>average clear coat removed</span></div>
-        <div><b class="num">94 GU</b><span>average finish, measured</span></div>
-      </div>
-    </div>
 
-    <section class="section wrap" id="closer" aria-labelledby="closerTitle">
+    <section class="section wrap" id="closer" aria-labelledby="closerTitle" style="padding-bottom: 0">
       <p class="kicker">Look closer</p>
-      <h2 class="h2" id="closerTitle">Where the <em>three days</em> go.</h2>
+      <h2 class="h2" id="closerTitle">Where the three days go.</h2>
       <div class="details">
         <figure class="detail">
           <div class="ba ba--zoom" style="--fx: 43%; --fy: 86%; --zoom: 3">
@@ -290,7 +270,7 @@
       <div class="pkg-head">
         <div>
           <p class="kicker">Packages</p>
-          <h2 class="h2" id="pkgTitle">Pick the finish. <em>We quote the car.</em></h2>
+          <h2 class="h2" id="pkgTitle">Three packages, <em>priced by size.</em></h2>
         </div>
         <div class="lg-segmented" id="size" aria-label="Vehicle size">
           <label><input type="radio" name="size" value="coupe" checked>Coupe</label>
@@ -308,18 +288,18 @@
 
     <section class="section wrap" id="process" aria-labelledby="processTitle" style="padding-top: 0">
       <p class="kicker">Process</p>
-      <h2 class="h2" id="processTitle">Four stages. <em>No shortcuts.</em></h2>
+      <h2 class="h2" id="processTitle">How a car moves <em>through the studio.</em></h2>
       <ol class="steps">
-        <li class="step"><span class="step-icon lg-glass"><span data-lg-icon="magnifyingglass" data-size="20"></span></span><h3>Inspect</h3><p>We read paint depth on every panel before a pad touches it.</p><span class="spec">12 readings per panel · ±1 µm</span></li>
-        <li class="step"><span class="step-icon lg-glass"><span data-lg-icon="sparkles" data-size="20"></span></span><h3>Decontaminate</h3><p>Iron remover, clay and a pH-neutral wash take off what polish would grind in.</p><span class="spec">pH 7 · 3 wash buckets</span></li>
-        <li class="step"><span class="step-icon lg-glass"><span data-lg-icon="sun.max" data-size="20"></span></span><h3>Correct</h3><p>Cut and refine under 5,600 K light until the swirls are gone, not hidden.</p><span class="spec">1–3 stages · 5,600 K lights</span></li>
-        <li class="step"><span class="step-icon lg-glass"><span data-lg-icon="checkmark.circle" data-size="20"></span></span><h3>Protect</h3><p>Two layers of ceramic, cured under infrared, then a 24-hour rest indoors.</p><span class="spec">9H · 110° water contact angle</span></li>
+        <li class="step"><h3>Inspect</h3><p>We read paint depth on every panel before a pad touches it.</p><span class="spec">12 readings per panel · ±1 µm</span></li>
+        <li class="step"><h3>Decontaminate</h3><p>Iron remover, clay and a pH-neutral wash take off what polish would grind in.</p><span class="spec">pH 7 · 3 wash buckets</span></li>
+        <li class="step"><h3>Correct</h3><p>Cut and refine under 5,600 K light until the swirls are gone, not hidden.</p><span class="spec">1–3 stages · 5,600 K lights</span></li>
+        <li class="step"><h3>Protect</h3><p>Two layers of ceramic, cured under infrared, then a 24-hour rest indoors.</p><span class="spec">9H · 110° water contact angle</span></li>
       </ol>
     </section>
 
     <section class="section wrap" id="book" aria-labelledby="bookTitle" style="padding-top: 0">
       <p class="kicker">Booking</p>
-      <h2 class="h2" id="bookTitle">Pick a day. <em>We'll have the lights on.</em></h2>
+      <h2 class="h2" id="bookTitle">Book a drop-off.</h2>
       <div class="book">
         <div class="card">
           <h3>Drop-off</h3>
@@ -339,7 +319,7 @@
     <section class="section wrap faq" id="faq" aria-labelledby="faqTitle" style="padding-top: 0">
       <div>
         <p class="kicker">FAQ</p>
-        <h2 class="h2" id="faqTitle">Asked at every <em>drop-off.</em></h2>
+        <h2 class="h2" id="faqTitle">Questions we get <em>at drop-off.</em></h2>
       </div>
       <div class="faq-list">
         <details class="lg-disclosure"><summary>Does correction thin my clear coat?</summary><div class="lg-disclosure-content">A little, and we measure it. We remove about 3 µm on average and stop well before any panel drops below 90 µm of clear coat.</div></details>
@@ -353,7 +333,7 @@
   <footer class="footer">
     <div class="wrap">
       <p>Lustre is a fictional studio. Prices, measurements and the booking flow demonstrate <a href="https://github.com/noexgeci/liquid-glass-and-more-apple">Liquid Glass Kit</a>; nothing is booked or charged.</p>
-      <p class="num">5,600 K · 94 GU · 9 yr</p>
+      <p>Portland, Oregon · Tuesday to Saturday, 8 am to 6 pm</p>
     </div>
   </footer>
 </div>
