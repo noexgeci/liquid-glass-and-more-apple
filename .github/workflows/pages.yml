@@ -33,6 +33,7 @@ jobs:
           sed -i 's#\.\./\.\./dist/#../dist/#g' _site/example/index.html
           mkdir -p _site/detailing
           sed 's#\.\./\.\./dist/#../dist/#g' examples/detailing/index.html > _site/detailing/index.html
+          cp -r examples/detailing/img _site/detailing/img
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
