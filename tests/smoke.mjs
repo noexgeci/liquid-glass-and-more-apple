@@ -269,26 +269,28 @@ await legacy.keyboard.press('Escape');
 check('fallback: menu returns home', await luntil(() => { const el = document.getElementById('menu'); return el.hidden && el.parentNode.id === 'menuHome'; }));
 await legacy.close();
 
-// Example shop (examples/shop): the kit inside a real page
-const shop = await browser.newPage({ viewport: { width: 1200, height: 860 } });
-shop.on('pageerror', (e) => errors.push('shop: ' + e.message));
-await shop.goto(pathToFileURL(path.join(root, 'examples/shop/index.html')).href);
-const suntil = (fn) => shop.waitForFunction(fn, null, { timeout: 4000 }).then(() => true, () => false);
-check('shop: renders, empty bag badge hidden', await suntil(() => document.querySelectorAll('#lineup .model').length === 3 && getComputedStyle(document.getElementById('bagCount')).display === 'none'));
-check('shop: adaptive nav turns dark over the black hero', await suntil(() => document.querySelector('.localnav-bar').getAttribute('data-lg-appearance') === 'dark'));
-await shop.click('#showSwatches .swatch:has(input[value="ruby"])');
-check('shop: finish choice is shared with the configurator', await suntil(() => document.querySelector('input[name="finishBuy"][value="ruby"]').checked && document.getElementById('finishBar').getAttribute('data-finish') === 'ruby'));
-await shop.click('#modelOptions .option:has(input[value="air"])');
-await shop.click('#packOptions .option:has(input[value="2"])');
-check('shop: 12-pack price uses the rounded unit price', await suntil(() => /^19\s080\sFt$/.test(document.getElementById('totalPrice').textContent) && /1590/.test(document.getElementById('unitPrice').textContent)));
-await shop.click('label.lg-switch:has(#engraveOn)');
-await shop.fill('#engraveBuy', 'Petrának');
-check('shop: engraving shows on the preview sleeve', await suntil(() => document.querySelector('#buyBar .sleeve-engrave').textContent === 'Petrának'));
-await shop.click('#addToBag');
-await shop.waitForTimeout(400);
-await shop.click('#bagBtn');
-check('shop: bag lists the line, free shipping, no empty state', await suntil(() => document.querySelectorAll('#bagList .bag-row').length === 1 && /Petrának/.test(document.querySelector('#bagList').textContent) && document.getElementById('shipTotal').textContent === 'Ingyenes' && getComputedStyle(document.getElementById('bagEmpty')).display === 'none'));
-await shop.close();
+// Example landing page (examples/detailing): the kit inside a real page
+const lp = await browser.newPage({ viewport: { width: 1200, height: 860 } });
+lp.on('pageerror', (e) => errors.push('detailing: ' + e.message));
+await lp.goto(pathToFileURL(path.join(root, 'examples/detailing/index.html')).href);
+const luntil2 = (fn) => lp.waitForFunction(fn, null, { timeout: 4000 }).then(() => true, () => false);
+check('detailing: before and after photos load', await luntil2(() => ['beforeImg', 'afterImg'].every((id) => { const i = document.getElementById(id); return i.complete && i.naturalWidth > 0; })));
+await lp.locator('#ba').scrollIntoViewIfNeeded();
+await lp.waitForTimeout(300);
+const baBox = await lp.locator('#ba').boundingBox();
+await lp.mouse.move(baBox.x + baBox.width * 0.5, baBox.y + baBox.height / 2);
+await lp.mouse.down();
+await lp.mouse.move(baBox.x + baBox.width * 0.25, baBox.y + baBox.height / 2, { steps: 5 });
+await lp.mouse.up();
+check('detailing: dragging moves the before/after split', await luntil2(() => Math.abs(+document.getElementById('baHandle').getAttribute('aria-valuenow') - 25) <= 2));
+await lp.focus('#baHandle');
+await lp.keyboard.press('End');
+check('detailing: the split handle works from the keyboard', await luntil2(() => document.getElementById('baHandle').getAttribute('aria-valuenow') === '100'));
+await lp.click('#size label:has(input[value="suv"])');
+check('detailing: vehicle size reprices with charm endings', await luntil2(() => [...document.querySelectorAll('.tier-price b')].map((b) => b.textContent).join(' ') === '$319 $1,160 $3,240'));
+await lp.click('label.lg-switch:has([data-addon="glass"])');
+check('detailing: add-ons reach the booking total', await luntil2(() => document.getElementById('total').textContent === '$1,250' && /Glass coating/.test(document.getElementById('summary').textContent)));
+await lp.close();
 
 check('no page errors', errors.length === 0, errors.join(' | '));
 await browser.close();

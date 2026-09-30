@@ -223,7 +223,7 @@ A rendererben ugyanúgy használod, mint bármely weboldalon (`<link>` + `<scrip
 
 Példa: [`examples/electron`](examples/electron).
 
-**Teljes oldal példa:** [`examples/shop`](examples/shop), a *Tábla* kitalált csokimárka apple.com-stílusú termékoldala: adaptív üveg navigáció, görgetésre lecsúszó csomagolás, nagyító lencse, színválasztó, összehasonlítás, Apple Store-szerű konfigurátor ingyenes gravírozással, szállítási nap és idő, kosár.
+**Teljes oldal példa:** [`examples/detailing`](examples/detailing), a *Lustre* kitalált autókozmetikai stúdió landing oldala: élőben renderelt before/after festékpanel Liquid Glass fogantyúval, csomagárazás autóméret szerint, foglalás naptárral és időválasztóval.
 
 ## Vue, Svelte, Astro, Angular
 

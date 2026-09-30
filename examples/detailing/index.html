@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lustre Detailing Studio</title>
+<link rel="stylesheet" href="../../dist/liquid-glass.css">
+<style>
+  /* Layout: a light-tuned detailing studio at night. Graphite walls, one
+     hero panel of paint under hexagon lights; warm ember marks defects,
+     cool ceramic cyan marks the finish and every action. */
+  :root {
+    color-scheme: dark;
+    --ink: #0a0b0e;
+    --panel: #121419;
+    --panel-2: #181b21;
+    --mist: #f3f4f6;
+    --steel: #9ba1ab;
+    --line: rgb(255 255 255 / 0.09);
+    --ceramic: #7fe0ff;
+    --ember: #ff7a45;
+    --display: var(--lg-font-display);
+    --body: var(--lg-font);
+    --mono: var(--lg-font-mono);
+    --lg-accent: var(--ceramic);
+    --lg-on-accent: #03141c;
+  }
+  body { margin: 0; background: var(--ink); color: var(--mist); }
+  [hidden] { display: none !important; }
+  .studio { min-height: 100%; background: var(--ink); color: var(--mist); font: 400 17px/1.5 var(--body); letter-spacing: -0.015em; overflow-x: clip; }
+  .studio a:not(.lg-button) { color: var(--ceramic); }
+  .wrap { max-width: 1120px; margin-inline: auto; padding-inline: 20px; }
+  .section { padding-block: 104px; }
+  .kicker { margin: 0 0 12px; font: 600 13px/1.3 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ceramic); }
+  .h1, .h2 { margin: 0; font-family: var(--display); font-weight: 700; letter-spacing: -0.03em; text-wrap: balance; }
+  .h1 { max-width: 13ch; font-size: clamp(44px, 7.4vw, 92px); line-height: 0.98; }
+  .h2 { font-size: clamp(34px, 5vw, 56px); line-height: 1.04; }
+  .h1 em, .h2 em { font-style: normal; background: linear-gradient(100deg, #fff 10%, var(--ceramic) 55%, #b9f1ff 90%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lede { max-width: 36em; margin: 20px 0 0; font-size: clamp(18px, 2vw, 21px); line-height: 1.45; color: var(--steel); text-wrap: pretty; }
+  .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+  /* ---------- Navigation ---------- */
+  .studio .lg-globalnav { position: fixed; left: 0; right: 0; }
+  .studio .lg-globalnav-bar { color: var(--lg-label); }
+  .brand { display: inline-flex; align-items: center; gap: 10px; color: inherit !important; text-decoration: none; font: 700 18px/1 var(--display); letter-spacing: 0.14em; text-transform: uppercase; }
+  .brand-mark { width: 18px; height: 18px; clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0 50%); background: linear-gradient(135deg, #fff, var(--ceramic) 60%, #2b6f86); }
+  .studio .lg-globalnav-links a { color: inherit !important; opacity: 0.8; font-size: 13px; text-decoration: none; }
+  .studio .lg-globalnav-links a:hover { opacity: 1; }
+
+  /* ---------- Hero ---------- */
+  .hero { position: relative; padding-top: 132px; padding-bottom: 72px; }
+  .hero::before { content: ""; position: absolute; inset: 0 0 auto; height: 720px; background: radial-gradient(60% 55% at 70% 20%, rgb(127 224 255 / 0.10), transparent 70%), radial-gradient(40% 40% at 10% 0%, rgb(255 122 69 / 0.08), transparent 70%); pointer-events: none; }
+  .hero-head { position: relative; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr); gap: 20px 48px; align-items: end; }
+  .hero-title { grid-column: 1 / -1; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+  .hero-side { display: grid; gap: 14px; padding-bottom: 6px; }
+  .reading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+  .reading span { color: var(--steel); font-size: 15px; }
+  .reading b { font: 600 17px/1 var(--mono); font-variant-numeric: tabular-nums; }
+  .reading b i { font-style: normal; color: var(--ember); }
+  .reading b s { text-decoration: none; color: var(--ceramic); }
+
+  /* ---------- Before / after ---------- */
+  .ba-wrap { position: relative; margin-top: 44px; }
+  .ba {
+    --pos: 50%;
+    position: relative;
+    aspect-ratio: 1376 / 768;
+    border-radius: 34px;
+    overflow: hidden;
+    background: #000;
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: ew-resize;
+    box-shadow: 0 40px 80px -40px rgb(0 0 0 / 0.9), inset 0 0 0 1px var(--line);
+  }
+  .ba-img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; object-position: 50% 50%; -webkit-user-drag: none; }
+  .ba-before { clip-path: inset(0 calc(100% - var(--pos)) 0 0); }
+  .ba-line { position: absolute; top: 0; bottom: 0; left: var(--pos); width: 2px; margin-left: -1px; background: linear-gradient(transparent, rgb(255 255 255 / 0.85) 12%, rgb(255 255 255 / 0.85) 88%, transparent); pointer-events: none; }
+  .ba-handle {
+    position: absolute; top: 50%; left: var(--pos);
+    width: 76px; height: 76px; margin: -38px 0 0 -38px;
+    display: grid; grid-auto-flow: column; place-content: center; gap: 10px;
+    border-radius: 50%; color: #fff; cursor: grab; outline: none;
+  }
+  .ba-handle:active { cursor: grabbing; }
+  .ba-handle:focus-visible { box-shadow: 0 0 0 3px var(--ceramic); }
+  .ba-tag { position: absolute; top: 18px; padding: 8px 14px; border-radius: 999px; font: 600 13px/1 var(--mono); letter-spacing: 0.02em; font-variant-numeric: tabular-nums; color: #fff; pointer-events: none; }
+  .ba-tag--before { left: 18px; }
+  .ba-tag--before::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 50%; background: var(--ember); vertical-align: 1px; }
+  .ba-tag--after { right: 18px; }
+  .ba-tag--after::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 50%; background: var(--ceramic); vertical-align: 1px; }
+  .ba-hint { position: absolute; left: 50%; bottom: 18px; translate: -50% 0; padding: 8px 14px; border-radius: 999px; font-size: 13px; color: #fff; white-space: nowrap; pointer-events: none; transition: opacity 400ms ease; }
+  .ba.is-touched .ba-hint { opacity: 0; }
+  .caption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 20px; margin-top: 16px; color: var(--steel); font-size: 14px; }
+  .caption p { margin: 0; }
+  .caption b { color: var(--mist); font-weight: 600; }
+
+  /* ---------- Proof strip ---------- */
+  .proof { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-block: 1px solid var(--line); }
+  .proof div { display: grid; gap: 6px; padding: 28px 20px; border-left: 1px solid var(--line); }
+  .proof div:first-child { border-left: 0; padding-left: 0; }
+  .proof b { font: 700 clamp(30px, 3.6vw, 44px)/1 var(--display); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+  .proof span { color: var(--steel); font-size: 15px; }
+
+  /* ---------- Packages ---------- */
+  .pkg-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 20px; }
+  .tiers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 40px; }
+  .tier { position: relative; display: grid; align-content: start; gap: 14px; min-width: 0; padding: 26px 24px 24px; border: 1px solid var(--line); border-radius: 28px; background: var(--panel); cursor: pointer; transition: border-color 200ms ease, transform 300ms var(--lg-ease-bouncy), background-color 200ms ease; }
+  .tier input { position: absolute; opacity: 0; pointer-events: none; }
+  .tier:hover { border-color: rgb(255 255 255 / 0.2); }
+  .tier:has(input:checked) { border-color: var(--ceramic); background: linear-gradient(180deg, rgb(127 224 255 / 0.08), transparent 45%), var(--panel); box-shadow: inset 0 0 0 1px var(--ceramic); }
+  .tier:has(input:focus-visible) { outline: 3px solid var(--lg-focus-ring); outline-offset: 3px; }
+  .tier-flag { position: absolute; top: -12px; left: 22px; padding: 4px 10px; border-radius: 999px; background: var(--ceramic); color: var(--lg-on-accent); font: 700 11px/1.2 var(--body); letter-spacing: 0.04em; text-transform: uppercase; }
+  .tier h3 { margin: 0; font: 700 24px/1.1 var(--display); letter-spacing: -0.02em; }
+  .tier-price { display: flex; align-items: baseline; gap: 8px; }
+  .tier-price b { font: 700 40px/1 var(--display); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+  .tier-price span { color: var(--steel); font-size: 14px; }
+  .tier p { margin: 0; color: var(--steel); font-size: 15px; }
+  .tier ul { display: grid; gap: 8px; margin: 4px 0 0; padding: 0; list-style: none; font-size: 15px; }
+  .tier li { display: flex; gap: 10px; align-items: flex-start; }
+  .tier li svg { flex: none; margin-top: 3px; color: var(--ceramic); }
+  .tier .time { font: 500 13px/1 var(--mono); color: var(--steel); }
+  .addons { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+  .addon { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; border-radius: 20px; background: var(--panel); border: 1px solid var(--line); }
+  .addon span { display: grid; gap: 2px; font-weight: 600; font-size: 15px; }
+  .addon small { font-weight: 400; color: var(--steel); font-size: 13px; }
+
+  /* ---------- Process (a real sequence) ---------- */
+  .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin: 44px 0 0; padding: 0; list-style: none; counter-reset: step; }
+  .step { position: relative; display: grid; align-content: start; gap: 10px; min-width: 0; padding: 24px; border-radius: 26px; background: var(--panel); border: 1px solid var(--line); }
+  .step-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; color: var(--ceramic); }
+  .step h3 { margin: 6px 0 0; font: 700 20px/1.2 var(--display); letter-spacing: -0.02em; }
+  .step h3::before { counter-increment: step; content: "0" counter(step) "  "; font: 600 13px/1 var(--mono); color: var(--steel); letter-spacing: 0.04em; }
+  .step p { margin: 0; color: var(--steel); font-size: 15px; }
+  .step .spec { font: 500 13px/1.4 var(--mono); color: var(--mist); opacity: 0.8; }
+
+  /* ---------- Booking ---------- */
+  .book { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; margin-top: 40px; }
+  .card { min-width: 0; padding: 24px; border-radius: 30px; background: var(--panel); border: 1px solid var(--line); }
+  .card h3 { margin: 0 0 14px; font: 700 20px/1.2 var(--display); letter-spacing: -0.02em; }
+  .book .lg-calendar { max-width: none; }
+  .slot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .summary { display: grid; gap: 0; margin: 0 0 18px; padding: 0; list-style: none; }
+  .summary li { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); color: var(--steel); font-size: 15px; }
+  .summary li b { color: var(--mist); font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+  .total { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 6px 0 18px; }
+  .total span { color: var(--steel); }
+  .total b { font: 700 40px/1 var(--display); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+  .fine { margin: 12px 0 0; color: var(--steel); font-size: 13px; }
+
+  /* ---------- FAQ + footer ---------- */
+  .faq { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 40px; }
+  .faq-list { display: grid; gap: 10px; }
+  .faq .lg-disclosure { background: var(--panel); border: 1px solid var(--line); border-radius: 22px; }
+  .footer { padding-block: 40px 70px; border-top: 1px solid var(--line); color: var(--steel); font-size: 13px; }
+  .footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; }
+  .footer p { margin: 0; max-width: 60em; }
+
+  @media (max-width: 960px) {
+    .hero-head, .faq, .book { grid-template-columns: minmax(0, 1fr); }
+    .tiers, .addons { grid-template-columns: minmax(0, 1fr); }
+    .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .proof { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .proof div:nth-child(3) { border-left: 0; padding-left: 0; }
+    .proof div:nth-child(n + 3) { border-top: 1px solid var(--line); }
+  }
+  @media (max-width: 640px) {
+    .studio .lg-globalnav-links { display: none; }
+    .section { padding-block: 72px; }
+    .hero { padding-top: 112px; }
+    .ba { aspect-ratio: 4 / 3; border-radius: 26px; }
+    .ba-handle { width: 64px; height: 64px; margin: -32px 0 0 -32px; }
+    .ba-tag { top: 12px; font-size: 11px; padding: 7px 10px; }
+    .ba-tag--before { left: 12px; }
+    .ba-tag--after { right: 12px; }
+    .steps { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="lg studio">
+  <div class="lg-globalnav">
+    <nav class="lg-globalnav-bar lg-glass" data-lg-adaptive aria-label="Main">
+      <a class="lg-globalnav-brand brand" href="#top"><span class="brand-mark" aria-hidden="true"></span>Lustre</a>
+      <div class="lg-globalnav-links">
+        <a href="#results">Results</a>
+        <a href="#packages">Packages</a>
+        <a href="#process">Process</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <a class="lg-button lg-button--prominent lg-button--small" href="#book">Book a detail</a>
+    </nav>
+  </div>
+
+  <main id="top">
+    <section class="hero wrap" id="results" aria-labelledby="heroTitle">
+      <div class="hero-head">
+        <div class="hero-title">
+          <p class="kicker">Paint correction · Ceramic coating</p>
+          <h1 class="h1" id="heroTitle">Paint that looks wet. <em>For nine years.</em></h1>
+        </div>
+        <div>
+          <p class="lede">We remove the swirls, water spots and haze from your clear coat by hand, then lock the finish under ceramic. Drag the lens to see what comes off.</p>
+          <div class="hero-actions">
+            <a class="lg-button lg-button--prominent lg-button--large" href="#book">Book a detail</a>
+            <a class="lg-button lg-button--large" href="#packages">See packages</a>
+          </div>
+        </div>
+        <div class="hero-side" aria-label="Measured on this panel">
+          <div class="reading"><span>Gloss (60° meter)</span><b><i>38</i> → <s>94</s> GU</b></div>
+          <div class="reading"><span>Swirl marks per 10 cm²</span><b><i>212</i> → <s>6</s></b></div>
+          <div class="reading"><span>Clear coat removed</span><b><s>3</s> of 118 µm</b></div>
+        </div>
+      </div>
+
+      <div class="ba-wrap">
+        <div class="ba" id="ba">
+          <img class="ba-img ba-after" id="afterImg" src="img/after.jpg" width="1376" height="768" alt="The same black Audi RS Q8 after correction and ceramic coating, with sharp reflections of the hexagon studio lights">
+          <img class="ba-img ba-before" id="beforeImg" src="img/before.jpg" width="1376" height="768" alt="A black Audi RS Q8 before detailing, covered in road grime, mud and water spots">
+          <span class="ba-tag ba-tag--before lg-glass">Before · 38 GU</span>
+          <span class="ba-tag ba-tag--after lg-glass">After · 94 GU</span>
+          <div class="ba-line" aria-hidden="true"></div>
+          <div class="ba-handle lg-glass lg-glass--clear" id="baHandle" data-lg-magnify="1.35" data-lg-bezel="24" data-lg-depth="0.6" role="slider" tabindex="0" aria-label="Before and after comparison" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-valuetext="50% before"><span data-lg-icon="chevron.left" data-size="16"></span><span data-lg-icon="chevron.right" data-size="16"></span></div>
+          <span class="ba-hint lg-glass" aria-hidden="true">Drag to compare</span>
+        </div>
+        <div class="caption">
+          <p><b>Audi RS Q8</b> · Mythos Black · Signature package · 3 days in the studio</p>
+          <p class="num">Same camera, same lights, 72 hours apart</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap">
+      <div class="proof" aria-label="Studio record">
+        <div><b class="num">4,812</b><span>cars corrected since 2017</span></div>
+        <div><b class="num">9 yr</b><span>ceramic warranty, transferable</span></div>
+        <div><b class="num">3 µm</b><span>average clear coat removed</span></div>
+        <div><b class="num">94 GU</b><span>average finish, measured</span></div>
+      </div>
+    </div>
+
+    <section class="section wrap" id="packages" aria-labelledby="pkgTitle">
+      <div class="pkg-head">
+        <div>
+          <p class="kicker">Packages</p>
+          <h2 class="h2" id="pkgTitle">Pick the finish. <em>We quote the car.</em></h2>
+        </div>
+        <div class="lg-segmented" id="size" aria-label="Vehicle size">
+          <label><input type="radio" name="size" value="coupe" checked>Coupe</label>
+          <label><input type="radio" name="size" value="sedan">Sedan</label>
+          <label><input type="radio" name="size" value="suv">SUV</label>
+        </div>
+      </div>
+      <div class="tiers" id="tiers" role="radiogroup" aria-label="Package"></div>
+      <div class="addons">
+        <div class="addon"><span>Interior deep clean<small>Steam, leather balm · +<b class="num" data-addon-price="interior">$180</b></small></span><label class="lg-switch"><input type="checkbox" data-addon="interior" aria-label="Interior deep clean"></label></div>
+        <div class="addon"><span>Wheels-off ceramic<small>Barrels and calipers · +<b class="num" data-addon-price="wheels">$240</b></small></span><label class="lg-switch"><input type="checkbox" data-addon="wheels" aria-label="Wheels-off ceramic"></label></div>
+        <div class="addon"><span>Glass coating<small>Rain slides off at 50 mph · +<b class="num" data-addon-price="glass">$90</b></small></span><label class="lg-switch"><input type="checkbox" data-addon="glass" aria-label="Glass coating"></label></div>
+      </div>
+    </section>
+
+    <section class="section wrap" id="process" aria-labelledby="processTitle" style="padding-top: 0">
+      <p class="kicker">Process</p>
+      <h2 class="h2" id="processTitle">Four stages. <em>No shortcuts.</em></h2>
+      <ol class="steps">
+        <li class="step"><span class="step-icon lg-glass"><span data-lg-icon="magnifyingglass" data-size="20"></span></span><h3>Inspect</h3><p>We read paint depth on every panel before a pad touches it.</p><span class="spec">12 readings per panel · ±1 µm</span></li>
+        <li class="step"><span class="step-icon lg-glass"><span data-lg-icon="sparkles" data-size="20"></span></span><h3>Decontaminate</h3><p>Iron remover, clay and a pH-neutral wash take off what polish would grind in.</p><span class="spec">pH 7 · 3 wash buckets</span></li>
+        <li class="step"><span class="step-icon lg-glass"><span data-lg-icon="sun.max" data-size="20"></span></span><h3>Correct</h3><p>Cut and refine under 5,600 K light until the swirls are gone, not hidden.</p><span class="spec">1–3 stages · 5,600 K lights</span></li>
+        <li class="step"><span class="step-icon lg-glass"><span data-lg-icon="checkmark.circle" data-size="20"></span></span><h3>Protect</h3><p>Two layers of ceramic, cured under infrared, then a 24-hour rest indoors.</p><span class="spec">9H · 110° water contact angle</span></li>
+      </ol>
+    </section>
+
+    <section class="section wrap" id="book" aria-labelledby="bookTitle" style="padding-top: 0">
+      <p class="kicker">Booking</p>
+      <h2 class="h2" id="bookTitle">Pick a day. <em>We'll have the lights on.</em></h2>
+      <div class="book">
+        <div class="card">
+          <h3>Drop-off</h3>
+          <div class="lg-calendar" id="bookDate" data-locale="en-US" aria-label="Drop-off date"></div>
+          <div class="slot"><span>Arrival</span><span class="lg-time-picker" id="bookTime" data-locale="en-US" data-value="09:00" data-step="30" aria-label="Arrival time"></span></div>
+        </div>
+        <div class="card">
+          <h3>Your detail</h3>
+          <ul class="summary" id="summary"></ul>
+          <div class="total"><span>Estimated total</span><b id="total">$0</b></div>
+          <button class="lg-button lg-button--prominent lg-button--large lg-button--block" id="bookBtn" type="button">Request this slot</button>
+          <p class="fine">No payment now. We confirm the price after the paint-depth inspection.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section wrap faq" id="faq" aria-labelledby="faqTitle" style="padding-top: 0">
+      <div>
+        <p class="kicker">FAQ</p>
+        <h2 class="h2" id="faqTitle">Asked at every <em>drop-off.</em></h2>
+      </div>
+      <div class="faq-list">
+        <details class="lg-disclosure"><summary>Does correction thin my clear coat?</summary><div class="lg-disclosure-content">A little, and we measure it. We remove about 3 µm on average and stop well before any panel drops below 90 µm of clear coat.</div></details>
+        <details class="lg-disclosure"><summary>How long do you keep the car?</summary><div class="lg-disclosure-content">Refresh is same-day. Correction takes two days, Signature three, including the 24-hour ceramic cure indoors.</div></details>
+        <details class="lg-disclosure"><summary>Can I wash it myself afterwards?</summary><div class="lg-disclosure-content">Yes, from day eight. Use the two-bucket method and a pH-neutral shampoo; we send you home with both.</div></details>
+        <details class="lg-disclosure"><summary>What does the warranty cover?</summary><div class="lg-disclosure-content">Loss of gloss or water beading on the coated paint for nine years, with a yearly inspection. It transfers when you sell the car.</div></details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <p>Lustre is a fictional studio. Prices, measurements and the booking flow demonstrate <a href="https://github.com/noexgeci/liquid-glass-and-more-apple">Liquid Glass Kit</a>; nothing is booked or charged.</p>
+      <p class="num">5,600 K · 94 GU · 9 yr</p>
+    </div>
+  </footer>
+</div>
+
+<script src="../../dist/liquid-glass.js"></script>
+<script>
+(function () {
+  'use strict';
+  var LG = window.LiquidGlass;
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)); };
+  var reduced = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+
+  /* ---------- Slider ---------- */
+  var ba = $('#ba'), handle = $('#baHandle'), pos = 50;
+  function setPos(p, user) {
+    pos = Math.max(0, Math.min(100, p));
+    ba.style.setProperty('--pos', pos + '%');
+    handle.setAttribute('aria-valuenow', String(Math.round(pos)));
+    handle.setAttribute('aria-valuetext', Math.round(pos) + '% before');
+    if (user) ba.classList.add('is-touched');
+  }
+  function fromEvent(e) { var r = ba.getBoundingClientRect(); return ((e.clientX - r.left) / r.width) * 100; }
+  ba.addEventListener('pointerdown', function (e) {
+    if (e.button > 0) return;
+    stopIntro();
+    setPos(fromEvent(e), true);
+    try { ba.setPointerCapture(e.pointerId); } catch (_) {}
+    function move(ev) { setPos(fromEvent(ev), true); }
+    function up() { ba.removeEventListener('pointermove', move); ba.removeEventListener('pointerup', up); ba.removeEventListener('pointercancel', up); }
+    ba.addEventListener('pointermove', move);
+    ba.addEventListener('pointerup', up);
+    ba.addEventListener('pointercancel', up);
+  });
+  handle.addEventListener('keydown', function (e) {
+    var step = e.shiftKey ? 10 : 2;
+    var next = { ArrowLeft: pos - step, ArrowDown: pos - step, ArrowRight: pos + step, ArrowUp: pos + step, Home: 0, End: 100 }[e.key];
+    if (next == null) return;
+    e.preventDefault();
+    stopIntro();
+    setPos(next, true);
+  });
+
+  // One gentle sweep the first time the panel is on screen.
+  var introRaf = 0;
+  function stopIntro() { cancelAnimationFrame(introRaf); introRaf = 0; }
+  function intro() {
+    if (reduced || ba.classList.contains('is-touched')) return;
+    var t0 = performance.now(), keys = [[0, 50], [900, 22], [1900, 74], [2800, 50]];
+    function tick(t) {
+      var e = t - t0, i = 0;
+      while (i < keys.length - 2 && e > keys[i + 1][0]) i++;
+      if (e >= keys[keys.length - 1][0]) { setPos(50); introRaf = 0; return; }
+      var a = keys[i], b = keys[i + 1], k = Math.min(1, (e - a[0]) / (b[0] - a[0]));
+      k = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+      setPos(a[1] + (b[1] - a[1]) * k);
+      introRaf = requestAnimationFrame(tick);
+    }
+    introRaf = requestAnimationFrame(tick);
+  }
+  if ('IntersectionObserver' in window) {
+    var seen = new IntersectionObserver(function (entries) {
+      if (entries[0].isIntersecting) { seen.disconnect(); intro(); }
+    }, { threshold: 0.6 });
+    seen.observe(ba);
+  }
+
+  /* ---------- Packages ---------- */
+  var SIZES = { coupe: { name: 'Coupe', k: 1 }, sedan: { name: 'Sedan', k: 1.12 }, suv: { name: 'SUV', k: 1.3 } };
+  var TIERS = [
+    { id: 'refresh', name: 'Refresh', price: 249, time: 'Same day', blurb: 'For a car that is already in good shape.', items: ['Hand wash and decontamination', 'One-step gloss enhancement', '12-month sealant'] },
+    { id: 'correction', name: 'Correction', price: 890, time: '2 days', flag: 'Most booked', blurb: 'Removes 85–95% of swirls and water spots.', items: ['Everything in Refresh', 'Two-stage paint correction', '2-year ceramic coating', 'Paint-depth report'] },
+    { id: 'signature', name: 'Signature', price: 2490, time: '3 days', blurb: 'The finish from the panel above, on every panel.', items: ['Everything in Correction', 'Multi-stage correction to 94 GU', '9-year ceramic, two layers', 'Front PPF on bumper and mirrors'] },
+  ];
+  var ADDONS = { interior: { name: 'Interior deep clean', price: 180 }, wheels: { name: 'Wheels-off ceramic', price: 240 }, glass: { name: 'Glass coating', price: 90 } };
+  var state = { size: 'coupe', tier: 'correction', addons: {} };
+  // Size-adjusted prices keep a charm ending when the base price has one ($249 → $279).
+  var price = function (base) { return Math.round((base * SIZES[state.size].k) / 10) * 10 - (base % 10 === 9 ? 1 : 0); };
+  var check = LG.icon('checkmark', { size: 14, strokeWidth: 2.6 });
+
+  function renderTiers() {
+    $('#tiers').innerHTML = TIERS.map(function (t) {
+      return '<label class="tier">' + (t.flag ? '<span class="tier-flag">' + t.flag + '</span>' : '') +
+        '<input type="radio" name="tier" value="' + t.id + '"' + (t.id === state.tier ? ' checked' : '') + '>' +
+        '<h3>' + t.name + '</h3>' +
+        '<div class="tier-price"><b>' + usd.format(price(t.price)) + '</b><span>' + SIZES[state.size].name.toLowerCase() + '</span></div>' +
+        '<p>' + t.blurb + '</p><span class="time">' + t.time + '</span>' +
+        '<ul>' + t.items.map(function (i) { return '<li>' + check + '<span>' + i + '</span></li>'; }).join('') + '</ul></label>';
+    }).join('');
+  }
+  function renderSummary() {
+    var t = TIERS.filter(function (x) { return x.id === state.tier; })[0];
+    var rows = [['Package', t.name + ' · ' + usd.format(price(t.price))], ['Vehicle', SIZES[state.size].name]];
+    var total = price(t.price);
+    Object.keys(ADDONS).forEach(function (k) {
+      if (state.addons[k]) { rows.push([ADDONS[k].name, '+' + usd.format(ADDONS[k].price)]); total += ADDONS[k].price; }
+    });
+    var d = $('#bookDate').getAttribute('data-value');
+    var tm = $('#bookTime').getAttribute('data-value') || '09:00';
+    if (d) {
+      var p = d.split('-');
+      var when = new Date(+p[0], +p[1] - 1, +p[2], +tm.split(':')[0], +tm.split(':')[1]);
+      rows.push(['Drop-off', new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(when)]);
+    }
+    $('#summary').innerHTML = rows.map(function (r) { return '<li><span>' + r[0] + '</span><b>' + r[1] + '</b></li>'; }).join('');
+    $('#total').textContent = usd.format(total);
+    $('#bookBtn').textContent = 'Request this slot · ' + usd.format(total);
+  }
+  $('#size').addEventListener('change', function (e) { state.size = e.target.value; renderTiers(); renderSummary(); });
+  $('#tiers').addEventListener('change', function (e) { state.tier = e.target.value; renderSummary(); });
+  $$('[data-addon]').forEach(function (i) {
+    i.addEventListener('change', function () { state.addons[i.getAttribute('data-addon')] = i.checked; renderSummary(); });
+  });
+  $('#bookDate').addEventListener('lg-change', renderSummary);
+  $('#bookTime').addEventListener('lg-change', renderSummary);
+
+  // Earliest drop-off is tomorrow; Sundays stay closed via the note below.
+  var iso = function (d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); };
+  var first = new Date(); first.setDate(first.getDate() + 1);
+  $('#bookDate').setAttribute('data-min', iso(first));
+  $('#bookDate').setAttribute('data-value', iso(first));
+
+  $('#bookBtn').addEventListener('click', function () {
+    LG.alert({
+      title: 'This is a demo studio',
+      message: 'Lustre is fictional, so nothing was booked. In a real studio this would hold your slot until the paint-depth inspection.',
+      actions: [{ label: 'Got it', prominent: true }],
+    });
+  });
+
+  renderTiers();
+  renderSummary();
+})();
+</script>
+</body>
+</html>
