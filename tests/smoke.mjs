@@ -274,6 +274,7 @@ const lp = await browser.newPage({ viewport: { width: 1200, height: 860 } });
 lp.on('pageerror', (e) => errors.push('detailing: ' + e.message));
 await lp.goto(pathToFileURL(path.join(root, 'examples/detailing/index.html')).href);
 const luntil2 = (fn) => lp.waitForFunction(fn, null, { timeout: 4000 }).then(() => true, () => false);
+check('detailing: hero and three close-up comparisons', await luntil2(() => document.querySelectorAll('.ba').length === 4 && [...document.querySelectorAll('.ba')].every((b) => b.style.getPropertyValue('--pos') === '50%')));
 check('detailing: before and after photos load', await luntil2(() => ['beforeImg', 'afterImg'].every((id) => { const i = document.getElementById(id); return i.complete && i.naturalWidth > 0; })));
 await lp.locator('#ba').scrollIntoViewIfNeeded();
 await lp.waitForTimeout(300);

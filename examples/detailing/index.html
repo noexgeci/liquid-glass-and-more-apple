@@ -33,7 +33,7 @@
   .section { padding-block: 104px; }
   .kicker { margin: 0 0 12px; font: 600 13px/1.3 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ceramic); }
   .h1, .h2 { margin: 0; font-family: var(--display); font-weight: 700; letter-spacing: -0.03em; text-wrap: balance; }
-  .h1 { max-width: 13ch; font-size: clamp(44px, 7.4vw, 92px); line-height: 0.98; }
+  .h1 { font-size: clamp(40px, 6.4vw, 80px); line-height: 1; }
   .h2 { font-size: clamp(34px, 5vw, 56px); line-height: 1.04; }
   .h1 em, .h2 em { font-style: normal; background: linear-gradient(100deg, #fff 10%, var(--ceramic) 55%, #b9f1ff 90%); -webkit-background-clip: text; background-clip: text; color: transparent; }
   .lede { max-width: 36em; margin: 20px 0 0; font-size: clamp(18px, 2vw, 21px); line-height: 1.45; color: var(--steel); text-wrap: pretty; }
@@ -48,7 +48,7 @@
   .studio .lg-globalnav-links a:hover { opacity: 1; }
 
   /* ---------- Hero ---------- */
-  .hero { position: relative; padding-top: 132px; padding-bottom: 72px; }
+  .hero { position: relative; padding-top: 124px; padding-bottom: 72px; }
   .hero::before { content: ""; position: absolute; inset: 0 0 auto; height: 720px; background: radial-gradient(60% 55% at 70% 20%, rgb(127 224 255 / 0.10), transparent 70%), radial-gradient(40% 40% at 10% 0%, rgb(255 122 69 / 0.08), transparent 70%); pointer-events: none; }
   .hero-head { position: relative; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr); gap: 20px 48px; align-items: end; }
   .hero-title { grid-column: 1 / -1; }
@@ -93,6 +93,16 @@
   .ba-tag--after::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 50%; background: var(--ceramic); vertical-align: 1px; }
   .ba-hint { position: absolute; left: 50%; bottom: 18px; translate: -50% 0; padding: 8px 14px; border-radius: 999px; font-size: 13px; color: #fff; white-space: nowrap; pointer-events: none; transition: opacity 400ms ease; }
   .ba.is-touched .ba-hint { opacity: 0; }
+  /* Close-ups: the same pair, zoomed on one area. The layers carry the clip so
+     the scaled photo inside does not scale the seam. */
+  .details { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 40px 0 0; }
+  .detail { display: grid; gap: 12px; min-width: 0; margin: 0; }
+  .ba--zoom { aspect-ratio: 4 / 3; border-radius: 26px; }
+  .ba-layer { position: absolute; inset: 0; overflow: hidden; }
+  .ba--zoom .ba-img { transform: scale(var(--zoom, 2.6)); transform-origin: var(--fx, 50%) var(--fy, 50%); }
+  .ba--zoom .ba-handle { width: 54px; height: 54px; margin: -27px 0 0 -27px; }
+  .detail figcaption { color: var(--steel); font-size: 15px; }
+  .detail figcaption b { color: var(--mist); font-weight: 600; }
   .caption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 20px; margin-top: 16px; color: var(--steel); font-size: 14px; }
   .caption p { margin: 0; }
   .caption b { color: var(--mist); font-weight: 600; }
@@ -159,6 +169,7 @@
   .footer p { margin: 0; max-width: 60em; }
 
   @media (max-width: 960px) {
+    .details { grid-template-columns: minmax(0, 1fr); }
     .hero-head, .faq, .book { grid-template-columns: minmax(0, 1fr); }
     .tiers, .addons { grid-template-columns: minmax(0, 1fr); }
     .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -199,7 +210,7 @@
       <div class="hero-head">
         <div class="hero-title">
           <p class="kicker">Paint correction · Ceramic coating</p>
-          <h1 class="h1" id="heroTitle">Paint that looks wet. <em>For nine years.</em></h1>
+          <h1 class="h1" id="heroTitle">Paint that looks wet.<br><em>For nine years.</em></h1>
         </div>
         <div>
           <p class="lede">We remove the swirls, water spots and haze from your clear coat by hand, then lock the finish under ceramic. Drag the lens to see what comes off.</p>
@@ -240,6 +251,40 @@
         <div><b class="num">94 GU</b><span>average finish, measured</span></div>
       </div>
     </div>
+
+    <section class="section wrap" id="closer" aria-labelledby="closerTitle">
+      <p class="kicker">Look closer</p>
+      <h2 class="h2" id="closerTitle">Where the <em>three days</em> go.</h2>
+      <div class="details">
+        <figure class="detail">
+          <div class="ba ba--zoom" style="--fx: 43%; --fy: 86%; --zoom: 3">
+            <div class="ba-layer"><img class="ba-img" src="img/after.jpg" width="1376" height="768" alt="Front wheel after cleaning and coating" loading="lazy"></div>
+            <div class="ba-layer ba-before"><img class="ba-img" src="img/before.jpg" width="1376" height="768" alt="Front wheel before, covered in brake dust and mud" loading="lazy"></div>
+            <div class="ba-line" aria-hidden="true"></div>
+            <div class="ba-handle lg-glass lg-glass--clear" data-lg-magnify="1.3" data-lg-bezel="18" role="slider" tabindex="0" aria-label="Wheels, before and after" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><span data-lg-icon="chevron.left" data-size="14"></span><span data-lg-icon="chevron.right" data-size="14"></span></div>
+          </div>
+          <figcaption><b>Wheels</b> · Brake dust and iron fallout dissolved, barrels coated.</figcaption>
+        </figure>
+        <figure class="detail">
+          <div class="ba ba--zoom" style="--fx: 51%; --fy: 17%; --zoom: 3">
+            <div class="ba-layer"><img class="ba-img" src="img/after.jpg" width="1376" height="768" alt="Windshield after polishing and glass coating" loading="lazy"></div>
+            <div class="ba-layer ba-before"><img class="ba-img" src="img/before.jpg" width="1376" height="768" alt="Windshield before, with water spots and grime" loading="lazy"></div>
+            <div class="ba-line" aria-hidden="true"></div>
+            <div class="ba-handle lg-glass lg-glass--clear" data-lg-magnify="1.3" data-lg-bezel="18" role="slider" tabindex="0" aria-label="Glass, before and after" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><span data-lg-icon="chevron.left" data-size="14"></span><span data-lg-icon="chevron.right" data-size="14"></span></div>
+          </div>
+          <figcaption><b>Glass</b> · Water spots cut off, rain now slides away at 50 mph.</figcaption>
+        </figure>
+        <figure class="detail">
+          <div class="ba ba--zoom" style="--fx: 20%; --fy: 88%; --zoom: 2.8">
+            <div class="ba-layer"><img class="ba-img" src="img/after.jpg" width="1376" height="768" alt="Lower door after decontamination" loading="lazy"></div>
+            <div class="ba-layer ba-before"><img class="ba-img" src="img/before.jpg" width="1376" height="768" alt="Lower door before, with dried mud and road film" loading="lazy"></div>
+            <div class="ba-line" aria-hidden="true"></div>
+            <div class="ba-handle lg-glass lg-glass--clear" data-lg-magnify="1.3" data-lg-bezel="18" role="slider" tabindex="0" aria-label="Lower doors, before and after" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><span data-lg-icon="chevron.left" data-size="14"></span><span data-lg-icon="chevron.right" data-size="14"></span></div>
+          </div>
+          <figcaption><b>Lower doors</b> · Tar and road film lifted without touching the paint twice.</figcaption>
+        </figure>
+      </div>
+    </section>
 
     <section class="section wrap" id="packages" aria-labelledby="pkgTitle">
       <div class="pkg-head">
@@ -323,59 +368,63 @@
   var reduced = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
   var usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 
-  /* ---------- Slider ---------- */
-  var ba = $('#ba'), handle = $('#baHandle'), pos = 50;
-  function setPos(p, user) {
-    pos = Math.max(0, Math.min(100, p));
-    ba.style.setProperty('--pos', pos + '%');
-    handle.setAttribute('aria-valuenow', String(Math.round(pos)));
-    handle.setAttribute('aria-valuetext', Math.round(pos) + '% before');
-    if (user) ba.classList.add('is-touched');
-  }
-  function fromEvent(e) { var r = ba.getBoundingClientRect(); return ((e.clientX - r.left) / r.width) * 100; }
-  ba.addEventListener('pointerdown', function (e) {
-    if (e.button > 0) return;
-    stopIntro();
-    setPos(fromEvent(e), true);
-    try { ba.setPointerCapture(e.pointerId); } catch (_) {}
-    function move(ev) { setPos(fromEvent(ev), true); }
-    function up() { ba.removeEventListener('pointermove', move); ba.removeEventListener('pointerup', up); ba.removeEventListener('pointercancel', up); }
-    ba.addEventListener('pointermove', move);
-    ba.addEventListener('pointerup', up);
-    ba.addEventListener('pointercancel', up);
-  });
-  handle.addEventListener('keydown', function (e) {
-    var step = e.shiftKey ? 10 : 2;
-    var next = { ArrowLeft: pos - step, ArrowDown: pos - step, ArrowRight: pos + step, ArrowUp: pos + step, Home: 0, End: 100 }[e.key];
-    if (next == null) return;
-    e.preventDefault();
-    stopIntro();
-    setPos(next, true);
-  });
-
-  // One gentle sweep the first time the panel is on screen.
-  var introRaf = 0;
-  function stopIntro() { cancelAnimationFrame(introRaf); introRaf = 0; }
-  function intro() {
-    if (reduced || ba.classList.contains('is-touched')) return;
-    var t0 = performance.now(), keys = [[0, 50], [900, 22], [1900, 74], [2800, 50]];
-    function tick(t) {
-      var e = t - t0, i = 0;
-      while (i < keys.length - 2 && e > keys[i + 1][0]) i++;
-      if (e >= keys[keys.length - 1][0]) { setPos(50); introRaf = 0; return; }
-      var a = keys[i], b = keys[i + 1], k = Math.min(1, (e - a[0]) / (b[0] - a[0]));
-      k = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
-      setPos(a[1] + (b[1] - a[1]) * k);
-      introRaf = requestAnimationFrame(tick);
+  /* ---------- Before / after comparisons ---------- */
+  function compare(ba, sweep) {
+    var handle = ba.querySelector('.ba-handle'), pos = 50, raf = 0;
+    var label = handle.getAttribute('aria-label');
+    function setPos(p, user) {
+      pos = Math.max(0, Math.min(100, p));
+      ba.style.setProperty('--pos', pos + '%');
+      handle.setAttribute('aria-valuenow', String(Math.round(pos)));
+      handle.setAttribute('aria-valuetext', Math.round(pos) + '% before');
+      if (user) ba.classList.add('is-touched');
     }
-    introRaf = requestAnimationFrame(tick);
+    function stop() { cancelAnimationFrame(raf); raf = 0; }
+    function fromEvent(e) { var r = ba.getBoundingClientRect(); return ((e.clientX - r.left) / r.width) * 100; }
+    ba.addEventListener('pointerdown', function (e) {
+      if (e.button > 0) return;
+      stop();
+      setPos(fromEvent(e), true);
+      try { ba.setPointerCapture(e.pointerId); } catch (_) {}
+      function move(ev) { setPos(fromEvent(ev), true); }
+      function up() { ba.removeEventListener('pointermove', move); ba.removeEventListener('pointerup', up); ba.removeEventListener('pointercancel', up); }
+      ba.addEventListener('pointermove', move);
+      ba.addEventListener('pointerup', up);
+      ba.addEventListener('pointercancel', up);
+    });
+    handle.addEventListener('keydown', function (e) {
+      var step = e.shiftKey ? 10 : 2;
+      var next = { ArrowLeft: pos - step, ArrowDown: pos - step, ArrowRight: pos + step, ArrowUp: pos + step, Home: 0, End: 100 }[e.key];
+      if (next == null) return;
+      e.preventDefault();
+      stop();
+      setPos(next, true);
+    });
+    // One gentle sweep the first time the main panel is on screen.
+    function intro() {
+      if (reduced || ba.classList.contains('is-touched')) return;
+      var t0 = performance.now(), keys = [[0, 50], [900, 22], [1900, 74], [2800, 50]];
+      function tick(t) {
+        var e = t - t0, i = 0;
+        while (i < keys.length - 2 && e > keys[i + 1][0]) i++;
+        if (e >= keys[keys.length - 1][0]) { setPos(50); raf = 0; return; }
+        var a = keys[i], b = keys[i + 1], k = Math.min(1, (e - a[0]) / (b[0] - a[0]));
+        k = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+        setPos(a[1] + (b[1] - a[1]) * k);
+        raf = requestAnimationFrame(tick);
+      }
+      raf = requestAnimationFrame(tick);
+    }
+    if (sweep && 'IntersectionObserver' in window) {
+      var seen = new IntersectionObserver(function (entries) {
+        if (entries[0].isIntersecting) { seen.disconnect(); intro(); }
+      }, { threshold: 0.6 });
+      seen.observe(ba);
+    }
+    handle.setAttribute('aria-label', label);
+    setPos(50);
   }
-  if ('IntersectionObserver' in window) {
-    var seen = new IntersectionObserver(function (entries) {
-      if (entries[0].isIntersecting) { seen.disconnect(); intro(); }
-    }, { threshold: 0.6 });
-    seen.observe(ba);
-  }
+  $$('.ba').forEach(function (el) { compare(el, el.id === 'ba'); });
 
   /* ---------- Packages ---------- */
   var SIZES = { coupe: { name: 'Coupe', k: 1 }, sedan: { name: 'Sedan', k: 1.12 }, suv: { name: 'SUV', k: 1.3 } };
